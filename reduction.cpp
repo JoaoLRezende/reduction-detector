@@ -42,8 +42,9 @@ StatementMatcher LoopMatcher = forStmt(hasLoopInit(declStmt(
 StatementMatcher ReduceMatcher =
   binaryOperator(hasOperatorName("="),
   hasLHS(declRefExpr(to(varDecl().bind("accumulator")))), hasParent(compoundStmt(hasParent(LoopMatcher))),
-  hasRHS(binaryOperator(hasLHS(hasDescendant(declRefExpr(to(varDecl(equalsBoundNode("accumulator")))))))), 
-  unless(hasDescendant(binaryOperator(hasRHS(hasDescendant(declRefExpr(to(varDecl(equalsBoundNode("accumulator")))))))))).bind("reduce");
+  hasRHS(binaryOperator(hasLHS(hasDescendant(declRefExpr(to(varDecl(equalsBoundNode("accumulator")))))), 
+    unless(hasRHS(hasDescendant(declRefExpr(to(varDecl(equalsBoundNode("accumulator")))))))))/*, 
+  unless(hasDescendant(binaryOperator(hasRHS(hasDescendant(declRefExpr(to(varDecl(equalsBoundNode("accumulator")))))))))*/).bind("reduce");
 
 StatementMatcher ReduceMatcher2 = 
   binaryOperator(anyOf(hasOperatorName("+="), hasOperatorName("-="), hasOperatorName("*="), hasOperatorName("/=")), 
