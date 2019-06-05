@@ -40,17 +40,46 @@ StatementMatcher LoopMatcher = forStmt(hasLoopInit(declStmt(
                                 ).bind("forLoop");
 
 StatementMatcher ReduceMatcher =
-  binaryOperator(hasOperatorName("="),
-  hasLHS(declRefExpr(to(varDecl().bind("accumulator")))), hasParent(compoundStmt(hasParent(LoopMatcher))),
-  hasRHS(binaryOperator(hasLHS(hasDescendant(declRefExpr(to(varDecl(equalsBoundNode("accumulator")))))), 
-    unless(hasRHS(hasDescendant(declRefExpr(to(varDecl(equalsBoundNode("accumulator")))))))))/*, 
-  unless(hasDescendant(binaryOperator(hasRHS(hasDescendant(declRefExpr(to(varDecl(equalsBoundNode("accumulator")))))))))*/).bind("reduce");
+  binaryOperator(
+    hasOperatorName("="),
+    hasLHS(
+      declRefExpr(to(varDecl().bind("accumulator")))), 
+    hasParent(compoundStmt(hasParent(LoopMatcher))),
+    hasRHS(
+      binaryOperator(
+        hasLHS(
+          hasDescendant(
+            declRefExpr(to(varDecl(equalsBoundNode("accumulator")))))), 
+        unless(hasRHS(
+          hasDescendant(
+            declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))))))) 
+  ).bind("reduce");
 
 StatementMatcher ReduceMatcher2 = 
-  binaryOperator(anyOf(hasOperatorName("+="), hasOperatorName("-="), hasOperatorName("*="), hasOperatorName("/=")), 
+  binaryOperator(
+    anyOf(hasOperatorName("+="), hasOperatorName("-="), hasOperatorName("*="), hasOperatorName("/=")), 
     hasParent(compoundStmt(hasParent(LoopMatcher))),
-    hasLHS(declRefExpr(to(varDecl().bind("accumulator")))),
-    unless(hasRHS(hasDescendant(declRefExpr(to(varDecl(equalsBoundNode("accumulator")))))))).bind("reduce");
+    hasLHS(
+      declRefExpr(to(varDecl().bind("accumulator")))),
+    unless(hasRHS(
+      hasDescendant(
+        declRefExpr(to(varDecl(equalsBoundNode("accumulator")))))))
+  ).bind("reduce");
+
+StatementMatcher ReduceMatcher3 =
+  binaryOperator(
+    hasOperatorName("="),
+    hasLHS(
+      declRefExpr(to(varDecl().bind("accumulator")))), 
+    hasParent(compoundStmt(
+      hasParent(LoopMatcher))),
+    hasRHS(
+      binaryOperator(
+        hasRHS(
+            ignoringParenImpCasts(
+             declRefExpr(to(varDecl(equalsBoundNode("accumulator")))))))), 
+    unless(hasDescendant(binaryOperator(hasLHS(hasDescendant(declRefExpr(to(varDecl(equalsBoundNode("accumulator")))))))))).bind("reduce");
+
 
 class LoopPrinter : public MatchFinder::MatchCallback {
 public :
@@ -84,6 +113,7 @@ int main(int argc, const char **argv) {
   MatchFinder Finder;
   Finder.addMatcher(ReduceMatcher, &Printer);
   Finder.addMatcher(ReduceMatcher2, &Printer);
+  Finder.addMatcher(ReduceMatcher3, &Printer);
 
   return Tool.run(newFrontendActionFactory(&Finder).get());
 }
