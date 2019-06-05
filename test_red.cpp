@@ -1,8 +1,8 @@
 #include <iostream>
 
 #define ARRAYSIZE 10
-
-
+//PROBLEMA ATUAL EH BASICAMENTE: QUANDO ENCONTRO UM ACUMULADOR EM POTENCIAL, DEVO CONSEGUIR VERIFICAR SE APARECE APENAS UMA VEZ NO 
+//RESTO DA EQUACAO, E DEPOIS VERIFICAR SE APARECE NOVAMENTE EM ALGUMA EQUACAO DENTRO DO FOR. MAS COMO GUARDAR ONDE DA EQUACAO/FOR QUE ENCONTREI O ACUMULADOR EM QUESTAO?
 int main(){
     int array[ARRAYSIZE] = {0, 1 , 2, 3, 4, 5, 6, 7, 8, 9};
     int sum = 0;
@@ -30,18 +30,18 @@ int main(){
 
     for(int i = 0; i < ARRAYSIZE; i++){    
         sum = x + sum + array[i];//sim
-    }//not
+    }//done
 
     for(int i = 0; i < ARRAYSIZE; i++){//nao pode, pois x depende de sum, e nada alem de sum pode depender de sum
         x = sum;
         sum = sum + x;
-    }//not
+    }//not done
 
     for(int i = 0; i < ARRAYSIZE; i++){
         sum = sum + array[i];//sim//done
         sum = sum - array[i];//sim//done
         sum = array[i] + sum;//sim//done
-    }//not
+    }//done
 
     for(int i = 0; i < ARRAYSIZE; i++){//sim
         sum = sum * array[i];
