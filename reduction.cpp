@@ -96,22 +96,22 @@ forStmt(
       unless(anyOf(
         hasAnySubstatement(
           binaryOperator(
+            hasOperatorName("="),
             hasRHS(
               binaryOperator(
                 hasLHS(
                   hasDescendant(
                     declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
                   )
-                ), 
-                unless(
-                  hasRHS(
-                    hasDescendant(
-                      declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
-                    )
+                ),
+                hasRHS(
+                  hasDescendant(
+                    declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
                   )
                 )
               )
-            )
+            )/*,
+          unless(equalsBoundNode("reduce"))*/
           )
         ),
         hasAnySubstatement(
