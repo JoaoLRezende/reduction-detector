@@ -72,10 +72,10 @@ StatementMatcher ReduceMatcher3 =
 
 StatementMatcher LoopMatcher = 
 forStmt(
-  hasLoopInit(
+  /*hasLoopInit(
     declStmt(hasSingleDecl(varDecl(
       hasInitializer(
-        integerLiteral(equals(0)))).bind("initVarName")))),
+        integerLiteral(equals(0)))).bind("initVarName")))),*/
   hasIncrement(
     unaryOperator(
       hasOperatorName("++"),
@@ -83,7 +83,84 @@ forStmt(
         declRefExpr(to(varDecl(hasType(isInteger())).bind("incVarName")))))),
   hasCondition(
     binaryOperator(
-      hasOperatorName("<"),
+      anyOf(hasOperatorName("<"), hasOperatorName("<=")),
+      hasLHS(
+        ignoringParenImpCasts(declRefExpr(to(varDecl(hasType(isInteger())).bind("condVarName"))))),
+      hasRHS(
+        expr(hasType(isInteger()))))),
+  hasBody(
+    compoundStmt(
+      hasAnySubstatement(
+        anyOf(ReduceMatcher, ReduceMatcher2, ReduceMatcher3)
+      ),
+      unless(anyOf(
+        hasAnySubstatement(
+          binaryOperator(
+            hasOperatorName("="),
+            hasRHS(
+              binaryOperator(
+                hasLHS(
+                  hasDescendant(
+                    declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
+                  )
+                ),
+                hasRHS(
+                  hasDescendant(
+                    declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
+                  )
+                )
+              )
+            )/*,
+          unless(equalsBoundNode("reduce"))*/
+          )
+        ),
+        hasAnySubstatement(
+          binaryOperator(//esse binaryoperator precisa ser igual os dos matchers
+            hasRHS(
+              hasDescendant(
+                declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
+              )
+            ),
+            unless(
+              hasLHS(
+                declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
+              )
+            )
+          )
+        ),
+        hasAnySubstatement(
+          binaryOperator(
+            hasLHS(
+              declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
+            ),
+            unless(
+              hasRHS(
+                hasDescendant(
+                  declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
+                )
+              )
+            )
+          )
+        )
+      ))
+    )
+  )
+).bind("forLoop");
+
+StatementMatcher LoopMatcher2 = 
+forStmt(
+  /*hasLoopInit(
+    declStmt(hasSingleDecl(varDecl(
+      hasInitializer(
+        integerLiteral(equals(0)))).bind("initVarName")))),*/
+  hasIncrement(
+    unaryOperator(
+      hasOperatorName("--"),
+      hasUnaryOperand(
+        declRefExpr(to(varDecl(hasType(isInteger())).bind("incVarName")))))),
+  hasCondition(
+    binaryOperator(
+      anyOf(hasOperatorName(">"), hasOperatorName(">=")),
       hasLHS(
         ignoringParenImpCasts(declRefExpr(to(varDecl(hasType(isInteger())).bind("condVarName"))))),
       hasRHS(
@@ -148,7 +225,6 @@ forStmt(
 ).bind("forLoop");
 
 
-
 class LoopPrinter : public MatchFinder::MatchCallback {
 public :
   virtual void run(const MatchFinder::MatchResult &Result) {
@@ -160,9 +236,9 @@ public :
         return;
       const VarDecl *IncVar = Result.Nodes.getNodeAs<VarDecl>("incVarName");
       const VarDecl *CondVar = Result.Nodes.getNodeAs<VarDecl>("condVarName");
-      const VarDecl *InitVar = Result.Nodes.getNodeAs<VarDecl>("initVarName");
+      //const VarDecl *InitVar = Result.Nodes.getNodeAs<VarDecl>("initVarName");
 
-      if(!areSameVariable(IncVar, CondVar) || !areSameVariable(IncVar, InitVar)){
+      if(!areSameVariable(IncVar, CondVar)/* || !areSameVariable(IncVar, InitVar)*/){
         llvm::outs() << "for variables didnt match\n";
         return;
       }
@@ -180,6 +256,7 @@ int main(int argc, const char **argv) {
   LoopPrinter Printer;
   MatchFinder Finder;
   Finder.addMatcher(LoopMatcher, &Printer);
+  Finder.addMatcher(LoopMatcher2, &Printer);
 
   return Tool.run(newFrontendActionFactory(&Finder).get());
 }
