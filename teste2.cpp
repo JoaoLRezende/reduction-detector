@@ -28,12 +28,12 @@ int main(){
     for(int i = 0; i < ARRAYSIZE; i++){    
         sum = 2 + 3;
         sum = sum + 2 + array[i];//nao
-    }//not
+    }//done
 
     for(int i = 0; i < ARRAYSIZE; i++){    
         sum = sum + sum;
         sum = sum + 2 + array[i];//nao
-    }//not
+    }//done
 
     for(int i = 0; i < ARRAYSIZE; i++){    
         sum = x + 2 + array[i];//nao
@@ -43,6 +43,10 @@ int main(){
         sum = x + sum + array[i] + sum;//nao
     }//done
 
+    int i = 0;
+    for(; i > ARRAYSIZE; --i){    
+        sum = x + 2 + array[i] + sum;//sim
+    }//done
 
     return 0;
 }
