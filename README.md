@@ -27,7 +27,7 @@ cd build
 ```
 
 - edit CMakeLists.txt from clang-llvm/llvm/  
-- line 139 changed to: set(PROJ_DIR "${CMAKE_CURRENT_SOURCE_DIR}/tools/${proj}")  
+- line set(PROJ_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../${proj}") changed to: set(PROJ_DIR "${CMAKE_CURRENT_SOURCE_DIR}/tools/${proj}")  
 
 ```
 cmake -G "Unix Makefiles" ../llvm -DLLVM_ENABLE_PROJECTS=clang -DLLVM_BUILD_TESTS=ON  # Enable tests; default is off.
