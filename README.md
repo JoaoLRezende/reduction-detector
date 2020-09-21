@@ -104,3 +104,4 @@ make
 -------------
 ### To do
 - Make sure the steps in the setup guide above are actually sufficient.
+- Describe fully the steps to add new plugin modules or update existing ones. Briefly mention our test scripts and how they are used to quickly update existing modules.
