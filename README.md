@@ -1,11 +1,29 @@
 # Projeto com Clang Matchers
 
-To use this plugin you have to follow this steps:
+### Setup
 
-#### Step 0: Obtaining Clang
+This code expects to sit alongside the source tree of LLVM and Clang with clang-tools-extra, organized as follows:
+
 ```
-mkdir ~/clang-llvm  
-cd ~/clang-llvm  
+finding-parallelizable-code-syntactically
+├── ... project files ...
+└── llvm
+    ├── ... LLVM files ...
+    └── tools
+        ├── ... LLVM tools ...
+        └── clang
+            ├── ... Clang files ...
+            └── tools
+                ├── ... Clang tools ...
+                └── extra
+                    └── ... clang-tools-extra files ...
+```
+
+To set this up, build everything and run tests:
+
+#### Step 0: Obtain Clang
+```
+cd finding-parallelizable-code-syntactically
 git clone http://llvm.org/git/llvm.git  
 cd llvm/tools  
 git clone http://llvm.org/git/clang.git  
@@ -20,14 +38,20 @@ sudo apt-get install cmake-curses-gui
 ```
 
 #### Step 3: Build Clang
+In the file `/llvm/CMakeLists.txt`, change the line
 ```
-cd ~/clang-llvm
+set(PROJ_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../${proj}")
+```
+to
+```
+set(PROJ_DIR "${CMAKE_CURRENT_SOURCE_DIR}/tools/${proj}")  
+```
+Then:
+```
+cd finding-parallelizable-code-syntactically
 mkdir build
 cd build
 ```
-
-- edit CMakeLists.txt from clang-llvm/llvm/  
-- line set(PROJ_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../${proj}") changed to: set(PROJ_DIR "${CMAKE_CURRENT_SOURCE_DIR}/tools/${proj}")  
 
 ```
 cmake -G "Unix Makefiles" ../llvm -DLLVM_ENABLE_PROJECTS=clang -DLLVM_BUILD_TESTS=ON  # Enable tests; default is off.
@@ -36,12 +60,12 @@ make check       # Test LLVM only.
 make clang-test  # Test Clang only.
 make install
 ```
-**NOTE**: (process consumed more than 14GB RAM at some points, so it's recommended to have high amount of RAM and/or virtual memory)
+**NOTE**: this process consumed more than 14 GB RAM at some points.
 
 #### Step 4: Set Clang as your compiler
 
 ```
-cd ~/clang-llvm/build
+cd finding-parallelizable-code-syntactically/build
 ccmake ../llvm
 ```
 
@@ -52,13 +76,11 @@ ccmake ../llvm
 #### Step 5: Add our plugin to Clang
 
 ```
-cd ~/clang-llvm/llvm/tools/clang
+cd finding-parallelizable-code-syntactically/llvm/tools/clang
 mkdir tools/extra/reduction
 echo 'add_subdirectory(reduction)' >> tools/extra/CMakeLists.txt
 ```
-- edit tools/extra/reduction/CMakeLists.txt
-
-- CMakeLists.txt should have the following contents:
+Edit `tools/extra/reduction/CMakeLists.txt`. It should have the following contents:
 
 ```
 set(LLVM_LINK_COMPONENTS support)
@@ -77,9 +99,10 @@ target_link_libraries(reduction
 #### Step 6: Run our plugin
 
 ```
-cd ~/clang-llvm/build
+cd finding-parallelizable-code-syntactically/build
 make
 ./bin/reduction your-test-file.cpp --
 ```
-
-**And this is it, this should work!!**
+-------------
+### To do
+- Make sure the steps in the setup guide above are actually sufficient.
