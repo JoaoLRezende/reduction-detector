@@ -1,5 +1,3 @@
-# Projeto com Clang Matchers
-
 ### Setup
 
 This code expects to sit alongside the source tree of LLVM and Clang with clang-tools-extra, organized as follows:
