@@ -1,12 +1,16 @@
 // Declares clang::SyntaxOnlyAction.
 #include "clang/Frontend/FrontendActions.h"
+
 #include "clang/Tooling/CommonOptionsParser.h"
 #include "clang/Tooling/Tooling.h"
+
 // Declares llvm::cl::extrahelp.
 #include "llvm/Support/CommandLine.h"
+
 #include "clang/ASTMatchers/ASTMatchers.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
 #include "clang/AST/ASTContext.h"
+
 using namespace clang;
 using namespace clang::ast_matchers;
 using namespace clang::tooling;
@@ -29,7 +33,12 @@ static bool areSameVariable(const ValueDecl *First, const ValueDecl *Second) {
          First->getCanonicalDecl() == Second->getCanonicalDecl();
 }
 
-StatementMatcher ReduceMatcher =
+/* A matcher that matches any assignment whose right-hand side
+ * is a binary operation whose first operand contains the assignee,
+ * while its second operand doesn't.
+ * For example: sum = sum + array[i]
+ */
+StatementMatcher reduceAssignmentMatcher1 =
   binaryOperator(
     hasOperatorName("="),
     hasLHS(
@@ -45,18 +54,12 @@ StatementMatcher ReduceMatcher =
             declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))))))) 
   ).bind("reduce");
 
-StatementMatcher ReduceMatcher2 = 
-  binaryOperator(
-    anyOf(hasOperatorName("+="), hasOperatorName("-="), hasOperatorName("*="), hasOperatorName("/=")), 
-    
-    hasLHS(
-      declRefExpr(to(varDecl().bind("accumulator")))),
-    unless(hasRHS(
-      hasDescendant(
-        declRefExpr(to(varDecl(equalsBoundNode("accumulator")))))))
-  ).bind("reduce");
-
-StatementMatcher ReduceMatcher3 =
+/* A matcher that matches any assignment whose right-hand side
+ * is a binary operation whose second operand contains the assignee,
+ * while its first operand doesn't.
+ * For example: sum = array[i] + sum
+ */
+StatementMatcher reduceAssignmentMatcher2 =
   binaryOperator(
     hasOperatorName("="),
     hasLHS(
@@ -69,7 +72,29 @@ StatementMatcher ReduceMatcher3 =
              declRefExpr(to(varDecl(equalsBoundNode("accumulator")))))))), 
     unless(hasDescendant(binaryOperator(hasLHS(hasDescendant(declRefExpr(to(varDecl(equalsBoundNode("accumulator")))))))))).bind("reduce");
 
+/* TODO: the two matchers above seem to be an attempt to exclude assignments
+ * whose assignee appear in their right-hand side multiple times.
+ * (For example: sum = sum + sum.)
+ * But there should be a better way to do this.
+ */
 
+/* A matcher that matches a compound assignment whose left-hand side is a variable
+ * that does not appear in its right-hand side.
+ */
+StatementMatcher reduceCompoundAssignmentMatcher = 
+  binaryOperator(
+    anyOf(hasOperatorName("+="), hasOperatorName("-="), hasOperatorName("*="), hasOperatorName("/=")), 
+    
+    hasLHS(
+      declRefExpr(to(varDecl().bind("accumulator")))),
+    unless(hasRHS(
+      hasDescendant(
+        declRefExpr(to(varDecl(equalsBoundNode("accumulator")))))))
+  ).bind("reduce");
+
+/* A matcher that matches a for loop whose body has an assignment that is
+ * matched by any of the assignment matchers defined above.
+ */
 StatementMatcher LoopMatcher = 
 forStmt(
   /*hasLoopInit(
@@ -89,16 +114,18 @@ forStmt(
       hasRHS(
         expr(hasType(isInteger()))))),
   hasBody(
-    compoundStmt(
+    // The loop's body needs to have an assignment that matches one of the assignment matchers.
+    compoundStmt(   // TODO: consider that the body of a for loop isn't necessarily a compound statement (i.e. a block). It can be simply an expression statement.
       hasAnySubstatement(
-        anyOf(ReduceMatcher, ReduceMatcher2, ReduceMatcher3)
+        anyOf(reduceAssignmentMatcher1, reduceAssignmentMatcher2, reduceCompoundAssignmentMatcher)
       ),
+      // The loop's body can't have another assignment that involves the accumulator. TODO: figure out why this doesn't work.
       unless(anyOf(
         hasAnySubstatement(
           binaryOperator(
             hasOperatorName("="),
             hasRHS(
-              binaryOperator(
+              binaryOperator( // TODO: why do we need a binary operator here? why not simply check whether the assignment's RHS has the accumulator as a descendant?
                 hasLHS(
                   hasDescendant(
                     declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
@@ -168,7 +195,7 @@ forStmt(
   hasBody(
     compoundStmt(
       hasAnySubstatement(
-        anyOf(ReduceMatcher, ReduceMatcher2, ReduceMatcher3)
+        anyOf(reduceAssignmentMatcher1, reduceAssignmentMatcher2, reduceCompoundAssignmentMatcher)
       ),
       unless(anyOf(
         hasAnySubstatement(
