@@ -125,7 +125,7 @@ forStmt(
           binaryOperator(
             hasOperatorName("="),
             hasRHS(
-              binaryOperator( // TODO: why do we need a binary operator here? why not simply check whether the assignment's RHS has the accumulator as a descendant?
+              binaryOperator( // TODO: why do we need a binary operator here? Why not simply check whether the assignment's RHS has the accumulator as a descendant? Try that and test.
                 hasLHS(
                   hasDescendant(
                     declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
@@ -141,8 +141,15 @@ forStmt(
           unless(equalsBoundNode("reduce"))*/
           )
         ),
+        /* An accumulator does nothing other than accumulate. It doesn't affect
+         * the computation in other ways.
+         * None of the values of other variables depend on the value of the accumulator.
+         * That is: no other variable receives a value that depends on the value of the accumulator.
+         * TODO: this matcher looks for _any_ binary operator that has the accumulator only in
+         * its right-hand side, rather than only for assignments. Is this desired?
+         */
         hasAnySubstatement(
-          binaryOperator(//esse binaryoperator precisa ser igual os dos matchers
+          binaryOperator(//esse binaryoperator precisa ser igual os dos matchers // TODO: huh? Why?
             hasRHS(
               hasDescendant(
                 declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
@@ -155,6 +162,12 @@ forStmt(
             )
           )
         ),
+        /* An accumulator doesn't receive a value that doesn't depend on its previous value.
+         * Thus, in a reduce loop, there is no assignment that has the accumulator in its left-hand side
+         * but not in its right-hand side.
+         * TODO: this matcher looks for _any_ binary operator that has the accumulator only in
+         * its left-hand side, rather than only for assignments. Is this desired?
+         */
         hasAnySubstatement(
           binaryOperator(
             hasLHS(
