@@ -300,3 +300,19 @@ int main(int argc, const char **argv) {
 
   return Tool.run(newFrontendActionFactory(&Finder).get());
 }
+
+/* TODO:
+ * - Run this on NAS benchmark code, and evaluate the results.
+ * - Comment the code.
+ * - Use deeper indentation to make reading easier. At least 4 spaces.
+ * - Fix indentation.
+ * - Consider that a reduction assignment can involve a function rather than a raw arithmetic operator: sum = f(sum, array[i]).
+ * - If we plan to work with C++ too, we'll probably have to deal with other ways of iterating over an array (like range-based for loops)
+ *   and with collections other than arrays.
+ * - What happens when we have multiple possible accumulators (i.e. multiple nodes bound to the name "accumulator"?) Test. Deal with that.
+ * - Make a basic testing framework that allows a good number of regression tests without requiring laborious output-checking effort.
+     Each loop would go in a separate function with a unique name. Each function would be named either reduce<n> or notAReduce<n>,
+     where <n> is an integer. The main function would then simply check whether each loop is or is not detected in accordance with
+     the enclosing function's name. (It probably is trivial to get the name of the function in which a loop was detected.)
+     Then, collect all tests in a single file.
+ */
