@@ -119,7 +119,7 @@ forStmt(
       hasAnySubstatement(
         anyOf(reduceAssignmentMatcher1, reduceAssignmentMatcher2, reduceCompoundAssignmentMatcher)
       ),
-      // The loop's body can't have another assignment that involves the accumulator. TODO: figure out why this doesn't work.
+      // The loop's body can't have another assignment that involves the accumulator.
       unless(anyOf(
         hasAnySubstatement(
           binaryOperator(
@@ -143,8 +143,7 @@ forStmt(
         ),
         /* An accumulator does nothing other than accumulate. It doesn't affect
          * the computation in other ways.
-         * None of the values of other variables depend on the value of the accumulator.
-         * That is: no other variable receives a value that depends on the value of the accumulator.
+         * Thus, no other variable receives a value that depends on the value of the accumulator.
          * TODO: this matcher looks for _any_ binary operator that has the accumulator only in
          * its right-hand side, rather than only for assignments. Is this desired?
          */
