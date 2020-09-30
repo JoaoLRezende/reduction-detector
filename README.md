@@ -108,5 +108,5 @@ make
 ```
 -------------
 ### To do
-- Make sure the steps in the setup guide above are actually sufficient. (It doesn't even mention where in the Clang tree to place reduction.cpp.) (It seems to be a modified copy of Clang's [LibTooling tutorial](https://clang.llvm.org/docs/LibASTMatchersTutorial.html).)
+- Make sure the steps in the setup guide above are sufficient. (It doesn't mention where in the Clang tree to place reduction.cpp.) (It seems to be a modified copy of Clang's [LibTooling tutorial](https://clang.llvm.org/docs/LibASTMatchersTutorial.html).)
 - Describe fully the steps to add new plugin modules or update existing ones. Briefly mention our test scripts and how they are used to quickly update existing modules.
