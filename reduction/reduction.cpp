@@ -266,8 +266,6 @@ forStmt(
 
 class LoopPrinter : public MatchFinder::MatchCallback {
 public :
-  static int loops_found;
-    
   virtual void run(const MatchFinder::MatchResult &Result) {
       ASTContext *Context = Result.Context;
       llvm::outs() << "Hello!!\n";
@@ -287,8 +285,6 @@ public :
       llvm::outs() << "Potential Reduce pattern, in the next line you'll find the file and the suspect line.\n";
       FS->getForLoc().dump(Context->getSourceManager());
       llvm::outs() << "\n";
-    
-      loops_found += 1;
     }
 };
 int main(int argc, const char **argv) {
@@ -301,18 +297,10 @@ int main(int argc, const char **argv) {
   Finder.addMatcher(LoopMatcher, &Printer);
   Finder.addMatcher(LoopMatcher2, &Printer);
 
-  int status_code = Tool.run(newFrontendActionFactory(&Finder).get());
-  
-  llvm::outs() << "Potential reduce loops: " << LoopPrinter::loops_found << "\n";
-  
-  return status_code;
+  return Tool.run(newFrontendActionFactory(&Finder).get());
 }
 
 /* TODO:
- * - To facilitate regression testing, use a static variable to store the number of loops recognized as potential
- *   reduce loops, and print that number at the end of execution. Then, separate all test loops into two
-     files, one including only actual reduce loops and, the other, none.
- * - Don't capitalize the first letter of variable names.
  * - Run this on NAS benchmark code, and evaluate the results.
  * - Comment the code.
  * - Use deeper indentation to make reading easier. At least 4 spaces.
