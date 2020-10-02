@@ -1,7 +1,11 @@
 #!/bin/bash
+
+DEFAULT="test_programs/NPB/NPB-serial-IS.c"
+
 if [ -z "$1" ]
   then
-    ../build/bin/reduction test_programs/test_program_2.cpp --
+    echo "testing on $DEFAULT"
+    ../build/bin/reduction $DEFAULT --
   else
     ../build/bin/reduction "test_programs/$1" --
 fi
