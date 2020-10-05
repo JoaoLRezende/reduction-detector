@@ -19,3 +19,19 @@ int main(){
 
     return 0;
 }
+
+/* A function from NPB3.3.1/NPB3.3-SER/DC/jobcntl.c.
+ * This is another kind of reduction that we should account for.
+ * Its accumulator is conditionally incremented in each iteration
+ */
+uint32 NumberOfOnes(uint64 s){
+   uint64 ob = MLB;
+   uint32 i;
+   uint32 nOnes;
+
+   for ( nOnes = 0, i = 0; i < 64; i++ ) {
+      if (s&ob) nOnes++;
+      ob >>= 1;
+   }
+   return nOnes;
+}
