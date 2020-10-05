@@ -1,5 +1,3 @@
-#include <iostream>
-
 #define ARRAYSIZE 10
 
 int main(){

@@ -1,5 +1,3 @@
-#include <iostream>
-
 #define ARRAYSIZE 10
 
 int main(){
@@ -24,10 +22,10 @@ int main(){
  * This is another kind of reduction that we should account for.
  * Its accumulator is conditionally incremented in each iteration.
  */
-uint32 NumberOfOnes(uint64 s){
-   uint64 ob = MLB;
-   uint32 i;
-   uint32 nOnes;
+unsigned int NumberOfOnes(unsigned long long int s){
+   unsigned long long int ob = 0x8000000000000000;
+   unsigned int i;
+   unsigned int nOnes;
 
    for ( nOnes = 0, i = 0; i < 64; i++ ) {
       if (s&ob) nOnes++;

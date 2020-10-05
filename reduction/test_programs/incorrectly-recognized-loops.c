@@ -1,5 +1,3 @@
-#include <iostream>
-
 #define ARRAYSIZE 10
 
 int main(){
@@ -15,7 +13,7 @@ int main(){
      * Perhaps we should start checking for those things.
      */
     double	R23 = 1.0, T23 = 1.0;
-    for (i=1; i<=23; i++)
+    for (int i=1; i<=23; i++)
     {
       R23 = 0.50 * R23;
       T23 = 2.0 * T23;
