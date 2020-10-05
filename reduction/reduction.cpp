@@ -306,6 +306,8 @@ int main(int argc, const char **argv) {
  *   RESTO DA EQUACAO, E DEPOIS VERIFICAR SE APARECE NOVAMENTE EM ALGUMA
  *   EQUACAO DENTRO DO FOR. MAS COMO GUARDAR ONDE DA EQUACAO/FOR QUE
  *   ENCONTREI O ACUMULADOR EM QUESTAO?
+ * - At the end of a run, print something like "__ out of __ loops recognized as possible reductions".
+ *   That should facilitate checking whether or not all loops were recognized.
  * - Run this on NAS benchmark code, and evaluate the results.
  * - Comment the code.
  * - Use deeper indentation to make reading easier. At least 4 spaces.
