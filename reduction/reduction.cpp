@@ -301,6 +301,11 @@ int main(int argc, const char **argv) {
 }
 
 /* TODO:
+ * - PROBLEMA ATUAL EH BASICAMENTE: QUANDO ENCONTRO UM ACUMULADOR EM
+ *   POTENCIAL, DEVO CONSEGUIR VERIFICAR SE APARECE APENAS UMA VEZ NO
+ *   RESTO DA EQUACAO, E DEPOIS VERIFICAR SE APARECE NOVAMENTE EM ALGUMA
+ *   EQUACAO DENTRO DO FOR. MAS COMO GUARDAR ONDE DA EQUACAO/FOR QUE
+ *   ENCONTREI O ACUMULADOR EM QUESTAO?
  * - Run this on NAS benchmark code, and evaluate the results.
  * - Comment the code.
  * - Use deeper indentation to make reading easier. At least 4 spaces.
