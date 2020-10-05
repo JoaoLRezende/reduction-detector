@@ -7,5 +7,5 @@ if [ -z "$1" ]
     echo "testing on $DEFAULT"
     ../build/bin/reduction $DEFAULT --
   else
-    ../build/bin/reduction "test_programs/$1" --
+    ../build/bin/reduction $1 --
 fi
