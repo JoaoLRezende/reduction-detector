@@ -75,7 +75,20 @@ StatementMatcher reduceAssignmentMatcher2 =
 /* TODO: the two matchers above seem to be an attempt to exclude assignments
  * whose assignee appear in their right-hand side multiple times.
  * (For example: sum = sum + sum.)
- * But there should be a better way to do this.
+ * But it doesn't always work. For example, it succeeds at excluding
+ * sum = sum + (sum + x)
+ * (since both operands of that addition involve sum)
+ * but doesn't exclude
+ * sum = (sum + sum) + x
+ * (since only one of the operands of the outermost addition involves sum).
+ * Thus, it also doesn't exclude
+ * sum = sum + sum + x
+ * since the plus operator is left-associative.
+ * There should be a better way to do this.
+ * Maybe we can bind the first reference to the potential accumulator we find in the right-hand
+ * side to a name and then see if there is still any reference to that potential
+ * accumulator in that same right-hand side that _isn't_ bound to that name.
+ * (This might require some procedural code.)
  */
 
 /* A matcher that matches a compound assignment whose left-hand side is a variable
