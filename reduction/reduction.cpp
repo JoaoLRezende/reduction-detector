@@ -334,4 +334,9 @@ int main(int argc, const char **argv) {
      where <n> is an integer. The main function would then simply check whether each loop is or is not detected in accordance with
      the enclosing function's name. (It probably is trivial to get the name of the function in which a loop was detected.)
      Then, collect all tests in a single file.
+   - Should we recognize loops like the following as reductions?
+        for (int i = 0; i < arr_length; i++)
+            if (max < arr[i])
+                max = arr[i];
+
  */
