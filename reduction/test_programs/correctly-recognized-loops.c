@@ -60,6 +60,27 @@ int main(){
         ele = ele+ 10 + sum;
         sum = sum + ele;
     }*/
+    
+    // Correctly recognized.
+    for(int i = 0; i < ARRAYSIZE; i++){    
+        sum = x + 2 + array[i] + sum + 1;
+    }
+
+    // Correctly recognized.
+    for(int i = 0; i < ARRAYSIZE; i++){    
+        sum = sum + 2 + array[i];
+    }
+
+    // Correctly recognized.
+    for(int i = 0; i < ARRAYSIZE; i++){    
+        sum = x + 2 + array[i] + sum;
+    }
+    
+    // Correctly recognized.
+    int i = 0;
+    for(; i > ARRAYSIZE; --i){    
+        sum = x + 2 + array[i] + sum;
+    }
 
     return 0;
 }
