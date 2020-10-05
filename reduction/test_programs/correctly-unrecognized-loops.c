@@ -32,6 +32,34 @@ int main(){
     for(int i = 0; i < ARRAYSIZE; i++){
         sum = sum + array[i] + sum;
     }
+    
+    // Correctly unrecognized.
+    for(int i = 0; i < ARRAYSIZE; i++){    
+        x = sum + 3;
+        sum = sum + 2 + array[i];
+    }
+
+    // Correctly unrecognized.
+    for(int i = 0; i < ARRAYSIZE; i++){    
+        sum = 2 + 3;
+        sum = sum + 2 + array[i];
+    }
+
+    // Correctly unrecognized.
+    for(int i = 0; i < ARRAYSIZE; i++){    
+        sum = sum + sum;
+        sum = sum + 2 + array[i];
+    }
+
+    // Correctly unrecognized.
+    for(int i = 0; i < ARRAYSIZE; i++){    
+        sum = x + 2 + array[i];
+    }
+
+    // Correctly unrecognized.
+    for(int i = 0; i < ARRAYSIZE; i++){    
+        sum = x + sum + array[i] + sum;
+    }
 
     return 0;
 }
