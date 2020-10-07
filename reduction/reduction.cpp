@@ -18,7 +18,7 @@ using namespace llvm;
 
 // Apply a custom category to all command-line options so that they are the
 // only ones displayed.
-static llvm::cl::OptionCategory MyToolCategory("my-tool options");
+static llvm::cl::OptionCategory myToolCategory("my-tool options");
 
 // CommonOptionsParser declares HelpMessage with a description of the common
 // command-line options related to the compilation database and input files.
@@ -105,178 +105,7 @@ StatementMatcher reduceCompoundAssignmentMatcher =
         declRefExpr(to(varDecl(equalsBoundNode("accumulator")))))))
   ).bind("reduce");
 
-/* A matcher that matches a for loop whose body has an assignment that is
- * matched by any of the assignment matchers defined above.
- */
-StatementMatcher LoopMatcher = 
-forStmt(
-  /*hasLoopInit(
-    declStmt(hasSingleDecl(varDecl(
-      hasInitializer(
-        integerLiteral(equals(0)))).bind("initVarName")))),*/
-  hasIncrement(
-    unaryOperator(
-      hasOperatorName("++"),
-      hasUnaryOperand(
-        declRefExpr(to(varDecl(hasType(isInteger())).bind("incVarName")))))),
-  hasCondition(
-    binaryOperator(
-      anyOf(hasOperatorName("<"), hasOperatorName("<=")),
-      hasLHS(
-        ignoringParenImpCasts(declRefExpr(to(varDecl(hasType(isInteger())).bind("condVarName"))))),
-      hasRHS(
-        expr(hasType(isInteger()))))),
-  hasBody(
-    // The loop's body needs to have an assignment that matches one of the assignment matchers.
-    compoundStmt(   // TODO: consider that the body of a for loop isn't necessarily a compound statement (i.e. a block). It can be simply an expression statement.
-      hasAnySubstatement(
-        anyOf(reduceAssignmentMatcher1, reduceAssignmentMatcher2, reduceCompoundAssignmentMatcher)
-      ),
-      // The loop's body can't have another assignment that involves the accumulator.
-      unless(anyOf(
-        hasAnySubstatement(
-          binaryOperator(
-            hasOperatorName("="),
-            hasRHS(
-              binaryOperator( // TODO: why do we need a binary operator here? Why not simply check whether the assignment's RHS has the accumulator as a descendant? Try that and test.
-                hasLHS(
-                  hasDescendant(
-                    declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
-                  )
-                ),
-                hasRHS(
-                  hasDescendant(
-                    declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
-                  )
-                )
-              )
-            )/*,
-          unless(equalsBoundNode("reduce"))*/
-          )
-        ),
-        /* An accumulator does nothing other than accumulate. It doesn't affect
-         * the computation in other ways.
-         * Thus, no other variable receives a value that depends on the value of the accumulator.
-         * TODO: this matcher looks for _any_ binary operator that has the accumulator only in
-         * its right-hand side, rather than only for assignments. Is this desired?
-         */
-        hasAnySubstatement(
-          binaryOperator(//esse binaryoperator precisa ser igual os dos matchers // TODO: huh? Why?
-            hasRHS(
-              hasDescendant(
-                declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
-              )
-            ),
-            unless(
-              hasLHS(
-                declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
-              )
-            )
-          )
-        ),
-        /* An accumulator doesn't receive a value that doesn't depend on its previous value.
-         * Thus, in a reduce loop, there is no assignment that has the accumulator in its left-hand side
-         * but not in its right-hand side.
-         * TODO: this matcher looks for _any_ binary operator that has the accumulator only in
-         * its left-hand side, rather than only for assignments. Is this desired?
-         */
-        hasAnySubstatement(
-          binaryOperator(
-            hasLHS(
-              declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
-            ),
-            unless(
-              hasRHS(
-                hasDescendant(
-                  declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
-                )
-              )
-            )
-          )
-        )
-      ))
-    )
-  )
-).bind("forLoop");
-
-StatementMatcher LoopMatcher2 = 
-forStmt(
-  /*hasLoopInit(
-    declStmt(hasSingleDecl(varDecl(
-      hasInitializer(
-        integerLiteral(equals(0)))).bind("initVarName")))),*/
-  hasIncrement(
-    unaryOperator(
-      hasOperatorName("--"),
-      hasUnaryOperand(
-        declRefExpr(to(varDecl(hasType(isInteger())).bind("incVarName")))))),
-  hasCondition(
-    binaryOperator(
-      anyOf(hasOperatorName(">"), hasOperatorName(">=")),
-      hasLHS(
-        ignoringParenImpCasts(declRefExpr(to(varDecl(hasType(isInteger())).bind("condVarName"))))),
-      hasRHS(
-        expr(hasType(isInteger()))))),
-  hasBody(
-    compoundStmt(
-      hasAnySubstatement(
-        anyOf(reduceAssignmentMatcher1, reduceAssignmentMatcher2, reduceCompoundAssignmentMatcher)
-      ),
-      unless(anyOf(
-        hasAnySubstatement(
-          binaryOperator(
-            hasOperatorName("="),
-            hasRHS(
-              binaryOperator(
-                hasLHS(
-                  hasDescendant(
-                    declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
-                  )
-                ),
-                hasRHS(
-                  hasDescendant(
-                    declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
-                  )
-                )
-              )
-            )/*,
-          unless(equalsBoundNode("reduce"))*/
-          )
-        ),
-        hasAnySubstatement(
-          binaryOperator(//esse binaryoperator precisa ser igual os dos matchers
-            hasRHS(
-              hasDescendant(
-                declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
-              )
-            ),
-            unless(
-              hasLHS(
-                declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
-              )
-            )
-          )
-        ),
-        hasAnySubstatement(
-          binaryOperator(
-            hasLHS(
-              declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
-            ),
-            unless(
-              hasRHS(
-                hasDescendant(
-                  declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))
-                )
-              )
-            )
-          )
-        )
-      ))
-    )
-  )
-).bind("forLoop");
-
-
+// old. remove after recycling.
 class LoopPrinter : public MatchFinder::MatchCallback {
 public :
   virtual void run(const MatchFinder::MatchResult &Result) {
@@ -300,17 +129,48 @@ public :
       llvm::outs() << "\n";
     }
 };
+
+StatementMatcher loopMatcher = forStmt().bind("forLoop");
+
+class LoopChecker : public MatchFinder::MatchCallback {
+  public:
+
+    virtual void run(const MatchFinder::MatchResult &result) {
+      ASTContext *context = result.Context;
+
+      llvm::outs() << "Found a for loop.\n";
+
+      const ForStmt *fs = result.Nodes.getNodeAs<ForStmt>("forLoop");
+
+      // We do not want to scan header files.
+      if(!fs || !context->getSourceManager().isWrittenInMainFile(fs->getForLoc()))
+        return;
+
+      /*
+       * TODO: for each assignment that looks like a reduction assignment,
+       * check whether its lvalue
+       * is referenced in any other statement of the loop.
+       * If it isn't, then report it as a possible reduction accumulator.
+       */
+      statementChecker
+
+      fs->dump();
+      llvm::outs() << "Potential reduction loop found in the following location.\n";
+      fs->getForLoc().dump(context->getSourceManager());
+      llvm::outs() << "\n";
+    }
+};
+
 int main(int argc, const char **argv) {
-  CommonOptionsParser OptionsParser(argc, argv, MyToolCategory);
-  ClangTool Tool(OptionsParser.getCompilations(),
-                 OptionsParser.getSourcePathList());
+  CommonOptionsParser optionsParser(argc, argv, myToolCategory);
+  ClangTool Tool(optionsParser.getCompilations(),
+                 optionsParser.getSourcePathList());
 
-  LoopPrinter Printer;
-  MatchFinder Finder;
-  Finder.addMatcher(LoopMatcher, &Printer);
-  Finder.addMatcher(LoopMatcher2, &Printer);
+  LoopChecker loopChecker;
+  MatchFinder finder;
+  finder.addMatcher(loopMatcher, &loopChecker);
 
-  return Tool.run(newFrontendActionFactory(&Finder).get());
+  return Tool.run(newFrontendActionFactory(&finder).get());
 }
 
 /* TODO:
@@ -323,6 +183,7 @@ int main(int argc, const char **argv) {
  *   That should facilitate checking whether all loops were recognized.
  * - Get more example loops from real software systems. (See PARSEC, Cowichan.)
  * - How well do we deal with nested loops? Write some test cases for that.
+ * - Optionally print detected loops themselves, rather than simply their locations.
  * - Be able to receive a directory as input (rather than only a single file). Then, test on
  *   larger software systems (such as Linux).
  * - Comment the code.
