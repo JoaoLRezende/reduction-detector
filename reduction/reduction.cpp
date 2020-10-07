@@ -320,15 +320,17 @@ int main(int argc, const char **argv) {
  *   EQUACAO DENTRO DO FOR. MAS COMO GUARDAR ONDE DA EQUACAO/FOR QUE
  *   ENCONTREI O ACUMULADOR EM QUESTAO?
  * - At the end of a run, print something like "__ out of __ loops recognized as possible reductions".
- *   That should facilitate checking whether or not all loops were recognized.
- * - Run this on NAS benchmark code, and evaluate the results.
+ *   That should facilitate checking whether all loops were recognized.
+ * - Get more example loops from real software systems. (See PARSEC, Cowichan.)
+ * - How well do we deal with nested loops? Write some test cases for that.
+ * - Be able to receive a directory as input (rather than only a single file). Then, test on
+ *   larger software systems (such as Linux).
  * - Comment the code.
- * - Use deeper indentation to make reading easier. At least 4 spaces.
- * - Fix indentation.
+ * - Fix indentation. Use deeper indentation to make reading easier. At least 4 spaces.
  * - Consider that a reduction assignment can involve a function rather than a raw arithmetic operator: sum = f(sum, array[i]).
  * - If we plan to work with C++ too, we'll probably have to deal with other ways of iterating over an array (like range-based for loops)
  *   and with collections other than arrays.
- * - What happens when we have multiple possible accumulators (i.e. multiple nodes bound to the name "accumulator"?) Test. Deal with that.
+ * - What happens when we have multiple possible accumulators (i.e. multiple nodes bound to the name "accumulator"?) Add test cases. Deal with that.
  * - Make a basic testing framework that allows a good number of regression tests without requiring laborious output-checking effort.
      Each loop would go in a separate function with a unique name. Each function would be named either reduce<n> or notAReduce<n>,
      where <n> is an integer. The main function would then simply check whether each loop is or is not detected in accordance with
