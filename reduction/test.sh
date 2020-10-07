@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DEFAULT="test_programs/NPB/NPB-serial-IS.c"
+DEFAULT="test_programs/test.c"
 
 if [ -z "$1" ]
   then
