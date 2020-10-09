@@ -204,12 +204,9 @@ public:
 
       // Construct a matcher that matches other references to the assignee.
       StatementMatcher outsideReferenceMatcher =
-          // TODO: build something that is like the following, but works:
-          //   findAll(declRefExpr(to(varDecl(equalsNode(possibleAccumulator))),
-          //                       unless(hasAncestor(equalsNode(assignment)))));
           findAll(declRefExpr(to(varDecl(equalsNode(possibleAccumulator))),
                               unless(hasAncestor(equalsNode(assignment))))
-                      .bind("reference"));
+                      .bind("outsideReference"));
 
       // Count number of outside references.
       OutsideReferenceAccumulator outsideReferenceAccumulator;
@@ -230,8 +227,6 @@ public:
       unsigned int outsideReferences = 0;
       virtual void run(const MatchFinder::MatchResult &result) {
         outsideReferences += 1;
-
-        result.Nodes.getNodeAs<DeclRefExpr>("reference");
       }
     };
   };
