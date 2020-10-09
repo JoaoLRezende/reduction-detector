@@ -30,16 +30,6 @@ static cl::extrahelp CommonHelp(CommonOptionsParser::HelpMessage);
 // A help message for this specific tool can be added afterwards.
 static cl::extrahelp MoreHelp("\nMore help text...");
 
-/* TODO: this function isn't used anymore. But we might still learn something
- * from it: should we be using getCanonicalDecl when comparing declarations?
- * Study this, consider using this in the new code, and then get rid of this
- * function.
- */
-static bool areSameVariable(const ValueDecl *First, const ValueDecl *Second) {
-  return First && Second &&
-         First->getCanonicalDecl() == Second->getCanonicalDecl();
-}
-
 /* A matcher that matches any assignment whose right-hand side
  * is a binary operation whose first operand contains the assignee,
  * while its second operand doesn't.
@@ -112,36 +102,6 @@ StatementMatcher reduceAssignmentMatcher = findAll(
  * rather than in the inner matchers.
  */
 
-// old. remove after recycling.
-class LoopPrinter : public MatchFinder::MatchCallback {
-public:
-  virtual void run(const MatchFinder::MatchResult &Result) {
-    ASTContext *Context = Result.Context;
-    llvm::outs() << "Hello!!\n";
-    const ForStmt *FS = Result.Nodes.getNodeAs<ForStmt>("forLoop");
-    // We do not want to convert header files!
-    if (!FS ||
-        !Context->getSourceManager().isWrittenInMainFile(FS->getForLoc()))
-      return;
-    const VarDecl *IncVar = Result.Nodes.getNodeAs<VarDecl>("incVarName");
-    const VarDecl *CondVar = Result.Nodes.getNodeAs<VarDecl>("condVarName");
-    // const VarDecl *InitVar = Result.Nodes.getNodeAs<VarDecl>("initVarName");
-
-    if (!areSameVariable(IncVar,
-                         CondVar) /* || !areSameVariable(IncVar, InitVar)*/) {
-      llvm::outs() << "for variables didnt match\n";
-      return;
-    }
-    FS->dump();
-    llvm::outs() << "Potential Reduce pattern, in the next line you'll find "
-                    "the file and the suspect line.\n";
-    FS->getForLoc().dump(Context->getSourceManager());
-    llvm::outs() << "\n";
-  }
-};
-
-StatementMatcher loopMatcher = forStmt().bind("forLoop");
-
 /*
  * LoopChecker's run method is called for every for loop.
  * It checks whether a for loop looks like a reduction operation.
@@ -156,14 +116,14 @@ public:
 
     const ForStmt *forStmt = result.Nodes.getNodeAs<ForStmt>("forLoop");
 
-    llvm::errs() << "Found a for loop in ";
-    forStmt->getForLoc().dump(context->getSourceManager());
-    forStmt->dumpPretty(*result.Context);
-
     // We do not want to scan header files.
     if (!forStmt ||
         !context->getSourceManager().isWrittenInMainFile(forStmt->getForLoc()))
       return;
+
+    llvm::errs() << "Found a for loop at ";
+    forStmt->getForLoc().dump(context->getSourceManager());
+    forStmt->dumpPretty(*result.Context);
 
     /*
      * TODO: for each assignment that looks like a reduction assignment,
@@ -219,6 +179,16 @@ public:
           result.Nodes.getNodeAs<VarDecl>("accumulator");
 
       // Construct a matcher that matches other references to the assignee.
+      /* To check whether two declaration references that reference
+       * declarations a and b in fact reference the same declaration,
+       * an earlier version of this code went
+       * out of its way to compare the referenced declarations with
+       * a->getCanonicalDecl() == b->getCanonicalDecl()
+       * procedurally instead of directly comparing AST nodes in a matcher
+       * as we do here.
+       * I don't know why. I don't know what a "canonical declaration" is.
+       * If issues arise, consider doing that here.
+       */
       StatementMatcher outsideReferenceMatcher =
           findAll(declRefExpr(to(varDecl(equalsNode(possibleAccumulator))),
                               unless(hasAncestor(equalsNode(assignment))))
@@ -264,7 +234,7 @@ int main(int argc, const char **argv) {
 
   LoopChecker loopChecker;
   MatchFinder finder;
-  finder.addMatcher(loopMatcher, &loopChecker);
+  finder.addMatcher(forStmt().bind("forLoop"), &loopChecker);
 
   int statusCode = Tool.run(newFrontendActionFactory(&finder).get());
 
