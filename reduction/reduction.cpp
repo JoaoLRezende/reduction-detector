@@ -153,7 +153,7 @@ public:
 
     const ForStmt *forStmt = result.Nodes.getNodeAs<ForStmt>("forLoop");
 
-    llvm::errs() << "Found a for loop in the following location:\n";
+    llvm::errs() << "Found a for loop in ";
     forStmt->getForLoc().dump(context->getSourceManager());
     forStmt->dumpPretty(*result.Context);
 
@@ -174,10 +174,11 @@ public:
     expressionFinder.match(*forStmt, *context);
 
     if (accumulatorChecker.likelyAccumulatorsFound) {
-      llvm::errs() << INDENT "That might be a reduction loop.\n";
+      llvm::errs() << INDENT "This might be a reduction loop.\n";
     } else {
       llvm::errs() << INDENT "This probably isn't a reduction loop.\n";
     }
+    errs() << "\n";
   }
 
   /*
@@ -227,12 +228,14 @@ public:
       llvm::errs() << INDENT INDENT "Found "
                    << outsideReferenceAccumulator.outsideReferences
                    << " other references to " << possibleAccumulator->getName()
-                   << " in that for loop. ";
+                   << " in this for loop. ";
       if (!outsideReferenceAccumulator.outsideReferences) {
-        llvm::errs() << "Thus, this might be a reduction accumulator.\n";
+        llvm::errs() << "Thus, " << possibleAccumulator->getName()
+                     << " might be a reduction accumulator.\n";
         likelyAccumulatorsFound += 1;
       } else {
-        llvm::errs() << "Thus, this probably isn't a reduction accumulator.\n";
+        llvm::errs() << "Thus, " << possibleAccumulator->getName()
+                     << " probably isn't a reduction accumulator.\n";
       }
     };
 
