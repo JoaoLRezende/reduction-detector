@@ -230,7 +230,7 @@ public:
       referenceFinder.addMatcher(outsideReferenceMatcher,
                                  &outsideReferenceAccumulator);
       referenceFinder.match(*forStmt, *result.Context);
-      llvm::errs() << INDENT INDENT "Found "
+      llvm::errs() << INDENT INDENT "└ Found "
                    << outsideReferenceAccumulator.outsideReferences
                    << " other references to " << possibleAccumulator->getName()
                    << " in this for loop. ";
