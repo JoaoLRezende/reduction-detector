@@ -164,12 +164,11 @@ class LoopChecker : public MatchFinder::MatchCallback {
     }
 
     virtual void run(const MatchFinder::MatchResult &result) {
-        llvm::outs() << "Found a possible reduction assignment. AccumulatorChecker in action.\n";
-
       // Get the matched assignment.
       const BinaryOperator *assignment = result.Nodes.getNodeAs<BinaryOperator>("reduce");
       llvm::errs() << "Possible reduction assignment: ";
-      assignment->dump();
+      assignment->dumpPretty(*result.Context);
+      llvm::errs() << "\n";
 
       // Get the assignment's assignee.
       const VarDecl *possibleAccumulator = result.Nodes.getNodeAs<VarDecl>("accumulator");
@@ -192,8 +191,7 @@ class LoopChecker : public MatchFinder::MatchCallback {
 
       llvm::outs() << "Found a for loop in the following location:\n";
       forStmt->getForLoc().dump(context->getSourceManager());
-      llvm::outs() << "\n";
-      forStmt->dump();
+      forStmt->dumpPretty(*result.Context);
 
       // We do not want to scan header files.
       if(!forStmt || !context->getSourceManager().isWrittenInMainFile(forStmt->getForLoc()))

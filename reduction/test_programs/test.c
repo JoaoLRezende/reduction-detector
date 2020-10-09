@@ -3,5 +3,7 @@ int main() {
 	int sum = 0, x = 0;
 	for (int i = 0; i < 5; i++) {
 		sum = sum + x;
+		sum = x + sum;
+		sum += arr[i];
 	}
 }
