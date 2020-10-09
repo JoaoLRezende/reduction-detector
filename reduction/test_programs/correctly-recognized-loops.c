@@ -72,6 +72,16 @@ int main(){
     for(; i > ARRAYSIZE; --i){    
         sum = x + 2 + array[i] + sum;
     }
+    
+    // Correctly recognized.
+    for(int i = 0; i < ARRAYSIZE; i++){
+        sum += array[i];
+    }
+
+    // Correctly recognized.
+    for(int i = 0; i < ARRAYSIZE; i++){
+        sum -= array[i];
+    }
 
     return 0;
 }
