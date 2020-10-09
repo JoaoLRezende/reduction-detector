@@ -151,7 +151,7 @@ public:
 
     const ForStmt *forStmt = result.Nodes.getNodeAs<ForStmt>("forLoop");
 
-    llvm::outs() << "Found a for loop in the following location:\n";
+    llvm::errs() << "Found a for loop in the following location:\n";
     forStmt->getForLoc().dump(context->getSourceManager());
     forStmt->dumpPretty(*result.Context);
 
@@ -204,8 +204,35 @@ public:
 
       // Construct a matcher that matches other references to the assignee.
       StatementMatcher outsideReferenceMatcher =
-          declRefExpr(to(varDecl(equalsNode(possibleAccumulator))),
-                      unless(hasAncestor(equalsNode(assignment))));
+          // TODO: build something that is like the following, but works:
+          //   findAll(declRefExpr(to(varDecl(equalsNode(possibleAccumulator))),
+          //                       unless(hasAncestor(equalsNode(assignment)))));
+          findAll(declRefExpr(to(varDecl(equalsNode(possibleAccumulator))),
+                              unless(hasAncestor(equalsNode(assignment))))
+                      .bind("reference"));
+
+      // Count number of outside references.
+      OutsideReferenceAccumulator outsideReferenceAccumulator;
+      MatchFinder referenceFinder;
+      referenceFinder.addMatcher(outsideReferenceMatcher,
+                                 &outsideReferenceAccumulator);
+      referenceFinder.match(*forStmt, *result.Context);
+      llvm::errs() << "Found " << outsideReferenceAccumulator.outsideReferences
+                   << " other references to " << possibleAccumulator->getName()
+                   << " in that for loop.\n";
+    };
+
+    /* The sole purpose of OutsideReferenceAccumulator is to count
+     * how many references to the assignee occur outside of the assignment.
+     */
+    class OutsideReferenceAccumulator : public MatchFinder::MatchCallback {
+    public:
+      unsigned int outsideReferences = 0;
+      virtual void run(const MatchFinder::MatchResult &result) {
+        outsideReferences += 1;
+
+        result.Nodes.getNodeAs<DeclRefExpr>("reference");
+      }
     };
   };
 };
