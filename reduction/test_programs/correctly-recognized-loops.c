@@ -15,13 +15,6 @@ int main(){
         sum = x + sum + array[i];
     }
     
-    // Correctly recognized. // TODO: should this really be recognized?
-    for(int i = 0; i < ARRAYSIZE; i++){
-        sum = sum + array[i];//sim//done
-        sum = sum - array[i];//sim//done
-        sum = array[i] + sum;//sim//done
-    }//done
-
     // Correctly recognized.
     for(int i = 0; i < ARRAYSIZE; i++){
         sum = sum * array[i];
