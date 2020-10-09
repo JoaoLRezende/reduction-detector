@@ -5,16 +5,8 @@ int main(){
     int sum = 0;
     int x = 0;
 
-    // Incorrectly unrecognized.
-    for(int i = 0; i < ARRAYSIZE; i++){
-        sum += array[i];
-    }
-
-    // Incorrectly unrecognized.
-    for(int i = 0; i < ARRAYSIZE; i++){
-        sum -= array[i];
-    }
-
+    // [cricket noises]
+    
     return 0;
 }
 
