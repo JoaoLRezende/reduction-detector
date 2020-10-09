@@ -148,6 +148,9 @@ StatementMatcher loopMatcher = forStmt().bind("forLoop");
  */
 class LoopChecker : public MatchFinder::MatchCallback {
 public:
+  unsigned int likelyReductionCount = 0;
+  unsigned int totalLoopCount = 0;
+
   virtual void run(const MatchFinder::MatchResult &result) {
     ASTContext *context = result.Context;
 
@@ -175,10 +178,12 @@ public:
 
     if (accumulatorChecker.likelyAccumulatorsFound) {
       llvm::errs() << INDENT "This might be a reduction loop.\n";
+      likelyReductionCount += 1;
     } else {
       llvm::errs() << INDENT "This probably isn't a reduction loop.\n";
     }
     errs() << "\n";
+    totalLoopCount += 1;
   }
 
   /*
@@ -261,7 +266,13 @@ int main(int argc, const char **argv) {
   MatchFinder finder;
   finder.addMatcher(loopMatcher, &loopChecker);
 
-  return Tool.run(newFrontendActionFactory(&finder).get());
+  int statusCode = Tool.run(newFrontendActionFactory(&finder).get());
+
+  llvm::errs() << loopChecker.likelyReductionCount << " out of "
+               << loopChecker.totalLoopCount
+               << " loops detected as likely reduction loops.\n";
+
+  return statusCode;
 }
 
 /* TODO:
@@ -273,6 +284,8 @@ int main(int argc, const char **argv) {
  * - At the end of a run, print something like "__ out of __ loops recognized as
  *   possible reductions".
  *   That should facilitate checking whether all loops were recognized.
+ * - Do proper encapsulation. Make public only what needs to be public.
+ *   Use getter methods.
  * - Be able to receive command-line arguments. Options like
  *   --print-unrecognized-loops (which shall default
  *   to false) and --verbose, which causes it to explain all its reasonings as
@@ -306,4 +319,5 @@ int main(int argc, const char **argv) {
  *      for (int i = 0; i < arr_length; i++)
  *          if (max < arr[i])
  *              max = arr[i];
+ * - Separate the code into multiple source files.
  */
