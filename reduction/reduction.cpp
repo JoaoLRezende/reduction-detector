@@ -16,6 +16,8 @@ using namespace clang::ast_matchers;
 using namespace clang::tooling;
 using namespace llvm;
 
+#define INDENT "  " // a string with 2 spaces, for indenting debug ouput.
+
 // Apply a custom category to all command-line options so that they are the
 // only ones displayed.
 static llvm::cl::OptionCategory myToolCategory("my-tool options");
@@ -170,6 +172,12 @@ public:
     MatchFinder expressionFinder;
     expressionFinder.addMatcher(reduceAssignmentMatcher, &accumulatorChecker);
     expressionFinder.match(*forStmt, *context);
+
+    if (accumulatorChecker.likelyAccumulatorsFound) {
+      llvm::errs() << INDENT "That might be a reduction loop.\n";
+    } else {
+      llvm::errs() << INDENT "This probably isn't a reduction loop.\n";
+    }
   }
 
   /*
@@ -188,13 +196,15 @@ public:
     const ForStmt *forStmt;
 
   public:
+    int likelyAccumulatorsFound = 0;
+
     AccumulatorChecker(const ForStmt *forStmt) { this->forStmt = forStmt; }
 
     virtual void run(const MatchFinder::MatchResult &result) {
       // Get the matched assignment.
       const BinaryOperator *assignment =
           result.Nodes.getNodeAs<BinaryOperator>("reduce");
-      llvm::errs() << "Possible reduction assignment: ";
+      llvm::errs() << INDENT "Possible reduction assignment: ";
       assignment->dumpPretty(*result.Context);
       llvm::errs() << "\n";
 
@@ -214,11 +224,13 @@ public:
       referenceFinder.addMatcher(outsideReferenceMatcher,
                                  &outsideReferenceAccumulator);
       referenceFinder.match(*forStmt, *result.Context);
-      llvm::errs() << "Found " << outsideReferenceAccumulator.outsideReferences
+      llvm::errs() << INDENT INDENT "Found "
+                   << outsideReferenceAccumulator.outsideReferences
                    << " other references to " << possibleAccumulator->getName()
                    << " in that for loop. ";
-      if (outsideReferenceAccumulator.outsideReferences) {
+      if (!outsideReferenceAccumulator.outsideReferences) {
         llvm::errs() << "Thus, this might be a reduction accumulator.\n";
+        likelyAccumulatorsFound += 1;
       } else {
         llvm::errs() << "Thus, this probably isn't a reduction accumulator.\n";
       }
