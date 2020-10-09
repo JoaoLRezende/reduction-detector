@@ -38,7 +38,7 @@ static bool areSameVariable(const ValueDecl *First, const ValueDecl *Second) {
  * while its second operand doesn't.
  * For example: sum = sum + array[i]
  */
-StatementMatcher reduceAssignmentMatcher1 =
+StatementMatcher reduceSimpleAssignmentMatcher1 =
   binaryOperator(
     hasOperatorName("="),
     hasLHS(
@@ -59,7 +59,7 @@ StatementMatcher reduceAssignmentMatcher1 =
  * while its first operand doesn't.
  * For example: sum = array[i] + sum
  */
-StatementMatcher reduceAssignmentMatcher2 =
+StatementMatcher reduceSimpleAssignmentMatcher2 =
   binaryOperator(
     hasOperatorName("="),
     hasLHS(
@@ -105,6 +105,15 @@ StatementMatcher reduceCompoundAssignmentMatcher =
         declRefExpr(to(varDecl(equalsBoundNode("accumulator")))))))
   ).bind("reduce");
 
+StatementMatcher reduceAssignmentMatcher = 
+    findAll(stmt(
+        anyOf(
+            reduceSimpleAssignmentMatcher1,
+            reduceSimpleAssignmentMatcher2,
+            reduceCompoundAssignmentMatcher // TODO: bind the matching node to a name here (and use a more reasonable name) rather than in the inner matchers.
+        )
+    ));
+
 // old. remove after recycling.
 class LoopPrinter : public MatchFinder::MatchCallback {
 public :
@@ -132,32 +141,74 @@ public :
 
 StatementMatcher loopMatcher = forStmt().bind("forLoop");
 
+/*
+ * LoopChecker's run method is called for every for loop.
+ * It checks whether a for loop looks like a reduction operation.
+ */
 class LoopChecker : public MatchFinder::MatchCallback {
+  /*
+   * In a for loop, for each assignment that looks like a possible
+   * reduction assignment (e.g. sum += array[i]), we check whether
+   * that assignment's assignee (which is then a possible accumulator)
+   * appears in any other expression in the loop's body.
+   * This is done by AccumulatorChecker.
+   */
+  class AccumulatorChecker : public MatchFinder::MatchCallback {
+
+    const ForStmt *forStmt;
+
+  public:
+
+    AccumulatorChecker(const ForStmt *forStmt) {
+      this->forStmt = forStmt;
+    }
+
+    virtual void run(const MatchFinder::MatchResult &result) {
+        llvm::outs() << "Found a possible reduction assignment. AccumulatorChecker in action.\n";
+
+      // Get the matched assignment.
+      const BinaryOperator *assignment = result.Nodes.getNodeAs<BinaryOperator>("reduce");
+      llvm::errs() << "Possible reduction assignment: ";
+      assignment->dump();
+
+      // Get the assignment's assignee.
+      const VarDecl *possibleAccumulator = result.Nodes.getNodeAs<VarDecl>("accumulator");
+
+      // Construct a matcher that matches other references to the assignee.
+      StatementMatcher outsideReferenceMatcher =
+        declRefExpr(
+          to(varDecl(equalsNode(possibleAccumulator))),
+          unless(hasAncestor(equalsNode(assignment)))
+        );
+    };
+  };
+
   public:
 
     virtual void run(const MatchFinder::MatchResult &result) {
       ASTContext *context = result.Context;
 
-      llvm::outs() << "Found a for loop.\n";
+      const ForStmt *forStmt = result.Nodes.getNodeAs<ForStmt>("forLoop");
 
-      const ForStmt *fs = result.Nodes.getNodeAs<ForStmt>("forLoop");
+      llvm::outs() << "Found a for loop in the following location:\n";
+      forStmt->getForLoc().dump(context->getSourceManager());
+      llvm::outs() << "\n";
+      forStmt->dump();
 
       // We do not want to scan header files.
-      if(!fs || !context->getSourceManager().isWrittenInMainFile(fs->getForLoc()))
+      if(!forStmt || !context->getSourceManager().isWrittenInMainFile(forStmt->getForLoc()))
         return;
 
       /*
        * TODO: for each assignment that looks like a reduction assignment,
        * check whether its lvalue
-       * is referenced in any other statement of the loop.
+       * is referenced in any other expression of the loop.
        * If it isn't, then report it as a possible reduction accumulator.
        */
-      statementChecker
-
-      fs->dump();
-      llvm::outs() << "Potential reduction loop found in the following location.\n";
-      fs->getForLoc().dump(context->getSourceManager());
-      llvm::outs() << "\n";
+      AccumulatorChecker accumulatorChecker(forStmt);
+      MatchFinder expressionFinder;
+      expressionFinder.addMatcher(reduceAssignmentMatcher, &accumulatorChecker);
+      expressionFinder.match(*forStmt, *context);
     }
 };
 
