@@ -216,7 +216,12 @@ public:
       referenceFinder.match(*forStmt, *result.Context);
       llvm::errs() << "Found " << outsideReferenceAccumulator.outsideReferences
                    << " other references to " << possibleAccumulator->getName()
-                   << " in that for loop.\n";
+                   << " in that for loop. ";
+      if (outsideReferenceAccumulator.outsideReferences) {
+        llvm::errs() << "Thus, this might be a reduction accumulator.\n";
+      } else {
+        llvm::errs() << "Thus, this probably isn't a reduction accumulator.\n";
+      }
     };
 
     /* The sole purpose of OutsideReferenceAccumulator is to count
@@ -253,6 +258,10 @@ int main(int argc, const char **argv) {
  * - At the end of a run, print something like "__ out of __ loops recognized as
  *   possible reductions".
  *   That should facilitate checking whether all loops were recognized.
+ * - Be able to receive command-line arguments. Options like
+ *   --print-unrecognized-loops (which shall default
+ *   to false) and --verbose, which causes it to explain all its reasonings as
+ *   precisely as possible (thus printing unrecognized loops too, of course).
  * - Get more example loops from real software systems. (See PARSEC, Cowichan.)
  * - How well do we deal with nested loops? Write some test cases for that.
  * - Optionally print detected loops themselves, rather than simply their
