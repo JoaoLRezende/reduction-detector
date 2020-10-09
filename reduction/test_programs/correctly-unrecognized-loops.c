@@ -5,6 +5,13 @@ int main(){
     int sum = 0;
     int x = 0;
 
+    // Correctly unrecognized. Multiple references to sum everywhere.
+    for(int i = 0; i < ARRAYSIZE; i++){
+        sum = sum + array[i];
+        sum = sum - array[i];
+        sum = array[i] + sum;
+    }
+    
     // Correctly unrecognized.
     for(int i = 0; i < ARRAYSIZE; i++){
         sum += sum + array[i]; // Note that sum is being added to sum.
