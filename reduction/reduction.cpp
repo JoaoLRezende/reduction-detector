@@ -30,37 +30,6 @@ static cl::extrahelp CommonHelp(CommonOptionsParser::HelpMessage);
 // A help message for this specific tool can be added afterwards.
 static cl::extrahelp MoreHelp("\nMore help text...");
 
-/* A matcher that matches any assignment whose right-hand side
- * is a binary operation whose first operand contains the assignee,
- * while its second operand doesn't.
- * For example: sum = sum + array[i]
- */
-StatementMatcher reduceSimpleAssignmentMatcher1 =
-    binaryOperator(hasOperatorName("="),
-                   hasLHS(declRefExpr(to(varDecl().bind("possibleAccumulator")))),
-
-                   hasRHS(binaryOperator(
-                       hasLHS(hasDescendant(declRefExpr(
-                           to(varDecl(equalsBoundNode("possibleAccumulator")))))),
-                       unless(hasRHS(hasDescendant(declRefExpr(
-                           to(varDecl(equalsBoundNode("possibleAccumulator"))))))))))
-        .bind("possibleReductionAssignment");
-
-/* A matcher that matches any assignment whose right-hand side
- * is a binary operation whose second operand contains the assignee,
- * while its first operand doesn't.
- * For example: sum = array[i] + sum
- */
-StatementMatcher reduceSimpleAssignmentMatcher2 =
-    binaryOperator(
-        hasOperatorName("="),
-        hasLHS(declRefExpr(to(varDecl().bind("possibleAccumulator")))),
-
-        hasRHS(binaryOperator(hasRHS(ignoringParenImpCasts(
-            declRefExpr(to(varDecl(equalsBoundNode("possibleAccumulator")))))))),
-        unless(hasDescendant(binaryOperator(hasLHS(hasDescendant(
-            declRefExpr(to(varDecl(equalsBoundNode("possibleAccumulator"))))))))))
-        .bind("possibleReductionAssignment");
 
 /* TODO: the two matchers above seem to be an attempt to exclude assignments
  * whose assignee appear in their right-hand side multiple times.
@@ -82,24 +51,39 @@ StatementMatcher reduceSimpleAssignmentMatcher2 =
  * (This might require some procedural code.)
  */
 
-/* A matcher that matches a compound assignment whose left-hand side is a
- * variable
- * that does not appear in its right-hand side.
+/* reduceSimpleAssignmentMatcher matches any simple assignment whose assignee
+ * also appears in its right-hand side, only once.
+ * For example: sum = sum + array[i]
  */
-StatementMatcher reduceCompoundAssignmentMatcher =
-    binaryOperator(anyOf(hasOperatorName("+="), hasOperatorName("-="),
-                         hasOperatorName("*="), hasOperatorName("/=")),
-
-                   hasLHS(declRefExpr(to(varDecl().bind("possibleAccumulator")))),
-                   unless(hasRHS(hasDescendant(declRefExpr(
-                       to(varDecl(equalsBoundNode("possibleAccumulator"))))))))
+StatementMatcher reduceSimpleAssignmentMatcher =
+    binaryOperator(
+        hasOperatorName("="),
+        hasLHS(declRefExpr(to(varDecl().bind("possibleAccumulator")))),
+        hasRHS(hasDescendant(
+            declRefExpr(to(varDecl(equalsBoundNode("possibleAccumulator"))))
+                .bind("referenceToPossibleAccumulatorInRHS"))),
+        unless(hasRHS(hasDescendant(declRefExpr(
+            to(varDecl(equalsBoundNode("possibleAccumulator"))),
+            unless(equalsBoundNode("referenceToPossibleAccumulatorInRHS")))))))
         .bind("possibleReductionAssignment");
 
-StatementMatcher reduceAssignmentMatcher = findAll(
-    stmt(anyOf(reduceSimpleAssignmentMatcher1, reduceSimpleAssignmentMatcher2,
-               reduceCompoundAssignmentMatcher)));
-/* TODO: bind the matching node to a name here (and use a more reasonable name)
- * rather than in the inner matchers.
+/* A matcher that matches a compound assignment whose left-hand side is a
+ * variable that does not appear in its right-hand side.
+ */
+StatementMatcher reduceCompoundAssignmentMatcher =
+    binaryOperator(
+        anyOf(hasOperatorName("+="), hasOperatorName("-="),
+              hasOperatorName("*="), hasOperatorName("/=")),
+
+        hasLHS(declRefExpr(to(varDecl().bind("possibleAccumulator")))),
+        unless(hasRHS(hasDescendant(
+            declRefExpr(to(varDecl(equalsBoundNode("possibleAccumulator"))))))))
+        .bind("possibleReductionAssignment");
+
+StatementMatcher reduceAssignmentMatcher = findAll(stmt(
+    anyOf(reduceSimpleAssignmentMatcher, reduceCompoundAssignmentMatcher)));
+/* TODO: bind the matching node to a name here (and use a more reasonable
+ * name) rather than in the inner matchers.
  */
 
 /*
@@ -134,7 +118,8 @@ public:
      */
     AccumulatorChecker accumulatorChecker(forStmt);
     MatchFinder reductionAssignmentFinder;
-    reductionAssignmentFinder.addMatcher(reduceAssignmentMatcher, &accumulatorChecker);
+    reductionAssignmentFinder.addMatcher(reduceAssignmentMatcher,
+                                         &accumulatorChecker);
     reductionAssignmentFinder.match(*forStmt, *context);
 
     if (accumulatorChecker.likelyAccumulatorsFound) {
@@ -221,7 +206,7 @@ public:
     /* One instance of OutsideReferenceAccumulator is created for each
      * assignment we check. Its sole purpose is to count
      * how many references to that assignment's assignee occur outside
-     * of the assignment (which is the number of times its run method is 
+     * of the assignment (which is the number of times its run method is
      * called by MatchFinder).
      */
     class OutsideReferenceAccumulator : public MatchFinder::MatchCallback {
@@ -253,44 +238,33 @@ int main(int argc, const char **argv) {
 }
 
 /* TODO:
- * - PROBLEMA ATUAL EH BASICAMENTE: QUANDO ENCONTRO UM ACUMULADOR EM
- *   POTENCIAL, DEVO CONSEGUIR VERIFICAR SE APARECE APENAS UMA VEZ NO
- *   RESTO DA EQUACAO, E DEPOIS VERIFICAR SE APARECE NOVAMENTE EM ALGUMA
- *   EQUACAO DENTRO DO FOR. MAS COMO GUARDAR ONDE DA EQUACAO/FOR QUE
- *   ENCONTREI O ACUMULADOR EM QUESTAO?
- * - At the end of a run, print something like "__ out of __ loops recognized as
- *   possible reductions".
- *   That should facilitate checking whether all loops were recognized.
  * - Do proper encapsulation. Make public only what needs to be public.
  *   Use getter methods.
  * - Be able to receive command-line arguments. Options like
  *   --print-unrecognized-loops (which shall default
- *   to false) and --verbose, which causes it to explain all its reasonings as
- *   precisely as possible (thus printing unrecognized loops too, of course).
- * - Get more example loops from real software systems. (See PARSEC, Cowichan.)
+ *   to false) and --verbose, which causes it to explain all its reasonings
+ *   as
+ *   precisely as possible (thus printing unrecognized loops too, of
+ *   course).
+ * - Get more example loops from real software systems. (See PARSEC,
+ *   Cowichan.)
  * - How well do we deal with nested loops? Write some test cases for that.
- * - Optionally print detected loops themselves, rather than simply their
- *   locations.
- * - Be able to receive a directory as input (rather than only a single file).
+ * - Be able to receive a directory as input (rather than only a single
+ *   file).
  *   Then, test on larger software systems (such as Linux).
  * - Comment the code.
- * - Fix indentation. Use deeper indentation to make reading easier. At least 4
- *   spaces.
- * - Consider that a reduction assignment can involve a function rather than a
- *   raw arithmetic operator: sum = f(sum, array[i]).
+ * - Use deeper indentation to make reading easier. At least 4 spaces.
  * - If we plan to work with C++ too, we'll probably have to deal with other
  *   ways of iterating over an array (like range-based for loops)
  *   and with collections other than arrays.
- * - What happens when we have multiple possible accumulators (i.e. multiple
- *   nodes bound to the name "possibleAccumulator"?) Add test cases. Deal with that.
  * - Make a basic testing framework that allows a good number of regression
  *   tests without requiring laborious output-checking effort.
- *   Each loop would go in a separate function with a unique name. Each function
- *   would be named either reduce<n> or notAReduce<n>,
- *   where <n> is an integer. The main function would then simply check whether
- *   each loop is or is not detected in accordance with
- *   the enclosing function's name. (It probably is trivial to get the name of
- *   the function in which a loop was detected.)
+ *   Each loop would go in a separate function with a unique name. Each
+ *   function would be named either reduce<n> or notAReduce<n>,
+ *   where <n> is an integer. The main function would then simply check
+ *   whether each loop is or is not detected in accordance with
+ *   the enclosing function's name. (It probably is trivial to get the name
+ *   of the function in which a loop was detected.)
  *   Then, collect all tests in a single file.
  * - Should we recognize loops like the following as reductions?
  *      for (int i = 0; i < arr_length; i++)
