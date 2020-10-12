@@ -16,7 +16,7 @@ using namespace clang::ast_matchers;
 using namespace clang::tooling;
 using namespace llvm;
 
-#define INDENT "  " // a string with 2 spaces, for indenting debug ouput.
+#define INDENT "  " // a string with 2 spaces, for indenting debug ouput
 
 // Apply a custom category to all command-line options so that they are the
 // only ones displayed.
@@ -37,14 +37,14 @@ static cl::extrahelp MoreHelp("\nMore help text...");
  */
 StatementMatcher reduceSimpleAssignmentMatcher1 =
     binaryOperator(hasOperatorName("="),
-                   hasLHS(declRefExpr(to(varDecl().bind("accumulator")))),
+                   hasLHS(declRefExpr(to(varDecl().bind("possibleAccumulator")))),
 
                    hasRHS(binaryOperator(
                        hasLHS(hasDescendant(declRefExpr(
-                           to(varDecl(equalsBoundNode("accumulator")))))),
+                           to(varDecl(equalsBoundNode("possibleAccumulator")))))),
                        unless(hasRHS(hasDescendant(declRefExpr(
-                           to(varDecl(equalsBoundNode("accumulator"))))))))))
-        .bind("reduce");
+                           to(varDecl(equalsBoundNode("possibleAccumulator"))))))))))
+        .bind("possibleReductionAssignment");
 
 /* A matcher that matches any assignment whose right-hand side
  * is a binary operation whose second operand contains the assignee,
@@ -54,13 +54,13 @@ StatementMatcher reduceSimpleAssignmentMatcher1 =
 StatementMatcher reduceSimpleAssignmentMatcher2 =
     binaryOperator(
         hasOperatorName("="),
-        hasLHS(declRefExpr(to(varDecl().bind("accumulator")))),
+        hasLHS(declRefExpr(to(varDecl().bind("possibleAccumulator")))),
 
         hasRHS(binaryOperator(hasRHS(ignoringParenImpCasts(
-            declRefExpr(to(varDecl(equalsBoundNode("accumulator")))))))),
+            declRefExpr(to(varDecl(equalsBoundNode("possibleAccumulator")))))))),
         unless(hasDescendant(binaryOperator(hasLHS(hasDescendant(
-            declRefExpr(to(varDecl(equalsBoundNode("accumulator"))))))))))
-        .bind("reduce");
+            declRefExpr(to(varDecl(equalsBoundNode("possibleAccumulator"))))))))))
+        .bind("possibleReductionAssignment");
 
 /* TODO: the two matchers above seem to be an attempt to exclude assignments
  * whose assignee appear in their right-hand side multiple times.
@@ -90,10 +90,10 @@ StatementMatcher reduceCompoundAssignmentMatcher =
     binaryOperator(anyOf(hasOperatorName("+="), hasOperatorName("-="),
                          hasOperatorName("*="), hasOperatorName("/=")),
 
-                   hasLHS(declRefExpr(to(varDecl().bind("accumulator")))),
+                   hasLHS(declRefExpr(to(varDecl().bind("possibleAccumulator")))),
                    unless(hasRHS(hasDescendant(declRefExpr(
-                       to(varDecl(equalsBoundNode("accumulator"))))))))
-        .bind("reduce");
+                       to(varDecl(equalsBoundNode("possibleAccumulator"))))))))
+        .bind("possibleReductionAssignment");
 
 StatementMatcher reduceAssignmentMatcher = findAll(
     stmt(anyOf(reduceSimpleAssignmentMatcher1, reduceSimpleAssignmentMatcher2,
@@ -103,38 +103,39 @@ StatementMatcher reduceAssignmentMatcher = findAll(
  */
 
 /*
- * LoopChecker's run method is called for every for loop.
- * It checks whether a for loop looks like a reduction operation.
+ * One instance of LoopChecker is created for each source file.
+ * It checks every for loop in that file, accumulating statistics.
  */
 class LoopChecker : public MatchFinder::MatchCallback {
 public:
   unsigned int likelyReductionCount = 0;
   unsigned int totalLoopCount = 0;
 
+  // run is called by MatchFinder for each for loop.
   virtual void run(const MatchFinder::MatchResult &result) {
     ASTContext *context = result.Context;
 
     const ForStmt *forStmt = result.Nodes.getNodeAs<ForStmt>("forLoop");
 
-    // We do not want to scan header files.
+    // If this loop is in an included header file, do nothing.
     if (!forStmt ||
         !context->getSourceManager().isWrittenInMainFile(forStmt->getForLoc()))
       return;
 
     llvm::errs() << "Found a for loop at ";
     forStmt->getForLoc().dump(context->getSourceManager());
-    forStmt->dumpPretty(*result.Context);
+    forStmt->dumpPretty(*context);
 
     /*
-     * TODO: for each assignment that looks like a reduction assignment,
+     * For each assignment that looks like a reduction assignment,
      * check whether its lvalue
      * is referenced in any other expression of the loop.
      * If it isn't, then report it as a possible reduction accumulator.
      */
     AccumulatorChecker accumulatorChecker(forStmt);
-    MatchFinder expressionFinder;
-    expressionFinder.addMatcher(reduceAssignmentMatcher, &accumulatorChecker);
-    expressionFinder.match(*forStmt, *context);
+    MatchFinder reductionAssignmentFinder;
+    reductionAssignmentFinder.addMatcher(reduceAssignmentMatcher, &accumulatorChecker);
+    reductionAssignmentFinder.match(*forStmt, *context);
 
     if (accumulatorChecker.likelyAccumulatorsFound) {
       llvm::errs() << INDENT "This might be a reduction loop.\n";
@@ -147,16 +148,16 @@ public:
   }
 
   /*
-   * In a for loop, for each assignment that looks like a possible
-   * reduction assignment (e.g. sum += array[i]), we check whether
-   * that assignment's assignee (which is then a possible accumulator)
+   * One instance of AccumulatorChecker is created for each for loop.
+   * For each assignment that looks like a potential reduction assignment
+   * (for example: sum += array[i]) in that loop, it checks whether
+   * that assignment's assignee (which is then a potential accumulator)
    * appears in any other expression in the loop's body.
-   * This is done by AccumulatorChecker.
    */
   class AccumulatorChecker : public MatchFinder::MatchCallback {
 
-    /* One instance of AccumulatorChecker is created for each for loop.
-     * A reference to the for loop an instance was created to search
+    /*
+     * A reference to the for loop this instance was created to search
      * is kept in forStmt.
      */
     const ForStmt *forStmt;
@@ -166,17 +167,19 @@ public:
 
     AccumulatorChecker(const ForStmt *forStmt) { this->forStmt = forStmt; }
 
+    // run is called by MatchFinder for each reduction-looking assignment.
     virtual void run(const MatchFinder::MatchResult &result) {
       // Get the matched assignment.
       const BinaryOperator *assignment =
-          result.Nodes.getNodeAs<BinaryOperator>("reduce");
+          result.Nodes.getNodeAs<BinaryOperator>("possibleReductionAssignment");
+
       llvm::errs() << INDENT "Possible reduction assignment: ";
       assignment->dumpPretty(*result.Context);
       llvm::errs() << "\n";
 
       // Get the assignment's assignee.
       const VarDecl *possibleAccumulator =
-          result.Nodes.getNodeAs<VarDecl>("accumulator");
+          result.Nodes.getNodeAs<VarDecl>("possibleAccumulator");
 
       // Construct a matcher that matches other references to the assignee.
       /* To check whether two declaration references that reference
@@ -200,6 +203,7 @@ public:
       referenceFinder.addMatcher(outsideReferenceMatcher,
                                  &outsideReferenceAccumulator);
       referenceFinder.match(*forStmt, *result.Context);
+
       llvm::errs() << INDENT INDENT "└ Found "
                    << outsideReferenceAccumulator.outsideReferences
                    << " other references to " << possibleAccumulator->getName()
@@ -214,8 +218,11 @@ public:
       }
     };
 
-    /* The sole purpose of OutsideReferenceAccumulator is to count
-     * how many references to the assignee occur outside of the assignment.
+    /* One instance of OutsideReferenceAccumulator is created for each
+     * assignment we check. Its sole purpose is to count
+     * how many references to that assignment's assignee occur outside
+     * of the assignment (which is the number of times its run method is 
+     * called by MatchFinder).
      */
     class OutsideReferenceAccumulator : public MatchFinder::MatchCallback {
     public:
@@ -275,7 +282,7 @@ int main(int argc, const char **argv) {
  *   ways of iterating over an array (like range-based for loops)
  *   and with collections other than arrays.
  * - What happens when we have multiple possible accumulators (i.e. multiple
- *   nodes bound to the name "accumulator"?) Add test cases. Deal with that.
+ *   nodes bound to the name "possibleAccumulator"?) Add test cases. Deal with that.
  * - Make a basic testing framework that allows a good number of regression
  *   tests without requiring laborious output-checking effort.
  *   Each loop would go in a separate function with a unique name. Each function
