@@ -30,13 +30,13 @@ static cl::extrahelp CommonHelp(CommonOptionsParser::HelpMessage);
 // A help message for this specific tool can be added afterwards.
 static cl::extrahelp MoreHelp("\nMore help text...");
 
-
-/* reduceSimpleAssignmentMatcher matches any simple assignment whose assignee
+/* potentialReductionAssignment matches any simple assignment whose assignee
  * also appears in its right-hand side, only once.
  * For example: sum = sum + array[i]
- * TODO: rename to something like potentialReductionAssignmentMatcher, and then do analogously for related matchers
+ * TODO: rename to something like potentialReductionAssignmentMatcher, and then
+ * do analogously for related matchers
  */
-StatementMatcher reduceSimpleAssignmentMatcher =
+StatementMatcher potentialReductionSimpleAssignmentMatcher =
     binaryOperator(
         hasOperatorName("="),
         hasLHS(declRefExpr(to(varDecl().bind("possibleAccumulator")))),
@@ -51,7 +51,7 @@ StatementMatcher reduceSimpleAssignmentMatcher =
 /* A matcher that matches a compound assignment whose left-hand side is a
  * variable that does not appear in its right-hand side.
  */
-StatementMatcher reduceCompoundAssignmentMatcher =
+StatementMatcher potentialReductionCompoundAssignmentMatcher =
     binaryOperator(
         anyOf(hasOperatorName("+="), hasOperatorName("-="),
               hasOperatorName("*="), hasOperatorName("/=")),
@@ -61,8 +61,9 @@ StatementMatcher reduceCompoundAssignmentMatcher =
             declRefExpr(to(varDecl(equalsBoundNode("possibleAccumulator"))))))))
         .bind("possibleReductionAssignment");
 
-StatementMatcher reduceAssignmentMatcher = findAll(stmt(
-    anyOf(reduceSimpleAssignmentMatcher, reduceCompoundAssignmentMatcher)));
+StatementMatcher reduceAssignmentMatcher =
+    findAll(stmt(anyOf(potentialReductionSimpleAssignmentMatcher,
+                       potentialReductionCompoundAssignmentMatcher)));
 /* TODO: bind the matching node to a name here (and use a more reasonable
  * name) rather than in the inner matchers.
  */
