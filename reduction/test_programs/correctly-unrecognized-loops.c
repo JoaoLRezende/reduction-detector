@@ -66,5 +66,21 @@ int main(){
         sum = x + sum + array[i] + sum;
     }
 
+    // Correctly unrecognized.
+    for(int i = 0; i < ARRAYSIZE; i++){    
+        sum = sum + sum;
+    }
+
+    /* These are loops that were incorrectly recognized with the old
+     * approach of detecting multiple occurences of the accumulator
+     * in the right-hand side of the assignment.
+     */
+    for (int i = 0; i < ARRAYSIZE; i++) {
+        sum = (sum + sum) + x; // only the first operand of the outermost + involves sum
+    }
+    for (int i = 0; i < ARRAYSIZE; i++) {
+        sum = sum + sum + x; // same as above (since + is left-associative)
+    }
+
     return 0;
 }
