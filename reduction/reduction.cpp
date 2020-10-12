@@ -31,7 +31,7 @@ static cl::extrahelp CommonHelp(CommonOptionsParser::HelpMessage);
 static cl::extrahelp MoreHelp("\nMore help text...");
 
 /* potentialReductionAssignment matches any simple assignment whose assignee
- * also appears in its right-hand side, only once.
+ * also appears in its right-hand side once (and only once).
  * For example: sum = sum + array[i]
  */
 StatementMatcher potentialReductionSimpleAssignmentMatcher = binaryOperator(
@@ -59,9 +59,6 @@ StatementMatcher reduceAssignmentMatcher =
     findAll(binaryOperator(anyOf(potentialReductionSimpleAssignmentMatcher,
                                  potentialReductionCompoundAssignmentMatcher))
                 .bind("possibleReductionAssignment"));
-/* TODO: bind the matching node to a name here (and use a more reasonable
- * name) rather than in the inner matchers.
- */
 
 /*
  * One instance of LoopChecker is created for each source file.
