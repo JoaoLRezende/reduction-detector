@@ -41,16 +41,13 @@ int main(){
         sum = sum + array[j];
     }
 
-/*  // TODO
-    for(){
-        sum = fun(sum, array[i])
+    int f(int sum, int next) {
+        return sum + next;
     }
-
-
-    fun(sum, ele){
-        ele = ele+ 10 + sum;
-        sum = sum + ele;
-    }*/
+    
+    for(int i = 0; i < ARRAYSIZE; i++){
+        sum = f(sum, array[i])
+    }
     
     // Correctly recognized.
     for(int i = 0; i < ARRAYSIZE; i++){    
