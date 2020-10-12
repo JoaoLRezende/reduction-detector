@@ -88,8 +88,12 @@ public:
     forStmt->dumpPretty(*context);
 
     /*
-     * For each assignment that looks like a reduction assignment,
-     * check whether its lvalue
+     * A reduction accumulator does nothing other than accumulate.
+     * It doesn't affect the computation in other ways. If a
+     * potential accumulator appears in multiple places in the loop,
+     * then it probably isn't really an accumulator.
+     * Thus, for each assignment that looks like a reduction assignment,
+     * we check whether its lvalue
      * is referenced in any other expression of the loop.
      * If it isn't, then report it as a possible reduction accumulator.
      */
@@ -215,6 +219,8 @@ int main(int argc, const char **argv) {
 }
 
 /* TODO:
+ * - Add a test case for a loop whose body is an expression statement,
+ *   rather than a compount statement (i.e. a block).
  * - Do proper encapsulation. Make public only what needs to be public.
  *   Use getter methods.
  * - Be able to receive command-line arguments. Options like
