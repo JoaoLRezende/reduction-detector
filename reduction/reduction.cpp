@@ -50,7 +50,6 @@ StatementMatcher potentialReductionSimpleAssignmentMatcher = binaryOperator(
 StatementMatcher potentialReductionCompoundAssignmentMatcher = binaryOperator(
     anyOf(hasOperatorName("+="), hasOperatorName("-="), hasOperatorName("*="),
           hasOperatorName("/=")),
-
     hasLHS(declRefExpr(to(varDecl().bind("possibleAccumulator")))),
     unless(hasRHS(hasDescendant(
         declRefExpr(to(varDecl(equalsBoundNode("possibleAccumulator"))))))));
