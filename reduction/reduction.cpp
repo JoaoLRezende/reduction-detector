@@ -215,6 +215,16 @@ int main(int argc, const char **argv) {
 }
 
 /* TODO:
+ * - To catch compile-time errors more quickly, make the make.sh script
+ *   run clang-check on this source file (after copying it into the Clang tools
+ *   directory) before starting the build process.
+ * - Check whether each potential accumulator is declared outside of the loop.
+ *   (That should change nothing now, but it will be a necessary check after we stop
+ *   requiring that an accumulator is referenced in only one assignemnt in the loop.)
+ * - Why do we check whether a potential accumulator is referenced only once
+     in the right-hand side of its assignment? Is there any good reason for that?
+     Make tests. If nothing changes, we should probably stop doing that.
+     (Noted by Gerson.)
  * - Add a test case for a loop whose body is an expression statement,
  *   rather than a compount statement (i.e. a block).
  * - Do proper encapsulation. Make public only what needs to be public.
@@ -228,9 +238,16 @@ int main(int argc, const char **argv) {
  * - Get more example loops from real software systems. (See PARSEC,
  *   Cowichan.)
  * - How well do we deal with nested loops? Write some test cases for that.
+ * - An accumulator isn't necessarily a variable directly named by an identifier.
+ *   It can be any recurring lvalue − for example, a member of a struct
+ *   or an element of an array. We need to be able to recognize those
+ *   accumulators too. (Noted by Gerson.) Make diverse test cases.
  * - Be able to receive a directory as input (rather than only a single
  *   file).
  *   Then, test on larger software systems (such as Linux).
+ * - Make the program optionally write its output to a given file, with
+ *   detailed information about the location of each potential reduction loop
+ *   and what the potential reduction accumulators are.
  * - Comment the code.
  * - Use deeper indentation to make reading easier. At least 4 spaces.
  * - If we plan to work with C++ too, we'll probably have to deal with other
