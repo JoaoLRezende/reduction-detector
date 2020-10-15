@@ -218,6 +218,9 @@ int main(int argc, const char **argv) {
  * - To catch compile-time errors more quickly, make the make.sh script
  *   run clang-check on this source file (after copying it into the Clang tools
  *   directory) before starting the build process.
+ * - Recognize uses of the unary increment and decrement operators
+     as if they were reduction assignments. NPB code does at least two reductions
+     using those.
  * - Check whether each potential accumulator is declared outside of the loop.
  *   (That should change nothing now, but it will be a necessary check after we stop
  *   requiring that an accumulator is referenced in only one assignemnt in the loop.)
