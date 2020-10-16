@@ -35,3 +35,20 @@ int main(){
     
     return 0;
 }
+
+/* real-life examples that can't be copy-pasted here due to
+   referencing many external variables
+   
+    /* From NPB3.3.1/NPB3.3-SER/DC/adc.c:121:7.
+     * lexp is identified as a likely reduction accumulator.
+     * TODO: is it? Examine this and its surrounding context in that source file.
+     * /
+    int k;
+    for (k = 0; k < fctlist[genexp]->dim; k++) {
+        if (fctlist[genexp]->mlt[k] == 1)
+            break;
+        if (fct != fctlist[genexp]->mlt[k])
+            continue;
+        lexp -= fctlist[genexp]->exp[k];
+        break;
+    }
