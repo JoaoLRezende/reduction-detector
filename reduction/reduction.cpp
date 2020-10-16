@@ -144,15 +144,10 @@ public:
           result.Nodes.getNodeAs<VarDecl>("possibleAccumulator");
 
       // Construct a matcher that matches other references to the assignee.
-      /* To check whether two declaration references that reference
-       * declarations a and b in fact reference the same declaration,
-       * an earlier version of this code went
-       * out of its way to compare the referenced declarations with
-       * a->getCanonicalDecl() == b->getCanonicalDecl()
-       * procedurally instead of directly comparing AST nodes in a matcher
-       * as we do here.
-       * I don't know why. I don't know what a "canonical declaration" is.
-       * If issues arise, consider doing that here.
+      /*
+       * If issues arise in detecting other references to possibleAccumulator
+       * in this way, consider doing as described in
+       * https://clang.llvm.org/docs/LibASTMatchersTutorial.html#:~:text=the%20%E2%80%9Ccanonical%E2%80%9D%20form%20of%20each%20declaration.
        */
       StatementMatcher outsideReferenceMatcher =
           findAll(declRefExpr(to(varDecl(equalsNode(possibleAccumulator))),
@@ -198,14 +193,14 @@ public:
 
 int main(int argc, const char **argv) {
   CommonOptionsParser optionsParser(argc, argv, myToolCategory);
-  ClangTool Tool(optionsParser.getCompilations(),
-                 optionsParser.getSourcePathList());
+  ClangTool clangTool(optionsParser.getCompilations(),
+                      optionsParser.getSourcePathList());
 
   LoopChecker loopChecker;
   MatchFinder finder;
   finder.addMatcher(forStmt().bind("forLoop"), &loopChecker);
 
-  int statusCode = Tool.run(newFrontendActionFactory(&finder).get());
+  int statusCode = clangTool.run(newFrontendActionFactory(&finder).get());
 
   llvm::errs() << loopChecker.likelyReductionCount << " out of "
                << loopChecker.totalLoopCount
@@ -216,15 +211,20 @@ int main(int argc, const char **argv) {
 
 /* TODO:
  * - Recognize uses of the unary increment and decrement operators
-     as if they were reduction assignments. NPB code does at least two reductions
-     using those.
- * - Check whether each potential accumulator is declared outside of the loop.
- *   (That should change nothing now, but it will be a necessary check after we stop
- *   requiring that an accumulator is referenced in only one assignemnt in the loop.)
- * - Why do we check whether a potential accumulator is referenced only once
-     in the right-hand side of its assignment? Is there any good reason for that?
-     Make tests. If nothing changes, we should probably stop doing that.
-     (Noted by Gerson.)
+ *   as if they were reduction assignments. NPB code does at least two
+ *   reductions using those.
+ * - Check whether each potential accumulator is declared outside
+ *   of the loop.
+ *   (That should change nothing now, but it will be a necessary
+ *   check after we stop
+ *   requiring that an accumulator is referenced in only one
+ *   assignemnt in the loop.)
+ * - Why do we check whether a potential accumulator is referenced
+ *   only once
+ *   in the right-hand side of its assignment? Is there any good
+ *   reason for that?
+ *   Make tests. If nothing changes, we should probably stop doing that.
+ *   (Noted by Gerson.)
  * - Add a test case for a loop whose body is an expression statement,
  *   rather than a compound statement (i.e. a block).
  * - Do proper encapsulation. Make public only what needs to be public.
@@ -238,7 +238,8 @@ int main(int argc, const char **argv) {
  * - Get more example loops from real software systems. (See PARSEC,
  *   Cowichan.)
  * - How well do we deal with nested loops? Write some test cases for that.
- * - An accumulator isn't necessarily a variable directly named by an identifier.
+ * - An accumulator isn't necessarily a variable directly named by an
+ *   identifier.
  *   It can be any recurring lvalue − for example, a member of a struct
  *   or an element of an array. We need to be able to recognize those
  *   accumulators too. (Noted by Gerson.) Make diverse test cases.
