@@ -1,5 +1,9 @@
 #define ARRAYSIZE 10
 
+int f(int sum, int next) {
+    return sum + next;
+}
+
 int main(){
     int array[ARRAYSIZE] = {0, 1 , 2, 3, 4, 5, 6, 7, 8, 9};
     int sum = 0;
@@ -40,13 +44,9 @@ int main(){
     for(int i = 0; i < ARRAYSIZE; i++){
         sum = sum + array[j];
     }
-
-    int f(int sum, int next) {
-        return sum + next;
-    }
     
     for(int i = 0; i < ARRAYSIZE; i++){
-        sum = f(sum, array[i])
+        sum = f(sum, array[i]);
     }
     
     // Correctly recognized.
@@ -86,11 +86,10 @@ int main(){
 /* external examples that can't be pasted here due to having references
    to many external identifiers:
    
-    /* From NPB3.3.1/NPB3.3-SER/DC/adc.c:375:4.
-     * Both totalInBytes and nCubeTuples are identified as reduction accumulators.
-     * Seems right, though I'm not completely sure. TODO: examine this thing
-     * (in its context) more closely.
-     * /
+    // From NPB3.3.1/NPB3.3-SER/DC/adc.c:375:4.
+    // Both totalInBytes and nCubeTuples are identified as reduction accumulators.
+    // Seems right, though I'm not completely sure. TODO: examine this thing
+    // (in its context) more closely.
     for (i = minvn; i < maxvn; i += vinc) {
         nViewDims = 0;
         fprintf(view, "Selection:");
@@ -105,10 +104,9 @@ int main(){
         nCubeTuples += dcview[i].vsize;
     }
     
-    /* From NPB3.3.1/NPB3.3-SER/DC/extbuild.c:265:5.
-     * nViewRows is identified as a likely reduction accumulator.
-     * Seems right. TODO: be sure.
-     * /
+    // From NPB3.3.1/NPB3.3-SER/DC/extbuild.c:265:5.
+    // nViewRows is identified as a likely reduction accumulator.
+    // Seems right. TODO: be sure.
     for (iRec = 1; iRec <= avp->nRowsToRead; iRec++) {
         fread(attrs, avp->inpRecSize, 1, iof);
         SelectToView(attrs, avp->selection, currBuf, avp->nd, avp->nm, avp->nv);
@@ -159,9 +157,8 @@ int main(){
         memcpy(prevBuf, currBuf, avp->outRecSize);
     }
     
-    /* From NPB3.3.1/NPB3.3-SER/DC/extbuild.c:129:3.
-     * total is identified as a likely reduction accumulator.
-     * /
+    // From NPB3.3.1/NPB3.3-SER/DC/extbuild.c:129:3.
+    // total is identified as a likely reduction accumulator.
     for (iib = 1; iib <= nsgs; iib++) {
         if (iib > 1)
             fseek(avp->viewFile, inpfOffset, 0);
@@ -239,3 +236,4 @@ int main(){
             prevV = currV;
         }
     }
+*/
