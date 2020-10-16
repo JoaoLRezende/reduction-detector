@@ -215,9 +215,6 @@ int main(int argc, const char **argv) {
 }
 
 /* TODO:
- * - To catch compile-time errors more quickly, make the make.sh script
- *   run clang-check on this source file (after copying it into the Clang tools
- *   directory) before starting the build process.
  * - Recognize uses of the unary increment and decrement operators
      as if they were reduction assignments. NPB code does at least two reductions
      using those.
@@ -229,7 +226,7 @@ int main(int argc, const char **argv) {
      Make tests. If nothing changes, we should probably stop doing that.
      (Noted by Gerson.)
  * - Add a test case for a loop whose body is an expression statement,
- *   rather than a compount statement (i.e. a block).
+ *   rather than a compound statement (i.e. a block).
  * - Do proper encapsulation. Make public only what needs to be public.
  *   Use getter methods.
  * - Be able to receive command-line arguments. Options like
