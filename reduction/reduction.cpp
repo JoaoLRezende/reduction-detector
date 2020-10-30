@@ -19,6 +19,10 @@
 // Declares llvm::cl::extrahelp.
 #include "llvm/Support/CommandLine.h"
 
+#include "llvm/Support/raw_ostream.h"
+
+#include "clang/AST/PrettyPrinter.h"
+
 #include "clang/AST/ASTContext.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
 #include "clang/ASTMatchers/ASTMatchers.h"
@@ -77,11 +81,20 @@ StatementMatcher reduceAssignmentMatcher =
  */
 class LoopChecker : public MatchFinder::MatchCallback {
 public:
+  std::string loop_analysis_report_buffer;
+
   unsigned int likelyReductionCount = 0;
   unsigned int totalLoopCount = 0;
 
+  LoopChecker() { loop_analysis_report_buffer = std::string(); }
+
   // run is called by MatchFinder for each for loop.
   virtual void run(const MatchFinder::MatchResult &result) {
+
+    loop_analysis_report_buffer.clear();
+    llvm::raw_string_ostream loop_analysis_report_stream(
+        loop_analysis_report_buffer);
+
     ASTContext *context = result.Context;
 
     const ForStmt *forStmt = result.Nodes.getNodeAs<ForStmt>("forLoop");
@@ -91,9 +104,11 @@ public:
         !context->getSourceManager().isWrittenInMainFile(forStmt->getForLoc()))
       return;
 
-    llvm::errs() << "Found a for loop at ";
-    forStmt->getForLoc().dump(context->getSourceManager());
-    forStmt->dumpPretty(*context);
+    loop_analysis_report_stream << "Found a for loop at ";
+    forStmt->getForLoc().print(loop_analysis_report_stream, context->getSourceManager());
+    loop_analysis_report_stream << ":\n";
+    forStmt->printPretty(loop_analysis_report_stream, nullptr,
+                         PrintingPolicy(LangOptions())); 
 
     /*
      * A reduction accumulator does nothing other than accumulate.
@@ -105,20 +120,25 @@ public:
      * is referenced in any other expression of the loop.
      * If it isn't, then report it as a possible reduction accumulator.
      */
-    AccumulatorChecker accumulatorChecker(forStmt);
+    AccumulatorChecker accumulatorChecker(forStmt, loop_analysis_report_stream);
     MatchFinder reductionAssignmentFinder;
     reductionAssignmentFinder.addMatcher(reduceAssignmentMatcher,
                                          &accumulatorChecker);
     reductionAssignmentFinder.match(*forStmt, *context);
 
     if (accumulatorChecker.likelyAccumulatorsFound) {
-      llvm::errs() << INDENT "This might be a reduction loop.\n";
+      loop_analysis_report_stream << INDENT "This might be a reduction loop.\n";
       likelyReductionCount += 1;
     } else {
-      llvm::errs() << INDENT "This probably isn't a reduction loop.\n";
+      loop_analysis_report_stream
+          << INDENT "This probably isn't a reduction loop.\n";
     }
-    errs() << "\n";
+    loop_analysis_report_stream << "\n";
     totalLoopCount += 1;
+
+    loop_analysis_report_stream.flush(); // write buffered analysis results to
+                                         // loop_analysis_report_buffer
+    llvm::outs() << loop_analysis_report_buffer;
   }
 
   /*
@@ -136,20 +156,26 @@ public:
      */
     const ForStmt *forStmt;
 
+    raw_string_ostream &loop_analysis_report_stream;
+
   public:
     int likelyAccumulatorsFound = 0;
 
-    AccumulatorChecker(const ForStmt *forStmt) { this->forStmt = forStmt; }
+    AccumulatorChecker(const ForStmt *forStmt,
+                       raw_string_ostream &loop_analysis_report_stream)
+        : forStmt(forStmt),
+          loop_analysis_report_stream(loop_analysis_report_stream) {}
 
     // run is called by MatchFinder for each reduction-looking assignment.
     virtual void run(const MatchFinder::MatchResult &result) {
+
       // Get the matched assignment.
       const BinaryOperator *assignment =
           result.Nodes.getNodeAs<BinaryOperator>("possibleReductionAssignment");
 
-      llvm::errs() << INDENT "Possible reduction assignment: ";
-      assignment->dumpPretty(*result.Context);
-      llvm::errs() << "\n";
+      loop_analysis_report_stream << INDENT "Possible reduction assignment: ";
+      assignment->printPretty(loop_analysis_report_stream, nullptr, PrintingPolicy(LangOptions()));
+      loop_analysis_report_stream << "\n";
 
       // Get the assignment's assignee.
       const VarDecl *possibleAccumulator =
@@ -173,17 +199,20 @@ public:
                                  &outsideReferenceAccumulator);
       referenceFinder.match(*forStmt, *result.Context);
 
-      llvm::errs() << INDENT INDENT "└ Found "
-                   << outsideReferenceAccumulator.outsideReferences
-                   << " other references to " << possibleAccumulator->getName()
-                   << " in this for loop. ";
+      loop_analysis_report_stream
+          << INDENT INDENT "└ Found "
+          << outsideReferenceAccumulator.outsideReferences
+          << " other references to " << possibleAccumulator->getName()
+          << " in this for loop. ";
       if (!outsideReferenceAccumulator.outsideReferences) {
-        llvm::errs() << "Thus, " << possibleAccumulator->getName()
-                     << " might be a reduction accumulator.\n";
+        loop_analysis_report_stream << "Thus, "
+                                    << possibleAccumulator->getName()
+                                    << " might be a reduction accumulator.\n";
         likelyAccumulatorsFound += 1;
       } else {
-        llvm::errs() << "Thus, " << possibleAccumulator->getName()
-                     << " probably isn't a reduction accumulator.\n";
+        loop_analysis_report_stream
+            << "Thus, " << possibleAccumulator->getName()
+            << " probably isn't a reduction accumulator.\n";
       }
     };
 
@@ -202,7 +231,6 @@ public:
     };
   };
 };
-
 
 /*
  * todo: description.
@@ -260,7 +288,7 @@ int main(int argc, const char **argv) {
   CommonOptionsParser optionsParser(argc, argv, myToolCategory);
 
   std::vector<std::string> input_path_list = optionsParser.getSourcePathList();
-  llvm::errs() << "input_path_list: ";
+  llvm::errs() << "input_path_list:\n";
   dump_string_vector(input_path_list);
   llvm::errs() << "\n";
 
