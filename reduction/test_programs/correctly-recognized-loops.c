@@ -1,3 +1,9 @@
+/*
+ * The website at http://cuda.dcc.ufmg.br/psyche-c/ can be
+ * used to include code fragments that reference external variables.
+ * TODO: use that thing on the commented-out fragments below.
+ */
+
 #define ARRAYSIZE 10
 
 int f(int sum, int next) {
