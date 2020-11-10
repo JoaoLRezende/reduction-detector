@@ -1,2 +1,4 @@
 /build
-/llvm
+/cmake/
+/llvm-project/
+/ninja/
