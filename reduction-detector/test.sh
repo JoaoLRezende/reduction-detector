@@ -5,7 +5,7 @@ DEFAULT="test_programs/test.c"
 if [ -z "$1" ]
   then
     echo "testing on $DEFAULT"
-    ../build/bin/reduction $DEFAULT --
+    ../build/bin/reduction-detector $DEFAULT --
   else
-    ../build/bin/reduction $1 --
+    ../build/bin/reduction-detector $1 --
 fi
