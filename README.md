@@ -17,15 +17,19 @@ echo 'add_subdirectory(finding-parallelizable-code-syntactically)' >> CMakeLists
 Create in that new directory a file named `CMakeLists.txt` with the following content:
 ```
 set(LLVM_LINK_COMPONENTS support)
+
+file(GLOB reduction-detector-SRC
+    "*.cpp"
+)
  
 add_clang_executable(reduction-detector
-  reduction-detector.cpp
-  )
+     ${reduction-detector-SRC}
+)
 target_link_libraries(reduction-detector
   PRIVATE
   clangTooling
   clangBasic
   clangASTMatchers
-  )
+)
 ```
 Then, execute our script `set-up-build.sh` to generate the necessary Ninja files with CMake. Then, `build.sh` can be used to copy the tool's source files into LLVM's tree and build it.
