@@ -2,6 +2,8 @@
 
 DEFAULT="test_programs/test.c"
 
+cd "$(dirname "$0")"
+
 if [ -z "$1" ]
   then
     echo "testing on $DEFAULT"

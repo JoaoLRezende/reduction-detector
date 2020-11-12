@@ -1,4 +1,5 @@
 # Create the build directory and execute CMake.
+cd "$(dirname "$0")" &&
 cd .. &&
 mkdir build &&
 cd build &&

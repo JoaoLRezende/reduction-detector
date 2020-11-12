@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# copy and make
+cd "$(dirname "$0")"
 
 cp src/* ../llvm-project/clang-tools-extra/finding-parallelizable-code-syntactically/ &&
 
