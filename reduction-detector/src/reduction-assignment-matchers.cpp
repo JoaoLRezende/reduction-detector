@@ -4,6 +4,9 @@
 
 using namespace clang::ast_matchers;
 
+namespace reduction_detector {
+namespace reduction_assignment_matchers {
+
 /* potentialReductionAssignment matches any simple assignment whose assignee
  * also appears in its right-hand side once (and only once).
  * For example: sum = sum + array[i]
@@ -32,3 +35,6 @@ StatementMatcher reductionAssignmentMatcher =
     findAll(binaryOperator(anyOf(potentialReductionSimpleAssignmentMatcher,
                                  potentialReductionCompoundAssignmentMatcher))
                 .bind("possibleReductionAssignment"));
+
+}
+}

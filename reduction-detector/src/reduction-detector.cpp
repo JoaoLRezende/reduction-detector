@@ -22,7 +22,6 @@
 #include "llvm/Support/raw_ostream.h"
 
 #include "clang/AST/PrettyPrinter.h"
-
 #include "clang/AST/ASTContext.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
 #include "clang/ASTMatchers/ASTMatchers.h"
@@ -33,6 +32,8 @@ using namespace clang;
 using namespace clang::ast_matchers;
 using namespace clang::tooling;
 using namespace llvm;
+
+using namespace reduction_detector::reduction_assignment_matchers;
 
 #define INDENT "  " // a string with 2 spaces, for indenting debug ouput
 
