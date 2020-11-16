@@ -27,6 +27,8 @@
 #include "clang/ASTMatchers/ASTMatchFinder.h"
 #include "clang/ASTMatchers/ASTMatchers.h"
 
+#include "reduction-detector/reduction-assignment-matchers.h"
+
 using namespace clang;
 using namespace clang::ast_matchers;
 using namespace clang::tooling;
@@ -46,34 +48,6 @@ static cl::extrahelp CommonHelp(CommonOptionsParser::HelpMessage);
 // A help message for this specific tool can be added afterwards.
 static cl::extrahelp MoreHelp("\nMore help text...");
 
-/* potentialReductionAssignment matches any simple assignment whose assignee
- * also appears in its right-hand side once (and only once).
- * For example: sum = sum + array[i]
- */
-StatementMatcher potentialReductionSimpleAssignmentMatcher = binaryOperator(
-    hasOperatorName("="),
-    hasLHS(declRefExpr(to(varDecl().bind("possibleAccumulator")))),
-    hasRHS(hasDescendant(
-        declRefExpr(to(varDecl(equalsBoundNode("possibleAccumulator"))))
-            .bind("referenceToPossibleAccumulatorInRHS"))),
-    unless(hasRHS(hasDescendant(declRefExpr(
-        to(varDecl(equalsBoundNode("possibleAccumulator"))),
-        unless(equalsBoundNode("referenceToPossibleAccumulatorInRHS")))))));
-
-/* A matcher that matches a compound assignment whose left-hand side is a
- * variable that does not appear in its right-hand side.
- */
-StatementMatcher potentialReductionCompoundAssignmentMatcher = binaryOperator(
-    anyOf(hasOperatorName("+="), hasOperatorName("-="), hasOperatorName("*="),
-          hasOperatorName("/=")),
-    hasLHS(declRefExpr(to(varDecl().bind("possibleAccumulator")))),
-    unless(hasRHS(hasDescendant(
-        declRefExpr(to(varDecl(equalsBoundNode("possibleAccumulator"))))))));
-
-StatementMatcher reduceAssignmentMatcher =
-    findAll(binaryOperator(anyOf(potentialReductionSimpleAssignmentMatcher,
-                                 potentialReductionCompoundAssignmentMatcher))
-                .bind("possibleReductionAssignment"));
 
 /*
  * One instance of LoopChecker is created for each source file.
@@ -122,7 +96,7 @@ public:
      */
     AccumulatorChecker accumulatorChecker(forStmt, loop_analysis_report_stream);
     MatchFinder reductionAssignmentFinder;
-    reductionAssignmentFinder.addMatcher(reduceAssignmentMatcher,
+    reductionAssignmentFinder.addMatcher(reductionAssignmentMatcher,
                                          &accumulatorChecker);
     reductionAssignmentFinder.match(*forStmt, *context);
 

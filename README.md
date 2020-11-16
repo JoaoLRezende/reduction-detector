@@ -11,8 +11,8 @@ Our convenience scripts also expect builds of Ninja and CMake to sit in this dir
 Then:
 ```
 cd finding-parallelizable-code-syntactically/llvm-project/clang-tools-extra
-mkdir finding-parallelizable-code-syntactically
-echo 'add_subdirectory(finding-parallelizable-code-syntactically)' >> CMakeLists.txt
+mkdir reduction-detector
+echo 'add_subdirectory(reduction-detector)' >> CMakeLists.txt
 ```
 Create in that new directory a file named `CMakeLists.txt` with the following content:
 ```
