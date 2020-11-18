@@ -27,7 +27,7 @@ using namespace llvm;
 using reduction_detector::translation_unit_finder::expand_directories;
 using reduction_detector::translation_unit_finder::dump_string_vector;
 
-#include "reduction-detector/reduction-assignment-matchers.h"
+#include "reduction-detector/reduction_assignment_matchers.h"
 using namespace reduction_detector::reduction_assignment_matchers;
 
 #include "reduction-detector/loop_analysis.h"

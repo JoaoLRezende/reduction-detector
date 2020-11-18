@@ -23,7 +23,7 @@ using clang::PrintingPolicy;
 #include "llvm/Support/raw_ostream.h"
 using llvm::raw_string_ostream;
 
-#include "reduction-detector/reduction-assignment-matchers.h"
+#include "reduction-detector/reduction_assignment_matchers.h"
 using reduction_detector::reduction_assignment_matchers::
     reductionAssignmentMatcher;
 

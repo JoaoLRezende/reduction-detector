@@ -3,7 +3,10 @@
 cd "$(dirname "$0")"
 
 #TODO: use recursive glob patterns to allow modules within subdirectoriess.
+rm ../llvm-project/clang-tools-extra/reduction-detector/*.cpp &&
 cp src/*.cpp ../llvm-project/clang-tools-extra/reduction-detector/ &&
+
+rm ../llvm-project/clang/include/reduction-detector/* &&
 cp src/include/* ../llvm-project/clang/include/reduction-detector/ &&
 
 # Check the program for syntactic errors before starting the build process.

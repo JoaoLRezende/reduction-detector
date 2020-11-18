@@ -1,4 +1,4 @@
-#include "reduction-detector/reduction-assignment-matchers.h"
+#include "reduction-detector/reduction_assignment_matchers.h"
 
 #include "clang/ASTMatchers/ASTMatchers.h"
 
