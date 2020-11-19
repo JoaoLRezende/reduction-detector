@@ -11,7 +11,6 @@
 
 #include "reduction-detector/translation_unit_finder.h"
 using reduction_detector::translation_unit_finder::expand_directories;
-using reduction_detector::translation_unit_finder::dump_string_vector;
 
 #include "reduction-detector/loop_analysis.h"
 using reduction_detector::loop_analysis::LoopChecker;
@@ -32,18 +31,10 @@ static llvm::cl::extrahelp MoreHelp("\nMore help text...");
 int main(int argc, const char **argv) {
   clang::tooling::CommonOptionsParser optionsParser(argc, argv, myToolCategory);
 
-  // TODO: move these debugging-related statements into translation_unit_finder.cpp, and then make all of that module's functions private except the one called here.
   std::vector<std::string> input_path_list = optionsParser.getSourcePathList();
-  llvm::errs() << "input_path_list:\n";
-  dump_string_vector(input_path_list);
-  llvm::errs() << "\n";
 
   std::vector<std::string> expanded_path_list;
   expand_directories(input_path_list, expanded_path_list);
-
-  llvm::errs() << "expanded_path_list:\n";
-  dump_string_vector(expanded_path_list);
-  llvm::errs() << "\n";
 
   clang::tooling::ClangTool clangTool(optionsParser.getCompilations(),
                                       expanded_path_list);

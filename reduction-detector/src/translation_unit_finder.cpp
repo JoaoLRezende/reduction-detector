@@ -14,6 +14,12 @@
 namespace reduction_detector {
 namespace translation_unit_finder {
 
+static void dump_string_vector(std::vector<std::string> &vector) {
+  for (std::string &string : vector) {
+    llvm::errs() << "-- " << string << "\n";
+  }
+}
+
 static void get_files_in_directory(std::string &directory_path,
                                    std::vector<std::string> &output_list) {
   if (directory_path.back() == '/')
@@ -42,6 +48,12 @@ static void get_files_in_directory(std::string &directory_path,
 
 void expand_directories(std::vector<std::string> &input_list,
                         std::vector<std::string> &output_list) {
+  // TODO: write debugging stderr output only if given option
+  // "--debug-input-files" or something.
+  llvm::errs() << "input_path_list:\n";
+  dump_string_vector(input_list);
+  llvm::errs() << "\n";
+
   for (std::string &path : input_list) {
     struct stat stat_struct;
     if (stat(path.c_str(), &stat_struct)) {
@@ -54,12 +66,10 @@ void expand_directories(std::vector<std::string> &input_list,
       get_files_in_directory(path, output_list);
     }
   }
-}
 
-void dump_string_vector(std::vector<std::string> &vector) {
-  for (std::string &string : vector) {
-    llvm::errs() << "-- " << string << "\n";
-  }
+  llvm::errs() << "expanded_path_list:\n";
+  dump_string_vector(output_list);
+  llvm::errs() << "\n";
 }
 
 }
