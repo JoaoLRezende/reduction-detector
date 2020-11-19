@@ -34,7 +34,7 @@ using namespace clang::ast_matchers;
 namespace reduction_detector {
 namespace loop_analysis {
 
-LoopChecker::LoopChecker() { loop_analysis_report_buffer = std::string(); }
+LoopAnalyser::LoopAnalyser() { loop_analysis_report_buffer = std::string(); }
 
 /*
  * One instance of AccumulatorChecker is created for each for loop.
@@ -127,7 +127,7 @@ public:
 };
 
 // run is called by MatchFinder for each for loop.
-void LoopChecker::run(const MatchFinder::MatchResult &result) {
+void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
 
   loop_analysis_report_buffer.clear();
   llvm::raw_string_ostream loop_analysis_report_stream(

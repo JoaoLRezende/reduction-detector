@@ -13,7 +13,7 @@
 using reduction_detector::translation_unit_finder::expand_directories;
 
 #include "reduction-detector/loop_analysis.h"
-using reduction_detector::loop_analysis::LoopChecker;
+using reduction_detector::loop_analysis::LoopAnalyser;
 
 // Apply a custom category to all command-line options so that they are the
 // only ones displayed.
@@ -32,23 +32,22 @@ int main(int argc, const char **argv) {
   clang::tooling::CommonOptionsParser optionsParser(argc, argv, myToolCategory);
 
   std::vector<std::string> input_path_list = optionsParser.getSourcePathList();
-
   std::vector<std::string> expanded_path_list;
   expand_directories(input_path_list, expanded_path_list);
 
   clang::tooling::ClangTool clangTool(optionsParser.getCompilations(),
                                       expanded_path_list);
 
-  LoopChecker loopChecker;
+  LoopAnalyser loopAnalyser;
   clang::ast_matchers::MatchFinder finder;
   finder.addMatcher(clang::ast_matchers::forStmt().bind("forLoop"),
-                    &loopChecker);
+                    &loopAnalyser);
 
   int statusCode =
       clangTool.run(clang::tooling::newFrontendActionFactory(&finder).get());
 
-  llvm::errs() << loopChecker.likelyReductionCount << " out of "
-               << loopChecker.totalLoopCount
+  llvm::errs() << loopAnalyser.likelyReductionCount << " out of "
+               << loopAnalyser.totalLoopCount
                << " loops detected as likely reduction loops.\n";
 
   return statusCode;
