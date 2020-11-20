@@ -108,7 +108,7 @@ public:
     MatchFinder referenceFinder;
     referenceFinder.addMatcher(outsideReferenceMatcher,
                                &outsideReferenceAccumulator);
-    referenceFinder.match(loop_info->forStmt, *result.Context);
+    referenceFinder.match(*loop_info->forStmt, *result.Context);
 
     // Get the resuling count of outside references.
     potential_accumulator_info.outside_references =
