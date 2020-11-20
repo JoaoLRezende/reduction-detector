@@ -1,5 +1,7 @@
 #include "reduction-detector/loop_analysis.h"
 
+#include <map>
+
 #include "clang/AST/ASTContext.h"
 using clang::ASTContext;
 
@@ -20,9 +22,6 @@ using clang::LangOptions;
 #include "clang/AST/PrettyPrinter.h"
 using clang::PrintingPolicy;
 
-#include "llvm/Support/raw_ostream.h"
-using llvm::raw_string_ostream;
-
 #include "reduction-detector/reduction_assignment_matchers.h"
 using reduction_detector::reduction_assignment_matchers::
     reductionAssignmentMatcher;
@@ -34,32 +33,38 @@ using namespace clang::ast_matchers;
 namespace reduction_detector {
 namespace loop_analysis {
 
-LoopAnalyser::LoopAnalyser() { loop_analysis_report_buffer = std::string(); }
+struct PotentialAccumulatorInfo {
+  /* The number of references to this variable outside of assignments
+   * that change its value.
+   */
+  unsigned int outside_references = 0;
+};
+
+struct PotentialReductionLoopInfo {
+  ForStmt *forStmt = nullptr;
+  VarDecl *iteration_variable = nullptr;
+  std::map<const VarDecl *, PotentialAccumulatorInfo> potential_accumulators;
+};
 
 /*
- * One instance of AccumulatorChecker is created for each for loop.
+ * One instance of PotentialAccumulatorAnalyser is created for each for loop.
  * For each assignment that looks like a potential reduction assignment
- * (for example: sum += array[i]) in that loop, it checks whether
+ * (for example: sum += array[i]) in that loop, it determines how many times
  * that assignment's assignee (which is then a potential accumulator)
- * appears in any other expression in the loop's body.
+ * appears in expressions other than that assignment and other assignments
+ * to that variable.
  */
-class AccumulatorChecker : public MatchFinder::MatchCallback {
+class PotentialAccumulatorAnalyser : public MatchFinder::MatchCallback {
 
   /*
-   * A reference to the for loop this instance was created to search
-   * is kept in forStmt.
+   * The address of a structure describing
+   * the for loop this instance was created to search.
    */
-  const ForStmt *forStmt;
-
-  raw_string_ostream &loop_analysis_report_stream;
+  PotentialReductionLoopInfo *loop_info;
 
 public:
-  int likelyAccumulatorsFound = 0;
-
-  AccumulatorChecker(const ForStmt *forStmt,
-                     raw_string_ostream &loop_analysis_report_stream)
-      : forStmt(forStmt),
-        loop_analysis_report_stream(loop_analysis_report_stream) {}
+  PotentialAccumulatorAnalyser(PotentialReductionLoopInfo *loop_info)
+      : loop_info(loop_info) {}
 
   // run is called by MatchFinder for each reduction-looking assignment.
   virtual void run(const MatchFinder::MatchResult &result) {
@@ -68,23 +73,33 @@ public:
     const BinaryOperator *assignment =
         result.Nodes.getNodeAs<BinaryOperator>("possibleReductionAssignment");
 
-    loop_analysis_report_stream << INDENT "Possible reduction assignment: ";
-    assignment->printPretty(loop_analysis_report_stream, nullptr,
-                            PrintingPolicy(LangOptions()));
-    loop_analysis_report_stream << "\n";
-
     // Get the assignment's assignee.
-    const VarDecl *possibleAccumulator =
-        result.Nodes.getNodeAs<VarDecl>("possibleAccumulator");
+    const VarDecl *potentialAccumulator =
+        result.Nodes.getNodeAs<VarDecl>("potentialAccumulator");
+
+    // TODO: check in loop_info whether we have already analysed this potential
+    // accumulator. If we have, do nothing and return.
+    auto maybePotentialAccumulatorInfo =
+        loop_info->potential_accumulators.find(potentialAccumulator);
+    if (maybePotentialAccumulatorInfo ==
+        loop_info->potential_accumulators.end()) {
+      return;
+    }
+
+    PotentialAccumulatorInfo potential_accumulator_info;
 
     // Construct a matcher that matches other references to the assignee.
     /*
-     * If issues arise in detecting other references to possibleAccumulator
+     * If issues arise in detecting other references to potentialAccumulator
      * in this way, consider doing as described in
      * https://clang.llvm.org/docs/LibASTMatchersTutorial.html#:~:text=the%20%E2%80%9Ccanonical%E2%80%9D%20form%20of%20each%20declaration.
      */
+    /* TODO: this matcher also matches references to potentialAccumulator
+     * in other assignments that change its value.
+     * It shouldn't. It should ignore all of those assignments.
+     */
     StatementMatcher outsideReferenceMatcher =
-        findAll(declRefExpr(to(varDecl(equalsNode(possibleAccumulator))),
+        findAll(declRefExpr(to(varDecl(equalsNode(potentialAccumulator))),
                             unless(hasAncestor(equalsNode(assignment))))
                     .bind("outsideReference"));
 
@@ -93,22 +108,14 @@ public:
     MatchFinder referenceFinder;
     referenceFinder.addMatcher(outsideReferenceMatcher,
                                &outsideReferenceAccumulator);
-    referenceFinder.match(*forStmt, *result.Context);
+    referenceFinder.match(loop_info->forStmt, *result.Context);
 
-    loop_analysis_report_stream << INDENT INDENT "└ Found "
-                                << outsideReferenceAccumulator.outsideReferences
-                                << " other references to "
-                                << possibleAccumulator->getName()
-                                << " in this for loop. ";
-    if (!outsideReferenceAccumulator.outsideReferences) {
-      loop_analysis_report_stream << "Thus, " << possibleAccumulator->getName()
-                                  << " might be a reduction accumulator.\n";
-      likelyAccumulatorsFound += 1;
-    } else {
-      loop_analysis_report_stream
-          << "Thus, " << possibleAccumulator->getName()
-          << " probably isn't a reduction accumulator.\n";
-    }
+    // Get the resuling count of outside references.
+    potential_accumulator_info.outside_references =
+        outsideReferenceAccumulator.outsideReferences;
+
+    loop_info->potential_accumulators.insert(
+        {potentialAccumulator, potential_accumulator_info});
   };
 
   /* One instance of OutsideReferenceAccumulator is created for each
@@ -128,11 +135,6 @@ public:
 
 // run is called by MatchFinder for each for loop.
 void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
-
-  loop_analysis_report_buffer.clear();
-  llvm::raw_string_ostream loop_analysis_report_stream(
-      loop_analysis_report_buffer);
-
   ASTContext *context = result.Context;
 
   const ForStmt *forStmt = result.Nodes.getNodeAs<ForStmt>("forLoop");
@@ -142,42 +144,37 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
       !context->getSourceManager().isWrittenInMainFile(forStmt->getForLoc()))
     return;
 
-  loop_analysis_report_stream << "Found a for loop at ";
-  forStmt->getForLoc().print(loop_analysis_report_stream,
-                             context->getSourceManager());
-  loop_analysis_report_stream << ":\n";
-  forStmt->printPretty(loop_analysis_report_stream, nullptr,
-                       PrintingPolicy(LangOptions()));
+  // TODO: instantiate the relevant structs (defined above) and populate them
+  PotentialReductionLoopInfo loop_info;
+  // TODO: get iteration variable, if there is one.
 
-  /*
-   * A reduction accumulator does nothing other than accumulate.
-   * It doesn't affect the computation in other ways. If a
-   * potential accumulator appears in multiple places in the loop,
-   * then it probably isn't really an accumulator.
-   * Thus, for each assignment that looks like a reduction assignment,
-   * we check whether its lvalue
-   * is referenced in any other expression of the loop.
-   * If it isn't, then report it as a possible reduction accumulator.
-   */
-  AccumulatorChecker accumulatorChecker(forStmt, loop_analysis_report_stream);
+  PotentialAccumulatorAnalyser potentialAccumulatorAnalyser(&loop_info);
+
   MatchFinder reductionAssignmentFinder;
   reductionAssignmentFinder.addMatcher(reductionAssignmentMatcher,
-                                       &accumulatorChecker);
+                                       &potentialAccumulatorAnalyser);
   reductionAssignmentFinder.match(*forStmt, *context);
 
-  if (accumulatorChecker.likelyAccumulatorsFound) {
-    loop_analysis_report_stream << INDENT "This might be a reduction loop.\n";
-    likelyReductionCount += 1;
-  } else {
-    loop_analysis_report_stream
-        << INDENT "This probably isn't a reduction loop.\n";
-  }
-  loop_analysis_report_stream << "\n";
-  totalLoopCount += 1;
+  // TODO:
+  // if (we were given "--debug-loop-analysis" or something) {
+  //   // TODO: report all the information we gathered on this for loop.
+  //   llvm::errs() << "Found a for loop at ";
+  //   forStmt->getForLoc().print(llvm::errs(), context->getSourceManager());
+  //   llvm::errs() << ":\n";
+  //   forStmt->printPretty(llvm::errs(), nullptr, PrintingPolicy(LangOptions()));
 
-  loop_analysis_report_stream.flush(); // write buffered analysis results to
-                                       // loop_analysis_report_buffer
-  llvm::outs() << loop_analysis_report_buffer;
+  //   if (accumulatorChecker.likelyAccumulatorsFound) {
+  //     llvm::errs() << INDENT "This might be a reduction loop.\n";
+  //   } else {
+  //     llvm::errs() << INDENT "This probably isn't a reduction loop.\n";
+  //   }
+  //   loop_analysis_report_stream << "\n";
+  // }
+
+  if (loop_info.potential_accumulators.size() > 0) {
+    likelyReductionCount += 1;
+  }
+  totalLoopCount += 1;
 }
 }
 }
