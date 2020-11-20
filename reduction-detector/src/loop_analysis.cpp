@@ -77,11 +77,8 @@ public:
     const VarDecl *potentialAccumulator =
         result.Nodes.getNodeAs<VarDecl>("potentialAccumulator");
 
-    // TODO: check in loop_info whether we have already analysed this potential
-    // accumulator. If we have, do nothing and return.
-    auto maybePotentialAccumulatorInfo =
-        loop_info->potential_accumulators.find(potentialAccumulator);
-    if (maybePotentialAccumulatorInfo ==
+    // If we have already analysed this potential, do nothing.
+    if (loop_info->potential_accumulators.find(potentialAccumulator) !=
         loop_info->potential_accumulators.end()) {
       return;
     }
