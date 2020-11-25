@@ -37,34 +37,47 @@ struct PotentialAccumulatorInfo {
   /* The number of references to this variable outside of assignments
    * that change its value.
    */
+  std::set<const BinaryOperator *> potential_accumulating_assignments;
   unsigned int outside_references = 0;
 };
 
 struct PotentialReductionLoopInfo {
-  ForStmt *forStmt = nullptr;
+  const ForStmt *forStmt = nullptr;
   VarDecl *iteration_variable = nullptr;
   std::map<const VarDecl *, PotentialAccumulatorInfo> potential_accumulators;
+
+  PotentialReductionLoopInfo(const ForStmt *forStmt) : forStmt(forStmt){};
 };
 
 /*
- * One instance of PotentialAccumulatorAnalyser is created for each for loop.
+ * One instance of PotentialAccumulatorFinder is created for each for loop.
  * For each assignment that looks like a potential reduction assignment
- * (for example: sum += array[i]) in that loop, it determines how many times
- * that assignment's assignee (which is then a potential accumulator)
- * appears in expressions other than that assignment and other assignments
- * to that variable.
+ * (for example: sum += array[i]) in that loop, it stores that assignment's
+ * left-hand side (in that example, sum) in the potential_accumulators
+ * list of the struct PotentialReductionLoopInfo that describes that loop.
  */
-class PotentialAccumulatorAnalyser : public MatchFinder::MatchCallback {
+class PotentialAccumulatorFinder : public MatchFinder::MatchCallback {
 
   /*
-   * The address of a structure describing
+   * The address of the structure describing
    * the for loop this instance was created to search.
    */
   PotentialReductionLoopInfo *loop_info;
 
-public:
-  PotentialAccumulatorAnalyser(PotentialReductionLoopInfo *loop_info)
+  PotentialAccumulatorFinder(PotentialReductionLoopInfo *loop_info)
       : loop_info(loop_info) {}
+
+public:
+  static void getPotentialAccumulatorsIn(PotentialReductionLoopInfo *loop_info,
+                                         ASTContext *context) {
+    PotentialAccumulatorFinder potentialAccumulatorFinder(loop_info);
+
+    MatchFinder potentialReductionAssignmentFinder;
+    potentialReductionAssignmentFinder.addMatcher(
+        findAll(reductionAssignmentMatcher), &potentialAccumulatorFinder);
+
+    potentialReductionAssignmentFinder.match(*loop_info->forStmt, *context);
+  }
 
   // run is called by MatchFinder for each reduction-looking assignment.
   virtual void run(const MatchFinder::MatchResult &result) {
@@ -77,49 +90,62 @@ public:
     const VarDecl *potentialAccumulator =
         result.Nodes.getNodeAs<VarDecl>("potentialAccumulator");
 
-    // If we have already analysed this potential, do nothing.
-    if (loop_info->potential_accumulators.find(potentialAccumulator) !=
-        loop_info->potential_accumulators.end()) {
-      return;
-    }
-
     PotentialAccumulatorInfo potential_accumulator_info;
 
-    // Construct a matcher that matches other references to the assignee.
-    /*
-     * If issues arise in detecting other references to potentialAccumulator
-     * in this way, consider doing as described in
-     * https://clang.llvm.org/docs/LibASTMatchersTutorial.html#:~:text=the%20%E2%80%9Ccanonical%E2%80%9D%20form%20of%20each%20declaration.
-     */
-    /* TODO: this matcher also matches references to potentialAccumulator
-     * in other assignments that change its value.
-     * It shouldn't. It should ignore all of those assignments.
-     */
-    StatementMatcher outsideReferenceMatcher =
-        findAll(declRefExpr(to(varDecl(equalsNode(potentialAccumulator))),
-                            unless(hasAncestor(equalsNode(assignment))))
-                    .bind("outsideReference"));
+    potential_accumulator_info.potential_accumulating_assignments.insert(
+        assignment);
 
-    // Count number of outside references.
-    OutsideReferenceAccumulator outsideReferenceAccumulator;
-    MatchFinder referenceFinder;
-    referenceFinder.addMatcher(outsideReferenceMatcher,
-                               &outsideReferenceAccumulator);
-    referenceFinder.match(*loop_info->forStmt, *result.Context);
-
-    // Get the resuling count of outside references.
-    potential_accumulator_info.outside_references =
-        outsideReferenceAccumulator.outsideReferences;
-
+    // Note that std::map.insert does nothing if there already is an element
+    // with the given key.
     loop_info->potential_accumulators.insert(
         {potentialAccumulator, potential_accumulator_info});
   };
+};
+
+/*
+ * One instance of PotentialAccumulatorOutsideReferenceCounter is created for
+ * each for loop.
+ * For each potential accumulator, it counts the number of references to it
+ * that exist in the body of the loop but outside of assignments whose
+ * left side is that potential accumulator.
+ */
+class PotentialAccumulatorOutsideReferenceCounter {
+public:
+  static void countOutsideReferencesIn(PotentialReductionLoopInfo *loop_info,
+                                       ASTContext *context) {
+    for (auto &potentialAccumulator : loop_info->potential_accumulators) {
+      // Construct a matcher that matches other references to the assignee.
+      /*
+       * If issues arise in detecting other references to potentialAccumulator
+       * in this way, consider doing as described in
+       * https://clang.llvm.org/docs/LibASTMatchersTutorial.html#:~:text=the%20%E2%80%9Ccanonical%E2%80%9D%20form%20of%20each%20declaration.
+       */
+      StatementMatcher outsideReferenceMatcher = findAll(
+          declRefExpr(to(varDecl(equalsNode(potentialAccumulator.first))),
+                      unless(hasAncestor(binaryOperator(allOf(
+                          reductionAssignmentMatcher,
+                          hasLHS(hasDescendant(declRefExpr(to(varDecl(
+                              equalsNode(potentialAccumulator.first)))))))))))
+              .bind("outsideReference"));
+
+      // Count number of outside references.
+      OutsideReferenceAccumulator outsideReferenceAccumulator;
+      MatchFinder outsideReferenceFinder;
+      outsideReferenceFinder.addMatcher(outsideReferenceMatcher,
+                                        &outsideReferenceAccumulator);
+      outsideReferenceFinder.match(*loop_info->forStmt, *context);
+
+      // Get the resulting count of outside references.
+      potentialAccumulator.second.outside_references =
+          outsideReferenceAccumulator.outsideReferences;
+    }
+  }
 
   /* One instance of OutsideReferenceAccumulator is created for each
-   * assignment we check. Its sole purpose is to count
-   * how many references to that assignment's assignee occur outside
-   * of the assignment (which is the number of times its run method is
-   * called by MatchFinder).
+   * potential accumulator we check. Its sole purpose is to count
+   * how many references to it assignee occur outside
+   * of potential accumulation assignments (which is the number of times its run
+   * method is called by MatchFinder).
    */
   class OutsideReferenceAccumulator : public MatchFinder::MatchCallback {
   public:
@@ -132,25 +158,29 @@ public:
 
 // run is called by MatchFinder for each for loop.
 void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
+  PotentialReductionLoopInfo loop_info(
+      result.Nodes.getNodeAs<ForStmt>("forLoop"));
+
   ASTContext *context = result.Context;
 
-  const ForStmt *forStmt = result.Nodes.getNodeAs<ForStmt>("forLoop");
-
   // If this loop is in an included header file, do nothing.
-  if (!forStmt ||
-      !context->getSourceManager().isWrittenInMainFile(forStmt->getForLoc()))
+  if (!loop_info.forStmt ||
+      !context->getSourceManager().isWrittenInMainFile(
+          loop_info.forStmt->getForLoc())) {
     return;
+  }
 
-  // TODO: instantiate the relevant structs (defined above) and populate them
-  PotentialReductionLoopInfo loop_info;
   // TODO: get iteration variable, if there is one.
 
-  PotentialAccumulatorAnalyser potentialAccumulatorAnalyser(&loop_info);
+  // Find potential accumulators (populating loop_info.potential_accumulators).
+  // TODO: review that class's definition. Make sure it does that (and only
+  // that).
+  // TODO: take this boilerplate code out into a static method of that class.
+  // Also do analogously to the other classes used here.
+  PotentialAccumulatorFinder.getPotentialAccumulatorsIn(&loop_info, context);
 
-  MatchFinder reductionAssignmentFinder;
-  reductionAssignmentFinder.addMatcher(reductionAssignmentMatcher,
-                                       &potentialAccumulatorAnalyser);
-  reductionAssignmentFinder.match(*forStmt, *context);
+  // TODO: review PotentialAccumulatorOutsideReferenceCounter and use it here
+  // here.
 
   // TODO:
   // if (we were given "--debug-loop-analysis" or something) {
@@ -158,7 +188,8 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   //   llvm::errs() << "Found a for loop at ";
   //   forStmt->getForLoc().print(llvm::errs(), context->getSourceManager());
   //   llvm::errs() << ":\n";
-  //   forStmt->printPretty(llvm::errs(), nullptr, PrintingPolicy(LangOptions()));
+  //   forStmt->printPretty(llvm::errs(), nullptr,
+  //   PrintingPolicy(LangOptions()));
 
   //   if (accumulatorChecker.likelyAccumulatorsFound) {
   //     llvm::errs() << INDENT "This might be a reduction loop.\n";

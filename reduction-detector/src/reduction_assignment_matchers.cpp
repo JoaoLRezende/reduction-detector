@@ -32,9 +32,8 @@ StatementMatcher potentialReductionCompoundAssignmentMatcher = binaryOperator(
         declRefExpr(to(varDecl(equalsBoundNode("possibleAccumulator"))))))));
 
 StatementMatcher reductionAssignmentMatcher =
-    findAll(binaryOperator(anyOf(potentialReductionSimpleAssignmentMatcher,
-                                 potentialReductionCompoundAssignmentMatcher))
-                .bind("possibleReductionAssignment"));
-
+    binaryOperator(anyOf(potentialReductionSimpleAssignmentMatcher,
+                         potentialReductionCompoundAssignmentMatcher))
+        .bind("possibleReductionAssignment");
 }
 }
