@@ -13,13 +13,13 @@ namespace reduction_assignment_matchers {
  */
 StatementMatcher potentialReductionSimpleAssignmentMatcher = binaryOperator(
     hasOperatorName("="),
-    hasLHS(declRefExpr(to(varDecl().bind("possibleAccumulator")))),
+    hasLHS(declRefExpr(to(varDecl().bind("potentialAccumulator")))),
     hasRHS(hasDescendant(
-        declRefExpr(to(varDecl(equalsBoundNode("possibleAccumulator"))))
-            .bind("referenceToPossibleAccumulatorInRHS"))),
+        declRefExpr(to(varDecl(equalsBoundNode("potentialAccumulator"))))
+            .bind("referenceTopotentialAccumulatorInRHS"))),
     unless(hasRHS(hasDescendant(declRefExpr(
-        to(varDecl(equalsBoundNode("possibleAccumulator"))),
-        unless(equalsBoundNode("referenceToPossibleAccumulatorInRHS")))))));
+        to(varDecl(equalsBoundNode("potentialAccumulator"))),
+        unless(equalsBoundNode("referenceTopotentialAccumulatorInRHS")))))));
 
 /* A matcher that matches a compound assignment whose left-hand side is a
  * variable that does not appear in its right-hand side.
@@ -27,9 +27,9 @@ StatementMatcher potentialReductionSimpleAssignmentMatcher = binaryOperator(
 StatementMatcher potentialReductionCompoundAssignmentMatcher = binaryOperator(
     anyOf(hasOperatorName("+="), hasOperatorName("-="), hasOperatorName("*="),
           hasOperatorName("/=")),
-    hasLHS(declRefExpr(to(varDecl().bind("possibleAccumulator")))),
+    hasLHS(declRefExpr(to(varDecl().bind("potentialAccumulator")))),
     unless(hasRHS(hasDescendant(
-        declRefExpr(to(varDecl(equalsBoundNode("possibleAccumulator"))))))));
+        declRefExpr(to(varDecl(equalsBoundNode("potentialAccumulator"))))))));
 
 StatementMatcher reductionAssignmentMatcher =
     binaryOperator(anyOf(potentialReductionSimpleAssignmentMatcher,
