@@ -10,8 +10,7 @@ namespace loop_analysis {
 namespace internal {
 
 void countOutsideReferencesIn(PotentialReductionLoopInfo *loop_info,
-                              ASTContext *context);
-}
+                              clang::ASTContext *context);
 }
 }
 }

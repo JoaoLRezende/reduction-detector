@@ -3,6 +3,14 @@ using namespace reduction_detector::loop_analysis::internal;
 
 #include "reduction-detector/potential_accumulator_detection.h"
 
+#include "reduction-detector/constants.h"
+
+#include "reduction-detector/reduction_assignment_matchers.h"
+using reduction_detector::reduction_assignment_matchers::
+    reductionAssignmentMatcher;
+
+#include "reduction-detector/outside_reference_counting.h"
+
 #include <map>
 
 #include "clang/AST/ASTContext.h"
@@ -13,23 +21,11 @@ using clang::ASTContext;
 #include "clang/AST/Stmt.h"
 using clang::ForStmt;
 
-#include "clang/AST/Expr.h"
-using clang::BinaryOperator;
-
-#include "clang/AST/Decl.h"
-using clang::VarDecl;
-
 #include "clang/Basic/LangOptions.h"
 using clang::LangOptions;
 
 #include "clang/AST/PrettyPrinter.h"
 using clang::PrintingPolicy;
-
-#include "reduction-detector/reduction_assignment_matchers.h"
-using reduction_detector::reduction_assignment_matchers::
-    reductionAssignmentMatcher;
-
-#include "reduction-detector/constants.h"
 
 using namespace clang::ast_matchers;
 
@@ -53,14 +49,13 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   // TODO: get iteration variable, if there is one.
 
   // Find potential accumulators (populating loop_info.potential_accumulators).
-  // TODO: review that class's definition. Make sure it does that (and only
-  // that).
-  // TODO: take this boilerplate code out into a static method of that class.
-  // Also do analogously to the other classes used here.
   getPotentialAccumulatorsIn(&loop_info, context);
 
-  // TODO: review PotentialAccumulatorOutsideReferenceCounter and use it here
-  // here.
+  // For each potential accumulator, count the number of times it is referenced
+  // in that loop outside of its potential accumulating assignments
+  // (and store that number in the structure that describes that potential
+  // accumulator).
+  countOutsideReferencesIn(&loop_info, context);
 
   // TODO:
   // if (we were given "--debug-loop-analysis" or something) {
