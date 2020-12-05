@@ -5,6 +5,7 @@
 #include "clang/AST/Expr.h"
 #include "clang/AST/Stmt.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
+#include <string>
 
 namespace reduction_detector {
 namespace loop_analysis {
@@ -30,6 +31,7 @@ namespace internal {
 // analysis passes.
 struct PotentialAccumulatorInfo {
   std::set<const clang::BinaryOperator *> potential_accumulating_assignments;
+  std::string *notableNameSubstring = nullptr;
 
   /* The number of references to this variable outside of assignments
    * that change its value.
@@ -59,6 +61,8 @@ void getPotentialAccumulatorsIn(PotentialReductionLoopInfo *loop_info,
                                 clang::ASTContext *context);
 void determineLikelyAccumulatorsIn(PotentialReductionLoopInfo &loop_info,
                                    clang::ASTContext *context);
+void analysePotentialAccumulatorNames(PotentialReductionLoopInfo &loop_info,
+                                      clang::ASTContext *context);
 }
 }
 }

@@ -65,6 +65,8 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   // accumulator).
   countOutsideReferencesIn(&loop_info, context);
 
+  analysePotentialAccumulatorNames(loop_info, context);
+
   // Decide whether each potential accumulator is a likely accumulator.
   // Set each potential accumulator's likelyAccumulatorScore and
   // isLikelyAccumulator.

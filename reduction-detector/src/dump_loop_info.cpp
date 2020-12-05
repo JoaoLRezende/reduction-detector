@@ -28,6 +28,12 @@ void PotentialReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
                  << ". Score: "
                  << potentialAccumulator.second.likelyAccumulatorScore << ".\n";
 
+    if (potentialAccumulator.second.notableNameSubstring) {
+      outputStream << INDENT "Its name has the substring \""
+                   << *potentialAccumulator.second.notableNameSubstring
+                   << "\".\n";
+    }
+
     outputStream << INDENT
         "It seems to be accumulated in the following assignments:\n";
     for (auto &accumulatingAssignment :
@@ -40,7 +46,7 @@ void PotentialReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
 
     outputStream
         << INDENT "There are " << potentialAccumulator.second.outside_references
-        << " references to it outside of those accumulating assignments.\n";
+        << " other in-loop references to it outside of those accumulating assignments.\n";
   }
 }
 }
