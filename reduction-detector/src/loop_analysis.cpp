@@ -1,15 +1,11 @@
 #include "reduction-detector/loop_analysis.h"
 using namespace reduction_detector::loop_analysis::internal;
 
-#include "reduction-detector/potential_accumulator_detection.h"
-
 #include "reduction-detector/constants.h"
 
 #include "reduction-detector/reduction_assignment_matchers.h"
 using reduction_detector::reduction_assignment_matchers::
     reductionAssignmentMatcher;
-
-#include "reduction-detector/outside_reference_counting.h"
 
 #include <map>
 
@@ -29,8 +25,18 @@ using clang::PrintingPolicy;
 
 using namespace clang::ast_matchers;
 
+#include "llvm/Support/CommandLine.h"
+
 namespace reduction_detector {
 namespace loop_analysis {
+
+llvm::cl::opt<bool> printLikelyReductions("print-likely-reduction-loops");
+
+llvm::cl::opt<bool>
+    debugPotentialAccumulatorDetection("debug-potential-accumulator-detection");
+
+llvm::cl::opt<bool> debugPotentialAccumulatorOutsideReferenceCounting(
+    "debug-potential-accumulator-reference-counting");
 
 // run is called by MatchFinder for each for loop.
 void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
@@ -46,7 +52,9 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
     return;
   }
 
-  // TODO: get iteration variable, if there is one.
+  // Determine the loop's iteration variable, if there is one (and set
+  // loop_info.iteration_variable).
+  // TODO: determineIterationVariable(loop_info, context);
 
   // Find potential accumulators (populating loop_info.potential_accumulators).
   getPotentialAccumulatorsIn(&loop_info, context);
@@ -57,7 +65,18 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   // accumulator).
   countOutsideReferencesIn(&loop_info, context);
 
+  // Decide whether each potential accumulator is a likely accumulator.
+  // Set each potential accumulator's likelyAccumulatorScore and
+  // isLikelyAccumulator.
+  // TODO: determineLikelyAccumulatorsIn(loop_info, context);
+
+  if (loop_info.hasALikelyAccumulator) {
+    loop_info.dump(llvm::errs(), context);
+  }
+
   // TODO:
+  // recycle the following stuff. use printPotentialAccumulatorsIn and
+  // printOutsideReferenceCountsIn
   // if (we were given "--debug-loop-analysis" or something) {
   //   // TODO: report all the information we gathered on this for loop.
   //   llvm::errs() << "Found a for loop at ";

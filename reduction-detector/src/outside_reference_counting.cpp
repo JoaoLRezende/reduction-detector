@@ -9,14 +9,9 @@ using namespace clang::ast_matchers;
 using reduction_detector::reduction_assignment_matchers::
     reductionAssignmentMatcher;
 
-#include "llvm/Support/CommandLine.h"
-
 namespace reduction_detector {
 namespace loop_analysis {
 namespace internal {
-
-llvm::cl::opt<bool>
-    debugPotentialAccumulatorOutsideReferenceCounting("debug-potential-accumulator-reference-counting");
 
 /* One instance of OutsideReferenceAccumulator is created for each
  * potential accumulator we check. Its sole purpose is to count
@@ -33,9 +28,7 @@ public:
 };
 
 /*
- * One instance of PotentialAccumulatorOutsideReferenceCounter is created for
- * each for loop.
- * For each potential accumulator, it counts the number of references to it
+ * For each potential accumulator, count the number of references to it
  * that exist in the body of the loop but outside of the assignments
  * that seem to accumulate a value in that potential accumulator.
  */
@@ -66,14 +59,8 @@ void countOutsideReferencesIn(PotentialReductionLoopInfo *loop_info,
     // Get the resulting count of outside references.
     potentialAccumulator.second.outside_references =
         outsideReferenceAccumulator.outsideReferences;
-
-    if (debugPotentialAccumulatorOutsideReferenceCounting) {
-      llvm::errs() << potentialAccumulator.second.outside_references <<
-      " references to " << potentialAccumulator.first->getName() << " found in"
-      " the loop outside of its potential accumulating assignments.\n";
     }
   }
-}
 }
 }
 }

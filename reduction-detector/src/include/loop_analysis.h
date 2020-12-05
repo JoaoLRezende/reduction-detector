@@ -1,10 +1,10 @@
 #ifndef LOOP_ANALYSIS_H
 #define LOOP_ANALYSIS_H
 
-#include "clang/ASTMatchers/ASTMatchFinder.h"
+#include "clang/AST/Decl.h"
 #include "clang/AST/Expr.h"
 #include "clang/AST/Stmt.h"
-#include "clang/AST/Decl.h"
+#include "clang/ASTMatchers/ASTMatchFinder.h"
 
 namespace reduction_detector {
 namespace loop_analysis {
@@ -25,21 +25,40 @@ public:
 };
 
 namespace internal {
+
+// Fundamental struct types. These are manipulated by most
+// analysis passes.
 struct PotentialAccumulatorInfo {
   std::set<const clang::BinaryOperator *> potential_accumulating_assignments;
+
   /* The number of references to this variable outside of assignments
    * that change its value.
    */
   unsigned int outside_references = 0;
+
+  int likelyAccumulatorScore = 0;
+  bool isLikelyAccumulator = false;
 };
 
 struct PotentialReductionLoopInfo {
   const clang::ForStmt *forStmt = nullptr;
   clang::VarDecl *iteration_variable = nullptr;
-  std::map<const clang::VarDecl *, PotentialAccumulatorInfo> potential_accumulators;
+  std::map<const clang::VarDecl *, PotentialAccumulatorInfo>
+      potential_accumulators;
+  bool hasALikelyAccumulator = false;
 
-  PotentialReductionLoopInfo(const clang::ForStmt *forStmt) : forStmt(forStmt){};
+  PotentialReductionLoopInfo(const clang::ForStmt *forStmt)
+      : forStmt(forStmt){};
+  void dump(llvm::raw_ostream &outputStream, clang::ASTContext *context);
 };
+
+// Analysis passes.
+void countOutsideReferencesIn(PotentialReductionLoopInfo *loop_info,
+                              clang::ASTContext *context);
+void getPotentialAccumulatorsIn(PotentialReductionLoopInfo *loop_info,
+                                clang::ASTContext *context);
+
+
 }
 }
 }

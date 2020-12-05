@@ -1,5 +1,3 @@
-#include "reduction-detector/potential_accumulator_detection.h"
-
 #include "reduction-detector/loop_analysis.h"
 
 #include "reduction-detector/constants.h"
@@ -20,18 +18,13 @@ using clang::BinaryOperator;
 #include "clang/AST/Decl.h"
 using clang::VarDecl;
 
-#include "llvm/Support/CommandLine.h"
-
 namespace reduction_detector {
 namespace loop_analysis {
 namespace internal {
 
-llvm::cl::opt<bool>
-    debugPotentialAccumulatorDetection("debug-potential-accumulator-detection");
-
 /*
  * One instance of PotentialAccumulatorFinder is created for each for loop.
- * For each assignment that looks like a potential reduction assignment
+ * For each assignment that looks like a potential accumulating assignment
  * (for example: sum += array[i]) in that loop, it stores that assignment's
  * left-hand side (in that example, sum) in the potential_accumulators
  * map of the struct PotentialReductionLoopInfo that describes that loop.
@@ -59,12 +52,6 @@ public:
     const VarDecl *potentialAccumulator =
         result.Nodes.getNodeAs<VarDecl>("potentialAccumulator");
 
-    if (debugPotentialAccumulatorDetection) {
-      llvm::errs() << INDENT "Potential accumulating assignment: ";
-      assignment->printPretty(llvm::errs(), nullptr,
-                              clang::PrintingPolicy(clang::LangOptions()));
-    }
-
     PotentialAccumulatorInfo potential_accumulator_info;
 
     potential_accumulator_info.potential_accumulating_assignments.insert(
@@ -87,17 +74,8 @@ void getPotentialAccumulatorsIn(PotentialReductionLoopInfo *loop_info,
       &potentialAccumulatorFinder);
 
   potentialReductionAssignmentFinder.match(*loop_info->forStmt, *context);
-
-  if (debugPotentialAccumulatorDetection) {
-    llvm::errs() << loop_info->potential_accumulators.size()
-                 << " potential accumulators were found in the "
-                    "loop:";
-    for (auto &potentialAccumulator : loop_info->potential_accumulators) {
-      llvm::errs() << " " << potentialAccumulator.first->getName();
-    }
-    llvm::errs() << "\n";
-  }
 }
+
 }
 }
 }
