@@ -57,8 +57,8 @@ void countOutsideReferencesIn(PotentialReductionLoopInfo *loop_info,
                               clang::ASTContext *context);
 void getPotentialAccumulatorsIn(PotentialReductionLoopInfo *loop_info,
                                 clang::ASTContext *context);
-
-
+void determineLikelyAccumulatorsIn(PotentialReductionLoopInfo &loop_info,
+                                   clang::ASTContext *context);
 }
 }
 }

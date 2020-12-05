@@ -68,7 +68,7 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   // Decide whether each potential accumulator is a likely accumulator.
   // Set each potential accumulator's likelyAccumulatorScore and
   // isLikelyAccumulator.
-  // TODO: determineLikelyAccumulatorsIn(loop_info, context);
+  determineLikelyAccumulatorsIn(loop_info, context);
 
   if (loop_info.hasALikelyAccumulator) {
     loop_info.dump(llvm::errs(), context);
@@ -93,7 +93,7 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   //   loop_analysis_report_stream << "\n";
   // }
 
-  if (loop_info.potential_accumulators.size() > 0) {
+  if (loop_info.hasALikelyAccumulator) {
     likelyReductionCount += 1;
   }
   totalLoopCount += 1;
