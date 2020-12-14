@@ -5,7 +5,7 @@ This is an application of Clang’s LibTooling API. See [here][1] for a tutorial
 
 ### Setup
 
-To build, you need a copy of LLVM's (and Clang's) source tree within this directory, in a directory named `llvm-project`.
+To build, you need a copy of LLVM's (and Clang's) source tree within this directory, in a subdirectory named `llvm-project`.
 You can set that up by following [these](https://clang.llvm.org/docs/LibASTMatchersTutorial.html#step-0-obtaining-clang) instructions (though in this directory, rather than in `~/clang-llvm`).
 You also need to have [Ninja][3] and [CMake][4] installed.
 
