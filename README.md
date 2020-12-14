@@ -7,7 +7,11 @@ This is an application of Clang’s LibTooling API. See [here][1] for a tutorial
 
 To build, you need a copy of LLVM's (and Clang's) source tree within this directory, in a directory named `llvm-project`.
 You can set that up by following [these](https://clang.llvm.org/docs/LibASTMatchersTutorial.html#step-0-obtaining-clang) instructions (though in this directory, rather than in `~/clang-llvm`).
-Our convenience scripts also expect builds of Ninja and CMake to sit in this directory, in directories named `ninja` and `cmake`. That same guide can help you set that up.
+You also need to have [Ninja][1] and [CMake][2] installed.
+
+[1]: <https://ninja-build.org/>
+[2]: <https://cmake.org/>
+
 Then:
 ```
 cd finding-parallelizable-code-syntactically/llvm-project/clang-tools-extra

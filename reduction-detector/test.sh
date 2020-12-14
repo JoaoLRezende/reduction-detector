@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 if [ -z "$1" ]
   then
     echo "testing on $DEFAULT"
-    ../build/bin/reduction-detector -debug-potential-accumulator-detection -debug-potential-accumulator-reference-counting $DEFAULT --
+    ../build/bin/reduction-detector $DEFAULT --
   else
-    ../build/bin/reduction-detector -debug-potential-accumulator-detection -debug-potential-accumulator-reference-counting $1 --
+    ../build/bin/reduction-detector $1 --
 fi
