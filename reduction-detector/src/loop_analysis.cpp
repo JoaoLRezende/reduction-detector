@@ -1,31 +1,7 @@
 #include "reduction-detector/loop_analysis.h"
 using namespace reduction_detector::loop_analysis::internal;
 
-#include "reduction-detector/constants.h"
-
-#include "reduction-detector/reduction_assignment_matchers.h"
-using reduction_detector::reduction_assignment_matchers::
-    reductionAssignmentMatcher;
-
-#include <map>
-
-#include "clang/AST/ASTContext.h"
-using clang::ASTContext;
-
-#include "clang/ASTMatchers/ASTMatchFinder.h"
-
-#include "clang/AST/Stmt.h"
-using clang::ForStmt;
-
-#include "clang/Basic/LangOptions.h"
-using clang::LangOptions;
-
-#include "clang/AST/PrettyPrinter.h"
-using clang::PrintingPolicy;
-
 using namespace clang::ast_matchers;
-
-#include "llvm/Support/CommandLine.h"
 
 namespace reduction_detector {
 namespace loop_analysis {
@@ -33,9 +9,9 @@ namespace loop_analysis {
 // run is called by MatchFinder for each for loop.
 void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   PotentialReductionLoopInfo loop_info(
-      result.Nodes.getNodeAs<ForStmt>("forLoop"));
+      result.Nodes.getNodeAs<clang::ForStmt>("forLoop"));
 
-  ASTContext *context = result.Context;
+  clang::ASTContext *context = result.Context;
 
   // If this loop is in an included header file, do nothing.
   if (!loop_info.forStmt ||
@@ -57,7 +33,8 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   // accumulator).
   countOutsideReferencesIn(&loop_info, context);
 
-  detectIterationVariableReferencesInApparentAccumulatingStatements(loop_info, context);
+  detectIterationVariableReferencesInApparentAccumulatingStatements(loop_info,
+                                                                    context);
 
   analysePotentialAccumulatorNames(loop_info, context);
 
