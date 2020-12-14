@@ -31,10 +31,15 @@ namespace internal {
 // analysis passes.
 struct PotentialAccumulatorInfo {
   std::set<const clang::BinaryOperator *> potential_accumulating_assignments;
+
+  unsigned int
+      number_of_potential_accumulating_assignments_that_reference_the_iteration_variable =
+          0;
+
   std::string *notableNameSubstring = nullptr;
 
-  /* The number of references to this variable outside of assignments
-   * that change its value.
+  /* The number of in-loop references to this variable outside of
+   * its apparent accumulating assignments.
    */
   unsigned int outside_references = 0;
 
@@ -44,7 +49,7 @@ struct PotentialAccumulatorInfo {
 
 struct PotentialReductionLoopInfo {
   const clang::ForStmt *forStmt = nullptr;
-  clang::VarDecl *iteration_variable = nullptr;
+  const clang::VarDecl *iteration_variable = nullptr;
   std::map<const clang::VarDecl *, PotentialAccumulatorInfo>
       potential_accumulators;
   bool hasALikelyAccumulator = false;
@@ -55,14 +60,18 @@ struct PotentialReductionLoopInfo {
 };
 
 // Analysis passes.
-void countOutsideReferencesIn(PotentialReductionLoopInfo *loop_info,
-                              clang::ASTContext *context);
 void getPotentialAccumulatorsIn(PotentialReductionLoopInfo *loop_info,
                                 clang::ASTContext *context);
-void determineLikelyAccumulatorsIn(PotentialReductionLoopInfo &loop_info,
-                                   clang::ASTContext *context);
+void countOutsideReferencesIn(PotentialReductionLoopInfo *loop_info,
+                              clang::ASTContext *context);
 void analysePotentialAccumulatorNames(PotentialReductionLoopInfo &loop_info,
                                       clang::ASTContext *context);
+void determineIterationVariable(PotentialReductionLoopInfo &loopInfo,
+                                clang::ASTContext *context);
+void detectIterationVariableReferencesInApparentAccumulatingStatements(
+    PotentialReductionLoopInfo &loopInfo, clang::ASTContext *context);
+void determineLikelyAccumulatorsIn(PotentialReductionLoopInfo &loop_info,
+                                   clang::ASTContext *context);
 }
 }
 }

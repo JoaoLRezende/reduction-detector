@@ -41,13 +41,13 @@ void countOutsideReferencesIn(PotentialReductionLoopInfo *loop_info,
      * in this way, consider doing as described in
      * https://clang.llvm.org/docs/LibASTMatchersTutorial.html#:~:text=the%20%E2%80%9Ccanonical%E2%80%9D%20form%20of%20each%20declaration.
      */
-    StatementMatcher outsideReferenceMatcher = findAll(
-        declRefExpr(to(varDecl(equalsNode(potentialAccumulator.first))),
-                    unless(hasAncestor(binaryOperator(allOf(
-                        reductionAssignmentMatcher,
-                        hasLHS(hasDescendant(declRefExpr(to(varDecl(
-                            equalsNode(potentialAccumulator.first)))))))))))
-            .bind("outsideReference"));
+    StatementMatcher outsideReferenceMatcher =
+        findAll(declRefExpr(to(varDecl(equalsNode(potentialAccumulator.first))),
+                            unless(hasAncestor(binaryOperator(
+                                allOf(reductionAssignmentMatcher,
+                                      hasLHS(declRefExpr(to(varDecl(equalsNode(
+                                          potentialAccumulator.first))))))))))
+                    .bind("outsideReference"));
 
     // Count number of outside references.
     OutsideReferenceAccumulator outsideReferenceAccumulator;
@@ -59,8 +59,8 @@ void countOutsideReferencesIn(PotentialReductionLoopInfo *loop_info,
     // Get the resulting count of outside references.
     potentialAccumulator.second.outside_references =
         outsideReferenceAccumulator.outsideReferences;
-    }
   }
+}
 }
 }
 }

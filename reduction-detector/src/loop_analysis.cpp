@@ -30,14 +30,6 @@ using namespace clang::ast_matchers;
 namespace reduction_detector {
 namespace loop_analysis {
 
-llvm::cl::opt<bool> printLikelyReductions("print-likely-reduction-loops");
-
-llvm::cl::opt<bool>
-    debugPotentialAccumulatorDetection("debug-potential-accumulator-detection");
-
-llvm::cl::opt<bool> debugPotentialAccumulatorOutsideReferenceCounting(
-    "debug-potential-accumulator-reference-counting");
-
 // run is called by MatchFinder for each for loop.
 void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   PotentialReductionLoopInfo loop_info(
@@ -54,7 +46,7 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
 
   // Determine the loop's iteration variable, if there is one (and set
   // loop_info.iteration_variable).
-  // TODO: determineIterationVariable(loop_info, context);
+  determineIterationVariable(loop_info, context);
 
   // Find potential accumulators (populating loop_info.potential_accumulators).
   getPotentialAccumulatorsIn(&loop_info, context);
@@ -64,6 +56,8 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   // (and store that number in the structure that describes that potential
   // accumulator).
   countOutsideReferencesIn(&loop_info, context);
+
+  detectIterationVariableReferencesInApparentAccumulatingStatements(loop_info, context);
 
   analysePotentialAccumulatorNames(loop_info, context);
 

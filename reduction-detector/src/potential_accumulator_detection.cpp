@@ -9,6 +9,9 @@ using reduction_detector::reduction_assignment_matchers::
 #include "clang/AST/ASTContext.h"
 using clang::ASTContext;
 
+#include "clang/ASTMatchers/ASTMatchers.h"
+using namespace clang::ast_matchers;
+
 #include "clang/ASTMatchers/ASTMatchFinder.h"
 using clang::ast_matchers::MatchFinder;
 
@@ -18,16 +21,43 @@ using clang::BinaryOperator;
 #include "clang/AST/Decl.h"
 using clang::VarDecl;
 
+#include "clang/AST/Stmt.h"
+using clang::ForStmt;
+
 namespace reduction_detector {
 namespace loop_analysis {
 namespace internal {
+
+static bool isVariableDeclaredInLoop(const VarDecl *variable,
+                                     const ForStmt *forStmt,
+                                     ASTContext *context) {
+  /* Construct a matcher that will match variable only if it is a descendant
+   * of forStmt.
+   */
+  DeclarationMatcher variableMatcher =
+      varDecl(hasAncestor(clang::ast_matchers::forStmt(equalsNode(forStmt))));
+
+  // Instantiate a struct to be used as a MatchFinder callback.
+  struct MatcherCallback : public MatchFinder::MatchCallback {
+    bool wasCalled = false;
+    virtual void run(const MatchFinder::MatchResult &result) {
+      wasCalled = true;
+    }
+  } matcherCallback;
+
+  MatchFinder matchFinder;
+  matchFinder.addMatcher(variableMatcher, &matcherCallback);
+  matchFinder.match(*variable, *context);
+  return matcherCallback.wasCalled;
+}
 
 /*
  * One instance of PotentialAccumulatorFinder is created for each for loop.
  * For each assignment that looks like a potential accumulating assignment
  * (for example: sum += array[i]) in that loop, it stores that assignment's
  * left-hand side (in that example, sum) in the potential_accumulators
- * map of the struct PotentialReductionLoopInfo that describes that loop.
+ * map of the struct PotentialReductionLoopInfo that describes that loop
+ * (if it isn't a variable declared within the loop itself).
  */
 class PotentialAccumulatorFinder : public MatchFinder::MatchCallback {
 
@@ -52,15 +82,18 @@ public:
     const VarDecl *potentialAccumulator =
         result.Nodes.getNodeAs<VarDecl>("potentialAccumulator");
 
-    PotentialAccumulatorInfo potential_accumulator_info;
-
-    potential_accumulator_info.potential_accumulating_assignments.insert(
-        assignment);
+    if (isVariableDeclaredInLoop(potentialAccumulator, loop_info->forStmt,
+                                 result.Context)) {
+      return;
+    }
 
     // Note that std::map.insert does nothing if there already is an element
     // with the given key.
     loop_info->potential_accumulators.insert(
-        {potentialAccumulator, potential_accumulator_info});
+        {potentialAccumulator, PotentialAccumulatorInfo()});
+
+    (*loop_info->potential_accumulators.find(potentialAccumulator))
+        .second.potential_accumulating_assignments.insert(assignment);
   };
 };
 
@@ -75,7 +108,6 @@ void getPotentialAccumulatorsIn(PotentialReductionLoopInfo *loop_info,
 
   potentialReductionAssignmentFinder.match(*loop_info->forStmt, *context);
 }
-
 }
 }
 }
