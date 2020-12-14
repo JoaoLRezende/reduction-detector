@@ -1,8 +1,9 @@
 # Create the build directory, copy our source files into LLVM's source tree and execute CMake.
 cd "$(dirname "$0")"
+shopt -s globstar
 
-rm -f           ../llvm-project/clang-tools-extra/reduction-detector/*.cpp &&
-cp -p src/*.cpp ../llvm-project/clang-tools-extra/reduction-detector/ &&
+rm -f                                ../llvm-project/clang-tools-extra/reduction-detector/**/*.cpp &&
+cp --preserve --parents src/**/*.cpp ../llvm-project/clang-tools-extra/reduction-detector/ &&
 cd .. &&
 mkdir -p build &&
 cd build &&

@@ -22,7 +22,7 @@ Create in that new directory a file named `CMakeLists.txt` with the following co
 ```
 set(LLVM_LINK_COMPONENTS support)
 
-file(GLOB reduction-detector-SRC
+file(GLOB_RECURSE reduction-detector-SRC
     "*.cpp"
 )
  

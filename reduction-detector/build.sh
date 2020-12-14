@@ -3,11 +3,12 @@
 JOB_COUNT="5"
 
 cd "$(dirname "$0")"
+shopt -s globstar
 
 # Copy C source files into LLVM's source tree.
 # TODO: use recursive glob patterns to allow modules within subdirectoriess.
-rm              ../llvm-project/clang-tools-extra/reduction-detector/*.cpp &&
-cp -p src/*.cpp ../llvm-project/clang-tools-extra/reduction-detector/ &&
+rm -f                                ../llvm-project/clang-tools-extra/reduction-detector/**/*.cpp &&
+cp --preserve --parents src/**/*.cpp ../llvm-project/clang-tools-extra/reduction-detector/ &&
 
 # Copy header files into LLVM's source tree's include directory.
 rm                  ../llvm-project/clang/include/reduction-detector/* &&
