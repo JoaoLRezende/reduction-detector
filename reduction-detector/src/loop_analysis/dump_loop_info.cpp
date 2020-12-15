@@ -25,6 +25,8 @@ void PotentialReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
     outputStream << "I couldn't determine its iteration variable.\n";
   }
 
+  outputStream << "\n";
+
   for (auto &potentialAccumulator : this->potential_accumulators) {
     outputStream << INDENT << potentialAccumulator.first->getName()
                  << " was detected as a "
