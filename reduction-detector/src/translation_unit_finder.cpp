@@ -17,14 +17,13 @@ namespace translation_unit_finder {
 /*
  * Decide whether a regular file is one we should analyze.
  */
-static bool isProperInputFile(std::string fileName,
-                                 struct stat *stat_struct) {
-  if (fileName.find(".c") != std::string::npos ||
-      fileName.find(".cpp") != std::string::npos) {
-    return true;
-  } else {
-    return false;
-  }
+static bool isProperInputFile(std::string fileName, struct stat *stat_struct) {
+  return fileName.find(".c") != std::string::npos ||
+         fileName.find(".cpp") !=
+             std::string::npos; // TODO: this is catching files ending in ".cg"
+                                // and ".commons" and "README.carefully" and a
+                                // bunch of other weird stuff lol. check
+                                // suffix only.
 }
 
 static void dump_string_vector(std::vector<std::string> &vector) {
@@ -76,9 +75,9 @@ void expand_directories(std::vector<std::string> &input_list,
     }
 
     if ((stat_struct.st_mode & S_IFMT) == S_IFREG) { // if is a regular file
-    if (isProperInputFile(path, &stat_struct)) {
+      if (isProperInputFile(path, &stat_struct)) {
         output_list.push_back(path);
-    }
+      }
     } else if ((stat_struct.st_mode & S_IFMT) == S_IFDIR) { // if is a directory
       get_files_in_directory(path, output_list);
     }
