@@ -56,7 +56,7 @@ void PotentialReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
     if (potentialAccumulator.second
             .number_of_potential_accumulating_assignments_that_reference_the_iteration_variable ==
         potentialAccumulator.second.potential_accumulating_assignments.size()) {
-      outputStream << INDENT "All those assigments involve "
+      outputStream << INDENT "All those assignments involve "
                              "the loop's iteration variable.\n";
     } else {
       outputStream
