@@ -8,8 +8,12 @@ namespace loop_analysis {
 namespace internal {
 
 StatementMatcher iterationVariableMatcher =
-    forStmt(hasLoopInit(declStmt( // TODO: consider too assignment expressions.
-                hasDescendant(varDecl().bind("iterationVariable")))))
+    forStmt(
+        anyOf(hasLoopInit(
+                  declStmt(hasDescendant(varDecl().bind("iterationVariable")))),
+              hasLoopInit(stmt(binaryOperator(
+                  hasOperatorName("="), hasLHS(declRefExpr(to(varDecl().bind(
+                                            "iterationVariable")))))))))
         .bind("forLoop");
 
 struct IterationVariableCallback : public MatchFinder::MatchCallback {
