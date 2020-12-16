@@ -2,12 +2,12 @@
 #include <string>
 #include <vector>
 
-#include "llvm/Support/CommandLine.h"
-#include "llvm/Support/raw_ostream.h"
-#include "clang/Tooling/CommonOptionsParser.h"
-#include "clang/Tooling/Tooling.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
 #include "clang/ASTMatchers/ASTMatchers.h"
+#include "clang/Tooling/CommonOptionsParser.h"
+#include "clang/Tooling/Tooling.h"
+#include "llvm/Support/CommandLine.h"
+#include "llvm/Support/raw_ostream.h"
 
 #include "reduction-detector/translation_unit_finder.h"
 using reduction_detector::translation_unit_finder::expand_directories;
@@ -54,6 +54,16 @@ int main(int argc, const char **argv) {
 }
 
 /* TODO:
+ * - The Clang tooling we're using fails at analyzing most C files due to not
+ *   knowing where to find header files included by them. Learn how to deal with
+ *   that. (Usually, when invoking Clang directly through a command line, you
+ *   can inform Clang of include paths through the options -I and -isystem. How
+ *   can I do that when using Clang's LibTooling API?)
+ * - Consider that logical and bitwise operators can be used in reductions too
+ *   (and also their corresponding compound assignment operators, like &= and
+ *   |=).
+ * - Documment (in header-file comments) every function whose behavior
+ *   isn't obvious.
  * - Recognize uses of the unary increment and decrement operators
  *   as if they were reduction assignments. NPB code does at least two
  *   reductions using those.
