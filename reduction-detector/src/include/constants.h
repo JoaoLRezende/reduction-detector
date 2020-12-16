@@ -13,7 +13,7 @@ namespace constants {
 #define OUTSIDE_REFERENCE_PENALTY               1
 #define COMMON_ACCUMULATOR_NAME_SUBSTRINGS      "acc", "total", "sum"
 #define COMMON_ACCUMULATOR_NAME_BONUS           5
-#define DEFAULT_LIKELY_ACCUMULATOR_THRESHOLD    4
+#define DEFAULT_LIKELY_ACCUMULATOR_THRESHOLD    8
 
 
 #endif
