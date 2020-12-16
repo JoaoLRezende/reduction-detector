@@ -44,7 +44,7 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   determineLikelyAccumulatorsIn(loop_info, context);
 
   if (loop_info.hasALikelyAccumulator) {
-    loop_info.dump(llvm::errs(), context);
+    loop_info.dump(llvm::outs(), context);
   }
 
   // TODO:

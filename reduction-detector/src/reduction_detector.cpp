@@ -46,7 +46,7 @@ int main(int argc, const char **argv) {
   int statusCode =
       clangTool.run(clang::tooling::newFrontendActionFactory(&finder).get());
 
-  llvm::errs() << loopAnalyser.likelyReductionCount << " out of "
+  llvm::outs() << loopAnalyser.likelyReductionCount << " out of "
                << loopAnalyser.totalLoopCount
                << " loops detected as likely reduction loops.\n";
 
