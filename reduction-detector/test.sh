@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 
 if [ -z "$1" ]
   then
-    echo "testing on $DEFAULT"
+    echo "testing on $DEFAULT_TEST_CASE"
     ../build/bin/reduction-detector $EXTRA_ARGUMENTS $DEFAULT_TEST_CASE --
   else
     ../build/bin/reduction-detector $EXTRA_ARGUMENTS $1 --

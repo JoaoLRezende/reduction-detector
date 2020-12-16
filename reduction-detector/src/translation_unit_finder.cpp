@@ -14,6 +14,8 @@
 namespace reduction_detector {
 namespace translation_unit_finder {
 
+llvm::cl::opt<bool> debugInputFiles("debug-input-files");
+
 /*
  * Decide whether a regular file is one we should analyze.
  */
@@ -64,9 +66,11 @@ void expand_directories(std::vector<std::string> &input_list,
                         std::vector<std::string> &output_list) {
   // TODO: write debugging stderr output only if given option
   // "--debug-input-files" or something.
-  llvm::errs() << "input_path_list:\n";
-  dump_string_vector(input_list);
-  llvm::errs() << "\n";
+  if (debugInputFiles) {
+    llvm::errs() << "input_path_list:\n";
+    dump_string_vector(input_list);
+    llvm::errs() << "\n";
+  }
 
   for (std::string &path : input_list) {
     struct stat stat_struct;
@@ -83,9 +87,11 @@ void expand_directories(std::vector<std::string> &input_list,
     }
   }
 
-  llvm::errs() << "expanded_path_list:\n";
-  dump_string_vector(output_list);
-  llvm::errs() << "\n";
+  if (debugInputFiles) {
+    llvm::errs() << "expanded_path_list:\n";
+    dump_string_vector(output_list);
+    llvm::errs() << "\n";
+  }
 }
 }
 }
