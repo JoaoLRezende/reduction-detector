@@ -9,10 +9,10 @@
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
 
-#include "reduction-detector/translation_unit_finder.h"
+#include "translation_unit_finder.h"
 using reduction_detector::translation_unit_finder::expand_directories;
 
-#include "reduction-detector/loop_analysis.h"
+#include "loop_analysis/loop_analysis.h"
 using reduction_detector::loop_analysis::LoopAnalyser;
 
 // Apply a custom category to all command-line options so that they are the

@@ -9,11 +9,12 @@ namespace constants {
 
 #define INDENT "    " // a string with 4 spaces, for indenting debug ouput
 
-#define INITIAL_ACCUMULATOR_SCORE               8
+#define INITIAL_ACCUMULATOR_LIKELIHOOD_SCORE    5
+#define ACCUMULATOR_REFERENCE_IN_RHS_BONUS      3
 #define OUTSIDE_REFERENCE_PENALTY               1
 #define COMMON_ACCUMULATOR_NAME_SUBSTRINGS      "acc", "total", "sum"
 #define COMMON_ACCUMULATOR_NAME_BONUS           5
-#define DEFAULT_LIKELY_ACCUMULATOR_THRESHOLD    8
+#define DEFAULT_LIKELY_ACCUMULATOR_THRESHOLD    7
 
 
 #endif

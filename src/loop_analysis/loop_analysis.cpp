@@ -1,4 +1,4 @@
-#include "reduction-detector/loop_analysis.h"
+#include "loop_analysis.h"
 using namespace reduction_detector::loop_analysis::internal;
 
 using namespace clang::ast_matchers;
@@ -8,7 +8,7 @@ namespace loop_analysis {
 
 // run is called by MatchFinder for each for loop.
 void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
-  PotentialReductionLoopInfo loop_info(
+  PossibleReductionLoopInfo loop_info(
       result.Nodes.getNodeAs<clang::ForStmt>("forLoop"));
 
   clang::ASTContext *context = result.Context;
@@ -24,22 +24,26 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   // loop_info.iteration_variable).
   determineIterationVariable(loop_info, context);
 
-  // Find potential accumulators (populating loop_info.potential_accumulators).
-  getPotentialAccumulatorsIn(&loop_info, context);
+  detectIterationVariableReferencesInArraySubscripts(loop_info, context);
 
-  // For each potential accumulator, count the number of times it is referenced
-  // in that loop outside of its potential accumulating assignments
-  // (and store that number in the structure that describes that potential
+  // Find possible accumulators (populating loop_info.possible_accumulators).
+  getPossibleAccumulatorsIn(&loop_info, context);
+
+  detectPossibleAccumulatorReferencesInRHSOfPossibleAccumulatingStatements(loop_info, context);
+
+  // For each possible accumulator, count the number of times it is referenced
+  // in that loop outside of its possible accumulating assignments
+  // (and store that number in the structure that describes that possible
   // accumulator).
-  countOutsideReferencesIn(&loop_info, context);
+  countOutsideReferencesIn(loop_info, context);
 
   detectIterationVariableReferencesInApparentAccumulatingStatements(loop_info,
                                                                     context);
 
-  analysePotentialAccumulatorNames(loop_info, context);
+  analysePossibleAccumulatorNames(loop_info, context);
 
-  // Decide whether each potential accumulator is a likely accumulator.
-  // Set each potential accumulator's likelyAccumulatorScore and
+  // Decide whether each possible accumulator is a likely accumulator.
+  // Set each possible accumulator's likelyAccumulatorScore and
   // isLikelyAccumulator.
   determineLikelyAccumulatorsIn(loop_info, context);
 
@@ -48,7 +52,7 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   }
 
   // TODO:
-  // recycle the following stuff. use printPotentialAccumulatorsIn and
+  // recycle the following stuff. use printPossibleAccumulatorsIn and
   // printOutsideReferenceCountsIn
   // if (we were given "--debug-loop-analysis" or something) {
   //   // TODO: report all the information we gathered on this for loop.

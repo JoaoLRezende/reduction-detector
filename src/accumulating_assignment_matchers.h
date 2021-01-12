@@ -3,9 +3,6 @@
 
 #include "clang/ASTMatchers/ASTMatchers.h"
 
-// todo: wrap these in a namespace.
-// TODO: use an include guard.
-
 namespace reduction_detector {
 namespace reduction_assignment_matchers {
 

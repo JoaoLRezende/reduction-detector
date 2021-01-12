@@ -1,4 +1,4 @@
-#include "reduction-detector/translation_unit_finder.h"
+#include "translation_unit_finder.h"
 
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"

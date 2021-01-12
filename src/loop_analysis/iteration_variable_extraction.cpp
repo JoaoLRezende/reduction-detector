@@ -1,4 +1,4 @@
-#include "reduction-detector/loop_analysis.h"
+#include "loop_analysis.h"
 
 #include "clang/ASTMatchers/ASTMatchers.h"
 using namespace clang::ast_matchers;
@@ -9,11 +9,14 @@ namespace internal {
 
 StatementMatcher iterationVariableMatcher =
     forStmt(
-        anyOf(hasLoopInit(
+        anyOf(hasLoopInit( // The loop initialization can declare our iteration
+                           // variable...
                   declStmt(hasDescendant(varDecl().bind("iterationVariable")))),
-              hasLoopInit(stmt(binaryOperator(
-                  hasOperatorName("="), hasLHS(declRefExpr(to(varDecl().bind(
-                                            "iterationVariable")))))))))
+              hasLoopInit( // ... or assign a value to a iteration variable
+                           // declared beforehand.
+                  stmt(binaryOperator(hasOperatorName("="),
+                                      hasLHS(declRefExpr(to(varDecl().bind(
+                                          "iterationVariable")))))))))
         .bind("forLoop");
 
 struct IterationVariableCallback : public MatchFinder::MatchCallback {
@@ -24,7 +27,7 @@ struct IterationVariableCallback : public MatchFinder::MatchCallback {
   };
 };
 
-void determineIterationVariable(PotentialReductionLoopInfo &loopInfo,
+void determineIterationVariable(PossibleReductionLoopInfo &loopInfo,
                                 clang::ASTContext *context) {
   IterationVariableCallback iterationVariableCallback;
   MatchFinder iterationVariableFinder;
