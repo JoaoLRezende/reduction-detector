@@ -31,6 +31,12 @@ static llvm::cl::extrahelp MoreHelp("\nMore help text...");
 int main(int argc, const char **argv) {
   clang::tooling::CommonOptionsParser optionsParser(argc, argv, myToolCategory);
 
+  // Construct  a list of all source files reachable from this directory.
+  // TODO: This whole thing is a hack, and almost certainly much less efficient
+  // than it should be. We probably should be descending recursively into
+  // directories (one process
+  // per directory), or something similar. See how other programs (e.g. simple
+  // GNU coreutils) that accept options like --recursive do this.
   std::vector<std::string> input_path_list = optionsParser.getSourcePathList();
   std::vector<std::string> expanded_path_list;
   expand_directories(input_path_list, expanded_path_list);
