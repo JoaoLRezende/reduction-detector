@@ -3,6 +3,8 @@
 #include "clang/ASTMatchers/ASTMatchers.h"
 using namespace clang::ast_matchers;
 
+#include <llvm/Support/Casting.h>
+
 namespace reduction_detector {
 namespace loop_analysis {
 namespace internal {
@@ -29,12 +31,17 @@ struct IterationVariableCallback : public MatchFinder::MatchCallback {
 
 void determineIterationVariable(PossibleReductionLoopInfo &loopInfo,
                                 clang::ASTContext *context) {
-  IterationVariableCallback iterationVariableCallback;
-  MatchFinder iterationVariableFinder;
-  iterationVariableFinder.addMatcher(iterationVariableMatcher,
-                                     &iterationVariableCallback);
-  iterationVariableFinder.match(*loopInfo.forStmt, *context);
-  loopInfo.iteration_variable = iterationVariableCallback.iterationVariable;
+  // Act only if loopInfo.loopStmt points to a for loop (as opposed to other
+  // kinds of loop).
+  if (const clang::ForStmt *forStmt =
+          clang::dyn_cast<clang::ForStmt>(loopInfo.loopStmt)) {
+    IterationVariableCallback iterationVariableCallback;
+    MatchFinder iterationVariableFinder;
+    iterationVariableFinder.addMatcher(iterationVariableMatcher,
+                                       &iterationVariableCallback);
+    iterationVariableFinder.match(*loopInfo.loopStmt, *context);
+    loopInfo.iteration_variable = iterationVariableCallback.iterationVariable;
+  }
 }
 }
 }

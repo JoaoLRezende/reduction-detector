@@ -17,9 +17,6 @@ using clang::BinaryOperator;
 #include "clang/AST/Decl.h"
 using clang::VarDecl;
 
-#include "clang/AST/Stmt.h"
-using clang::ForStmt;
-
 namespace reduction_detector {
 namespace loop_analysis {
 namespace internal {
@@ -28,7 +25,7 @@ static bool isVariableReferencedInRHSOfBinaryOperation(
     const VarDecl *variable, const BinaryOperator *binaryOperation,
     ASTContext *context) {
   /* Construct a matcher that will match binaryOperator only if it either has a
-   * reference to variable in its RHS or if it is an application of a compound
+   * reference to variable in its RHS or it is an application of a compound
    * assignment operator
    * and its LHS is variable (which means the assignment is equivalent to
    * a simple assignment whose RHS has a reference to variable).

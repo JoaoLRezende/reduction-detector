@@ -9,14 +9,18 @@ namespace loop_analysis {
 // run is called by MatchFinder for each for loop.
 void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   PossibleReductionLoopInfo loop_info(
-      result.Nodes.getNodeAs<clang::ForStmt>("forLoop"));
+      result.Nodes.getNodeAs<clang::Stmt>("loop"));
+
+  // getNodeAs returns nullptr "if there was no node bound to ID or if there is
+  // a node but it cannot be converted to the specified type". This shouldn't
+  // happen.
+  assert(loop_info.loopStmt != nullptr);
 
   clang::ASTContext *context = result.Context;
 
   // If this loop is in an included header file, do nothing.
-  if (!loop_info.forStmt ||
-      !context->getSourceManager().isWrittenInMainFile(
-          loop_info.forStmt->getForLoc())) {
+  if ( !context->getSourceManager().isWrittenInMainFile(
+          loop_info.loopStmt->getBeginLoc())) {
     return;
   }
 
@@ -29,7 +33,8 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   // Find possible accumulators (populating loop_info.possible_accumulators).
   getPossibleAccumulatorsIn(&loop_info, context);
 
-  detectPossibleAccumulatorReferencesInRHSOfPossibleAccumulatingStatements(loop_info, context);
+  detectPossibleAccumulatorReferencesInRHSOfPossibleAccumulatingStatements(
+      loop_info, context);
 
   // For each possible accumulator, count the number of times it is referenced
   // in that loop outside of its possible accumulating assignments

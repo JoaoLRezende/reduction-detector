@@ -32,6 +32,8 @@ namespace internal {
  * analysis passes.
  * * * */
 
+// One instance of PossibleAccumulatingAssignmentInfo describes each
+// assignment whose left-hand side is a possible accumulator.
 struct PossibleAccumulatingAssignmentInfo {
   bool rhs_also_references_possible_accumulator = false;
   bool references_iteration_variable = false;
@@ -65,8 +67,10 @@ struct PossibleAccumulatorInfo {
 };
 
 struct PossibleReductionLoopInfo {
-  const clang::ForStmt *forStmt = nullptr;
+  const clang::Stmt *loopStmt = nullptr;
 
+  // iteration_variable might receive a non-null value only if this is a for
+  // loop.
   const clang::VarDecl *iteration_variable = nullptr;
   int numberOfIterationVariableReferencesInArraySubscripts = 0;
   std::map<const clang::VarDecl *, int>
@@ -77,7 +81,7 @@ struct PossibleReductionLoopInfo {
 
   bool hasALikelyAccumulator = false;
 
-  PossibleReductionLoopInfo(const clang::ForStmt *forStmt) : forStmt(forStmt){};
+  PossibleReductionLoopInfo(const clang::Stmt *loopStmt) : loopStmt(loopStmt){};
   void dump(llvm::raw_ostream &outputStream, clang::ASTContext *context);
 };
 

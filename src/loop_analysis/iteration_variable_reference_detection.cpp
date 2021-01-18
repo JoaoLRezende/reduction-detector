@@ -94,7 +94,7 @@ void detectIterationVariableReferencesInArraySubscripts(
       clang::ast_matchers::findAll(arraySubscriptExpressionMatcher),
       &callbackStruct);
 
-  arraySubscriptExpressionFinder.match(*loopInfo.forStmt, *context);
+  arraySubscriptExpressionFinder.match(*loopInfo.loopStmt, *context);
 
   loopInfo.numberOfIterationVariableReferencesInArraySubscripts =
       callbackStruct

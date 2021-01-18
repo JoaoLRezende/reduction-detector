@@ -81,8 +81,8 @@ void getPossibleAccumulatorsIn(PossibleReductionLoopInfo *loop_info,
                 hasOperatorName("&="), hasOperatorName("|="),
                 hasOperatorName("^="), hasOperatorName("<<="),
                 hasOperatorName(">>=")),
-          hasLHS(declRefExpr(to(varDecl(unless(hasAncestor(forStmt(
-                                            equalsNode(loop_info->forStmt)))))
+          hasLHS(declRefExpr(to(varDecl(unless(hasAncestor(stmt(
+                                            equalsNode(loop_info->loopStmt)))))
                                     .bind("possibleAccumulator")))))
           .bind("possibleAccumulatingAssignment");
 
@@ -91,7 +91,7 @@ void getPossibleAccumulatorsIn(PossibleReductionLoopInfo *loop_info,
       clang::ast_matchers::findAll(possibleAccumulatingAssignmentMatcher),
       &possibleAccumulatorFinder);
 
-  possibleAccumulatingAssignmentFinder.match(*loop_info->forStmt, *context);
+  possibleAccumulatingAssignmentFinder.match(*loop_info->loopStmt, *context);
 }
 }
 }

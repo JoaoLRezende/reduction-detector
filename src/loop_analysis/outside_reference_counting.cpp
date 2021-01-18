@@ -67,6 +67,9 @@ void countOutsideReferencesIn(PossibleReductionLoopInfo &loop_info,
       decltype(possibleAccumulator) possibleAccumulator_;
       unsigned int outsideReferences = 0;
 
+      MatcherCallback(decltype(possibleAccumulator) possibleAccumulator_)
+          : possibleAccumulator_(possibleAccumulator_) {}
+
       virtual void run(const MatchFinder::MatchResult &result) {
         if (!isReferenceInOneOfPossibleAccumulatingAssignmentsOfPossibleAccumulator(
                 result.Nodes.getNodeAs<clang::DeclRefExpr>(
@@ -76,8 +79,6 @@ void countOutsideReferencesIn(PossibleReductionLoopInfo &loop_info,
         }
       }
 
-      MatcherCallback(decltype(possibleAccumulator) possibleAccumulator_)
-          : possibleAccumulator_(possibleAccumulator_) {}
     } matcherCallback(possibleAccumulator);
 
     // Count number of outside references.
@@ -86,7 +87,7 @@ void countOutsideReferencesIn(PossibleReductionLoopInfo &loop_info,
         findAll(declRefExpr(to(varDecl(equalsNode(possibleAccumulator.first))))
             .bind("possibleAccumulatorReference")),
         &matcherCallback);
-    referenceFinder.match(*loop_info.forStmt, *context);
+    referenceFinder.match(*loop_info.loopStmt, *context);
 
     // Get the resulting count of outside references.
     possibleAccumulator.second.outside_references =

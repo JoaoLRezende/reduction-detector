@@ -21,9 +21,9 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
   } else {
     outputStream << "Unlikely reduction loop at ";
   }
-  this->forStmt->getForLoc().print(outputStream, context->getSourceManager());
+  this->loopStmt->getBeginLoc().print(outputStream, context->getSourceManager());
   outputStream << ":\n";
-  this->forStmt->printPretty(outputStream, nullptr,
+  this->loopStmt->printPretty(outputStream, nullptr,
                              clang::PrintingPolicy(clang::LangOptions()));
 
   if (this->iteration_variable == nullptr) {

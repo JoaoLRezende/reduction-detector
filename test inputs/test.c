@@ -1,9 +1,23 @@
+#include <stdio.h>
+
+int arr[5] = { 1, 2, 3, 4, 5 };
+
 int main() {
-	int array[5] = {0, 1, 2, 3, 4};
-	int sum = 0, x = 0;
-	for(int i = 0; i < 5; i++){
-         	sum = sum + array[i];//sim//done
-	        sum = sum - array[i];//sim//done
-	        sum = array[i] + sum;//sim//done
-         }
+	int acc = 0;
+	for (int i = 0; i < 5; i++) {
+		acc += arr[i];
+	}
+	printf("%d\n", acc);
+	
+	int i = 0;
+	while (i < 10) {
+		acc += arr[i];
+		i += 1;
+	}
+	
+	do {
+		acc += arr[i];
+		i += 1;
+	} while (i < 10);
 }
+

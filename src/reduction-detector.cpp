@@ -8,6 +8,7 @@
 #include "clang/Tooling/Tooling.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
+using namespace clang::ast_matchers;
 
 #include "translation_unit_finder.h"
 using reduction_detector::translation_unit_finder::expand_directories;
@@ -44,10 +45,11 @@ int main(int argc, const char **argv) {
   clang::tooling::ClangTool clangTool(optionsParser.getCompilations(),
                                       expanded_path_list);
 
+  StatementMatcher loopMatcher =
+      stmt(anyOf(forStmt(), whileStmt(), doStmt())).bind("loop");
   LoopAnalyser loopAnalyser;
   clang::ast_matchers::MatchFinder finder;
-  finder.addMatcher(clang::ast_matchers::forStmt().bind("forLoop"),
-                    &loopAnalyser);
+  finder.addMatcher(loopMatcher, &loopAnalyser);
 
   int statusCode =
       clangTool.run(clang::tooling::newFrontendActionFactory(&finder).get());
