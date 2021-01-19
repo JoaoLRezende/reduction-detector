@@ -16,6 +16,8 @@ using reduction_detector::translation_unit_finder::expand_directories;
 #include "loop_analysis/loop_analysis.h"
 using reduction_detector::loop_analysis::LoopAnalyser;
 
+#include "constants.h"
+
 // Apply a custom category to all command-line options so that they are the
 // only ones displayed.
 static llvm::cl::OptionCategory myToolCategory("my-tool options");
@@ -56,17 +58,19 @@ int main(int argc, const char **argv) {
 
   llvm::outs() << loopAnalyser.loopCounts.likelyReductionLoops.all << " out of "
                << loopAnalyser.loopCounts.totals.all
-               << " loops detected as likely reduction loops."
-               << " (" << loopAnalyser.loopCounts.likelyReductionLoops.forLoops
+               << " loops detected as likely reduction loops.\n"
+               << INDENT
+               << loopAnalyser.loopCounts.likelyReductionLoops.forLoops
                << " out of " << loopAnalyser.loopCounts.totals.forLoops
-               << " for loops; "
+               << " for loops.\n"
+               << INDENT
                << loopAnalyser.loopCounts.likelyReductionLoops.whileLoops
                << " out of " << loopAnalyser.loopCounts.totals.whileLoops
-               << " while loops; "
+               << " while loops.\n"
+               << INDENT
                << loopAnalyser.loopCounts.likelyReductionLoops.doWhileLoops
                << " out of " << loopAnalyser.loopCounts.totals.doWhileLoops
-               << " do-while loops.)"
-               << "\n";
+               << " do-while loops.\n";
 
   return statusCode;
 }
