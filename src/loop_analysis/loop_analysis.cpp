@@ -3,6 +3,8 @@ using namespace reduction_detector::loop_analysis::internal;
 
 using namespace clang::ast_matchers;
 
+#include "llvm/Support/Casting.h"
+
 namespace reduction_detector {
 namespace loop_analysis {
 
@@ -19,7 +21,7 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   clang::ASTContext *context = result.Context;
 
   // If this loop is in an included header file, do nothing.
-  if ( !context->getSourceManager().isWrittenInMainFile(
+  if (!context->getSourceManager().isWrittenInMainFile(
           loop_info.loopStmt->getBeginLoc())) {
     return;
   }
@@ -75,10 +77,31 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   //   loop_analysis_report_stream << "\n";
   // }
 
-  if (loop_info.hasALikelyAccumulator) {
-    likelyReductionCount += 1;
+  registerAnalyzedLoop(loop_info);
+}
+
+void LoopAnalyser::registerAnalyzedLoop(PossibleReductionLoopInfo &loopInfo) {
+  loopCounts.totals.all += 1;
+  if (loopInfo.hasALikelyAccumulator) {
+    loopCounts.likelyReductionLoops.all += 1;
   }
-  totalLoopCount += 1;
+
+  if (clang::isa<clang::ForStmt>(loopInfo.loopStmt)) {
+    loopCounts.totals.forLoops += 1;
+    if (loopInfo.hasALikelyAccumulator) {
+      loopCounts.likelyReductionLoops.forLoops += 1;
+    }
+  } else if (clang::isa<clang::WhileStmt>(loopInfo.loopStmt)) {
+    loopCounts.totals.whileLoops += 1;
+    if (loopInfo.hasALikelyAccumulator) {
+      loopCounts.likelyReductionLoops.whileLoops += 1;
+    }
+  } else if (clang::isa<clang::DoStmt>(loopInfo.loopStmt)) {
+    loopCounts.totals.doWhileLoops += 1;
+    if (loopInfo.hasALikelyAccumulator) {
+      loopCounts.likelyReductionLoops.doWhileLoops += 1;
+    }
+  }
 }
 }
 }

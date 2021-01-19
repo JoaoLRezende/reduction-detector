@@ -54,9 +54,19 @@ int main(int argc, const char **argv) {
   int statusCode =
       clangTool.run(clang::tooling::newFrontendActionFactory(&finder).get());
 
-  llvm::outs() << loopAnalyser.likelyReductionCount << " out of "
-               << loopAnalyser.totalLoopCount
-               << " loops detected as likely reduction loops.\n";
+  llvm::outs() << loopAnalyser.loopCounts.likelyReductionLoops.all << " out of "
+               << loopAnalyser.loopCounts.totals.all
+               << " loops detected as likely reduction loops."
+               << " (" << loopAnalyser.loopCounts.likelyReductionLoops.forLoops
+               << " out of " << loopAnalyser.loopCounts.totals.forLoops
+               << " for loops; "
+               << loopAnalyser.loopCounts.likelyReductionLoops.whileLoops
+               << " out of " << loopAnalyser.loopCounts.totals.whileLoops
+               << " while loops; "
+               << loopAnalyser.loopCounts.likelyReductionLoops.doWhileLoops
+               << " out of " << loopAnalyser.loopCounts.totals.doWhileLoops
+               << " do-while loops.)"
+               << "\n";
 
   return statusCode;
 }
