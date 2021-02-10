@@ -3,11 +3,14 @@ This is an application of Clang’s LibTooling API. See [here][1] for a tutorial
 [1]: <https://clang.llvm.org/docs/LibASTMatchersTutorial.html>
 [2]: <https://clang.llvm.org/docs/index.html#using-clang-as-a-library>
 
+***
+
 # Setup
 
 This program links against LLVM 9.0.0. Download a binary distribution of LLVM 9.0.0 from [LLVM's website][3], change the value of `LLVM_PATH` in our makefile accordingly, and then run `make`.
 
 [3]: <https://releases.llvm.org/download.html#9.0.0>
+
 ***
 
 # FAQ
