@@ -25,8 +25,7 @@ namespace loop_analysis {
 namespace internal {
 
 /*
- * One instance of PossibleAccumulatingAssignmentFinder is created
- * for each for loop.
+ * One instance of PossibleAccumulatorFinder is created for each for loop.
  * For each assignment whose left side is a variable declared outside
  * of the loop, it stores that variable in the map possible_accumulators of
  * the struct PossibleReductionLoopInfo that describes that loop.
