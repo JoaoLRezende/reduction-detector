@@ -1,13 +1,16 @@
 #-------------------------------------------------------------------------------
-# Sample makefile for building the code samples. Read inline comments for
-# documentation.
-#
-# Eli Bendersky (eliben@gmail.com)
-# This code is in the public domain
+# This makefile is based on code by Eli Bendersky; see
+# https://eli.thegreenplace.net/2014/samples-for-using-llvm-and-clang-as-a-library/.
 #-------------------------------------------------------------------------------
 
+# TODO: sanitize this makefile. Make it capable of incremental compilation
+# (building one relocatable object file from each source file individually
+# and preserving it in the build directory − and, in each build, regenerating
+# only relocatable object files whose source files were changed since
+# the last build). Make it aware of header files.
+
 # To link against a binary distribution of LLVM
-# (downloaded from llvm.org), LLVM_PATH is to point its location
+# (downloaded from llvm.org), LLVM_PATH is to point to its location
 # (the untarred directory that contains bin/, lib/, include/
 # and other directories).
 LLVM_PATH 		:= clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-16.04
