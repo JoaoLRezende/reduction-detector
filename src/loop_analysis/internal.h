@@ -74,18 +74,25 @@ struct PossibleReductionLoopInfo {
  * * * */
 void getPossibleAccumulatorsIn(PossibleReductionLoopInfo *loop_info,
                                clang::ASTContext *context);
+
 void detectPossibleAccumulatorReferencesInRHSOfPossibleAccumulatingStatements(
     PossibleReductionLoopInfo &loop_info, clang::ASTContext *context);
+
 void countOutsideReferencesIn(PossibleReductionLoopInfo &loop_info,
                               clang::ASTContext *context);
+
 void analysePossibleAccumulatorNames(PossibleReductionLoopInfo &loop_info,
                                      clang::ASTContext *context);
+
 void determineIterationVariable(PossibleReductionLoopInfo &loopInfo,
                                 clang::ASTContext *context);
+
 void detectIterationVariableReferencesInApparentAccumulatingStatements(
     PossibleReductionLoopInfo &loopInfo, clang::ASTContext *context);
+
 void determineLikelyAccumulatorsIn(PossibleReductionLoopInfo &loop_info,
                                    clang::ASTContext *context);
+
 void detectIterationVariableReferencesInArraySubscripts(
     PossibleReductionLoopInfo &loopInfo, clang::ASTContext *context);
 }
