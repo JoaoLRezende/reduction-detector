@@ -8,10 +8,6 @@ using namespace clang::ast_matchers;
 #include "clang/ASTMatchers/ASTMatchFinder.h"
 using clang::ast_matchers::MatchFinder;
 
-#include "../accumulating_assignment_matchers.h"
-using reduction_detector::reduction_assignment_matchers::
-    reductionAssignmentMatcher;
-
 namespace reduction_detector {
 namespace loop_analysis {
 namespace internal {
