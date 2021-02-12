@@ -1,3 +1,5 @@
+<!-- TODO: explain here what reduction-detector does, including the detailed algorithm it implements. A link to an article probably would be very useful. -->
+
 This is an application of Clang’s LibTooling API. See [here][1] for a tutorial and [here][2] for full documentation.
 
 [1]: <https://clang.llvm.org/docs/LibASTMatchersTutorial.html>
@@ -7,9 +9,18 @@ This is an application of Clang’s LibTooling API. See [here][1] for a tutorial
 
 # Setup
 
-This program links against LLVM 9.0.0. Download a binary distribution of LLVM 9.0.0 from [LLVM's website][3], change the value of `LLVM_PATH` in our makefile accordingly, and then run `make`.
+This program links against LLVM 9.0.0. Download a binary distribution of LLVM 9.0.0 from [LLVM's website][3], change the value of `LLVM_PATH` in our makefile accordingly, and then run `make`. The program will be built as `build/reduction-detector`. 
 
 [3]: <https://releases.llvm.org/download.html#9.0.0>
+
+***
+
+# Usage
+
+You can invoke reduction-detector on a C file or on a directory with multiple C files. For example:
+```
+build/reduction-detector "test inputs/test.c"
+```
 
 ***
 
