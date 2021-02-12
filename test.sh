@@ -1,7 +1,12 @@
 #!/bin/bash
 
 DEFAULT_TEST_CASE="test inputs/test.c"
+
 EXTRA_ARGUMENTS="-min-score 7"
+
+# CLANG_ARGUMENTS can be used to inform the tool of where to find system header
+# files (for example, if you see errors like "fatal error: 'stddef.h' file
+# not found").
 CLANG_ARGUMENTS="-I /usr/lib/llvm-3.8/bin/../lib/clang/3.8.0/include"
 
 cd "$(dirname "$0")"
