@@ -1,73 +1,62 @@
-#define ARRAYSIZE 10
+#include <stdlib.h>
 
-int f(int sum, int next) {
-    return sum + next;
+int f(int sum, int next) { return sum + next; }
+
+int reduce1(int array[], size_t array_size) {
+  int sum = 0;
+  for (int i = 0; i < array_size; i++) {
+    sum = sum + array[i];
+  }
+  return sum;
 }
 
-int main(){
-    int array[ARRAYSIZE] = {0, 1 , 2, 3, 4, 5, 6, 7, 8, 9};
-    int sum = 0;
-    int x = 0;
+int reduce2(int array[], size_t array_size) {
+  int sum = 0;
+  for (int i = 0; i < array_size; i++) {
+    int old_sum = sum;
+    old_sum += array[i];
+    sum = old_sum;
+  }
+  return sum;
+}
 
-    // Correctly recognized.
-    for(int i = 0; i < ARRAYSIZE; i++){
-        x = x + array[i];
-    }
+int reduce3(int array[], size_t array_size) {
+  int sum = 0;
+  for (int i = 0; i < array_size; i++) {
+    sum = sum + array[i + 1];
+  }
+  return sum;
+}
 
-    // Correctly recognized.
-    for(int i = 0; i < ARRAYSIZE; i++){    
-        sum = x + sum + array[i];
-    }
-    
-    // Correctly recognized.
-    for(int i = 0; i < ARRAYSIZE; i++){
-        sum = sum * array[i];
-    }
+int reduce4(int array[], size_t array_size) {
+  int sum = 0;
+  for (int i = 0; i < array_size; i++) {
+    sum = f(sum, array[i]);
+  }
+  return sum;
+}
 
-    // Correctly recognized.
-    for(int i = 0; i < ARRAYSIZE; i++){
-        sum = sum / array[i];
-    }
+int reduce5(int array[], size_t array_size) {
+  int sum = 0, i = 0;
+  for (; i > array_size; --i) {
+    sum = 2 + array[i] + sum;
+  }
+  return sum;
+}
 
-    // Correctly recognized. ("mesmo motivo do x")
-    for(int i = 0; i < ARRAYSIZE; i++){
-        sum = sum + array[i+1];
-    }
-    
-    for(int i = 0; i < ARRAYSIZE; i++){
-        sum = f(sum, array[i]);
-    }
-    
-    // Correctly recognized.
-    for(int i = 0; i < ARRAYSIZE; i++){    
-        sum = x + 2 + array[i] + sum + 1;
-    }
+int reduce6(int array[], size_t array_size) {
+  int sum = 0;
+  for (int i = 0; i < array_size; i++) {
+    sum += array[i];
+  }
+  return sum;
+}
 
-    // Correctly recognized.
-    for(int i = 0; i < ARRAYSIZE; i++){    
-        sum = sum + 2 + array[i];
-    }
+int reduce7(int array[], size_t array_size) {
+  int sum = 0;
 
-    // Correctly recognized.
-    for(int i = 0; i < ARRAYSIZE; i++){    
-        sum = x + 2 + array[i] + sum;
-    }
-    
-    // Correctly recognized.
-    int i = 0;
-    for(; i > ARRAYSIZE; --i){    
-        sum = x + 2 + array[i] + sum;
-    }
-    
-    // Correctly recognized.
-    for(int i = 0; i < ARRAYSIZE; i++){
-        sum += array[i];
-    }
-
-    // Correctly recognized.
-    for(int i = 0; i < ARRAYSIZE; i++){
-        sum -= array[i];
-    }
-    
-    return 0;
+  for (int i = 0; i < array_size; i++) {
+    sum -= array[i];
+  }
+  return sum;
 }
