@@ -58,7 +58,7 @@ void detectIterationVariableReferencesInArraySubscripts(
     PossibleReductionLoopInfo &loopInfo, clang::ASTContext *context) {
   if (loopInfo.iteration_variable == nullptr)
     return;
-    
+
   // arraySubscriptExpressionMatcher matches any array-subscript expression
   // whose RHS involves the loop's iteration variable, and makes a crude attempt
   // to identify the base array.
@@ -66,7 +66,9 @@ void detectIterationVariableReferencesInArraySubscripts(
       hasRHS(hasDescendant(
           declRefExpr(to(varDecl(equalsNode(loopInfo.iteration_variable)))))),
       hasLHS(hasDescendant(declRefExpr(
-          to(varDecl(hasType(arrayType())).bind("subscriptedArray"))))));
+          to(varDecl(anyOf(hasType(arrayType()), hasType(pointerType()),
+                           hasType(decayedType(hasDecayedType(pointerType())))))
+                 .bind("subscriptedArray"))))));
 
   // Instantiate a struct with a callback function for matching
   // array-subscript expressions. It accumulates information on them.
