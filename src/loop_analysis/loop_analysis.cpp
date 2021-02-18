@@ -1,15 +1,19 @@
 #include "loop_analysis.h"
 using namespace reduction_detector::loop_analysis::internal;
 
-using namespace clang::ast_matchers;
+#include "llvm/Support/CommandLine.h"
 
-#include "llvm/Support/Casting.h"
+llvm::cl::opt<bool> print_non_reduction_loops(
+    "print-non-reduction-loops",
+    llvm::cl::desc("Instead of likely reduction loops, print loops that were not "
+             "recognized as likely reduction loops"));
 
 namespace reduction_detector {
 namespace loop_analysis {
 
 // run is called by MatchFinder for each for loop.
-void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
+void LoopAnalyser::run(
+    const clang::ast_matchers::MatchFinder::MatchResult &result) {
   PossibleReductionLoopInfo loop_info(
       result.Nodes.getNodeAs<clang::Stmt>("loop"));
 
@@ -54,7 +58,8 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   // isLikelyAccumulator.
   determineLikelyAccumulatorsIn(loop_info, context);
 
-  if (loop_info.hasALikelyAccumulator) {
+  if ((!print_non_reduction_loops && loop_info.hasALikelyAccumulator) ||
+      (print_non_reduction_loops && !loop_info.hasALikelyAccumulator)) {
     loop_info.dump(llvm::outs(), context);
   }
 
