@@ -8,10 +8,15 @@ namespace reduction_detector {
 namespace loop_analysis {
 namespace internal {
 
+/* reportUnlikelyAccumulators holds whether we are to dump information
+ * on possible accumulators that aren't likely accumulators.
+ * Note that this has nothing to do with printing information
+ * on the loop itself.
+ */
 static llvm::cl::opt<bool> reportUnlikelyAccumulators(
     "report-unlikely-accumulators",
     llvm::cl::desc("Also report and explain the score of possible "
-                   "accumulatores whose accumulator-likelyhood score didn't "
+                   "accumulators whose accumulator-likelyhood score didn't "
                    "reach the threshold."));
 
 void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
