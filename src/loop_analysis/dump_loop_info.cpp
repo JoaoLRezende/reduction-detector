@@ -1,5 +1,6 @@
 #include "loop_analysis.h"
 
+#include "../command_line_processing.h"
 #include "../constants.h"
 
 #include "llvm/Support/CommandLine.h"
@@ -15,9 +16,11 @@ namespace internal {
  */
 static llvm::cl::opt<bool> reportUnlikelyAccumulators(
     "report-unlikely-accumulators",
-    llvm::cl::desc("Also report and explain the score of possible "
-                   "accumulators whose accumulator-likelyhood score didn't "
-                   "reach the threshold."));
+    llvm::cl::desc(
+        "For each printed loop, also report and explain the score of possible "
+        "accumulators whose accumulator-likelyhood score didn't "
+        "reach the threshold."),
+    llvm::cl::cat(command_line_options::reduction_detector_option_category));
 
 void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
                                      clang::ASTContext *context) {
@@ -26,10 +29,11 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
   } else {
     outputStream << "Unlikely reduction loop at ";
   }
-  this->loopStmt->getBeginLoc().print(outputStream, context->getSourceManager());
+  this->loopStmt->getBeginLoc().print(outputStream,
+                                      context->getSourceManager());
   outputStream << ":\n";
   this->loopStmt->printPretty(outputStream, nullptr,
-                             clang::PrintingPolicy(clang::LangOptions()));
+                              clang::PrintingPolicy(clang::LangOptions()));
 
   if (this->iteration_variable == nullptr) {
     outputStream << "I couldn't determine its iteration variable.";

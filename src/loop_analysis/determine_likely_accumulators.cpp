@@ -1,5 +1,6 @@
 #include "../constants.h"
 #include "loop_analysis.h"
+#include "../command_line_processing.h"
 
 #include "llvm/Support/CommandLine.h"
 
@@ -14,7 +15,8 @@ static llvm::cl::opt<int> accumulatorScoreThreshold(
     llvm::cl::desc("Specify minimum \"likely-accumulator score\" for a "
                    "variable to be considered a likely accumulator"),
     llvm::cl::value_desc("integer"),
-    llvm::cl::init(DEFAULT_LIKELY_ACCUMULATOR_THRESHOLD));
+    llvm::cl::init(DEFAULT_LIKELY_ACCUMULATOR_THRESHOLD),
+    llvm::cl::cat(command_line_options::reduction_detector_option_category));
 
 static int
 computeLikelyAccumulatorScore(PossibleAccumulatorInfo &possibleAccumulator) {

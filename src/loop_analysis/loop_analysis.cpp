@@ -1,12 +1,17 @@
 #include "loop_analysis.h"
 using namespace reduction_detector::loop_analysis::internal;
 
+#include "../command_line_processing.h"
+
 #include "llvm/Support/CommandLine.h"
 
 llvm::cl::opt<bool> print_non_reduction_loops(
     "print-non-reduction-loops",
-    llvm::cl::desc("Instead of likely reduction loops, print loops that were not "
-             "recognized as likely reduction loops"));
+    llvm::cl::desc(
+        "Instead of likely reduction loops, print loops that were not "
+        "recognized as likely reduction loops"),
+    llvm::cl::cat(reduction_detector::command_line_options::
+                      reduction_detector_option_category));
 
 namespace reduction_detector {
 namespace loop_analysis {

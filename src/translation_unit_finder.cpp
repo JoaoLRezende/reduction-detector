@@ -3,6 +3,8 @@
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
 
+#include "command_line_processing.h"
+
 #include <dirent.h>
 #include <limits.h>
 #include <stdlib.h>
@@ -14,7 +16,7 @@
 namespace reduction_detector {
 namespace translation_unit_finder {
 
-llvm::cl::opt<bool> debugInputFiles("debug-input-files");
+llvm::cl::opt<bool> debugInputFiles("debug-input-files", llvm::cl::cat(command_line_options::reduction_detector_option_category));
 
 /*
  * Decide whether a regular file is one we should analyze.
