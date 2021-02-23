@@ -18,8 +18,8 @@ static llvm::cl::opt<bool> reportUnlikelyAccumulators(
     "report-unlikely-accumulators",
     llvm::cl::desc(
         "For each printed loop, also report and explain the score of possible "
-        "accumulators whose accumulator-likelyhood score didn't "
-        "reach the threshold."),
+        "accumulators whose accumulator-likelihood score didn't "
+        "reach the threshold"),
     llvm::cl::cat(command_line_options::reduction_detector_option_category));
 
 void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,

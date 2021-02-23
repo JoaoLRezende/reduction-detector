@@ -12,7 +12,7 @@ namespace internal {
 // user in the command line.
 static llvm::cl::opt<int> accumulatorScoreThreshold(
     "min-score",
-    llvm::cl::desc("Specify minimum \"likely-accumulator score\" for a "
+    llvm::cl::desc("Specify minimum accumulator-likelihood score for a "
                    "variable to be considered a likely accumulator"),
     llvm::cl::value_desc("integer"),
     llvm::cl::init(DEFAULT_LIKELY_ACCUMULATOR_THRESHOLD),
