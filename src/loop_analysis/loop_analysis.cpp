@@ -1,7 +1,7 @@
 #include "loop_analysis.h"
 using namespace reduction_detector::loop_analysis::internal;
 
-#include "../command_line_processing.h"
+#include "../command_line.h"
 
 #include "llvm/Support/CommandLine.h"
 

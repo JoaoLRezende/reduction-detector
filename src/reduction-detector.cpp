@@ -19,7 +19,7 @@ using reduction_detector::loop_analysis::LoopAnalyser;
 
 #include "constants.h"
 
-#include "command_line_processing.h"
+#include "command_line.h"
 
 using namespace reduction_detector;
 

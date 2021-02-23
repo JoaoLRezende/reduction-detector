@@ -1,4 +1,4 @@
-#include "command_line_processing.h"
+#include "command_line.h"
 
 #include "clang/Tooling/CommonOptionsParser.h"
 #include "llvm/Support/CommandLine.h"
@@ -22,6 +22,3 @@ llvm::cl::OptionCategory
 
 // TODO: change the name of this module (including the corresponding implementation
 // file) to simply "command_line".
-
-// TODO: make sure that are descriptions for every option in the output of
-// --help.

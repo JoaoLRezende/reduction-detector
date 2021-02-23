@@ -1,6 +1,6 @@
 #include "loop_analysis.h"
 
-#include "../command_line_processing.h"
+#include "../command_line.h"
 #include "../constants.h"
 
 #include "llvm/Support/CommandLine.h"

@@ -3,7 +3,7 @@
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
 
-#include "command_line_processing.h"
+#include "command_line.h"
 
 #include <dirent.h>
 #include <limits.h>
