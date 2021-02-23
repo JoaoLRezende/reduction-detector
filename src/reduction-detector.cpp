@@ -4,11 +4,12 @@
 
 #include "clang/ASTMatchers/ASTMatchFinder.h"
 #include "clang/ASTMatchers/ASTMatchers.h"
+using namespace clang::ast_matchers;
+
 #include "clang/Tooling/CommonOptionsParser.h"
 #include "clang/Tooling/Tooling.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
-using namespace clang::ast_matchers;
 
 #include "translation_unit_finder.h"
 using reduction_detector::translation_unit_finder::expand_directories;
@@ -68,60 +69,30 @@ int main(int argc, const char **argv) {
 }
 
 /* TODO:
- * - The Clang tooling we're using fails at analyzing most C files due to not
- *   knowing where to find header files included by them. Learn how to deal with
- *   that. (Usually, when invoking Clang directly through a command line, you
- *   can inform Clang of include paths through the options -I and -isystem. How
- *   can I do that when using Clang's LibTooling API?)
- * - Consider that logical and bitwise operators can be used in reductions too
- *   (and also their corresponding compound assignment operators, like &= and
- *   |=).
+ * - The output of --help should state the default value of
+ *   --min-score. See whether the CommandLine library can help with that.
  * - Documment (in header-file comments) every function whose behavior
  *   isn't obvious.
  * - Recognize uses of the unary increment and decrement operators
  *   as if they were reduction assignments. NPB code does at least two
  *   reductions using those.
- * - Check whether each potential accumulator is declared outside
- *   of the loop.
- *   (That should change nothing now, but it will be a necessary
- *   check after we stop
- *   requiring that an accumulator is referenced in only one
- *   assignemnt in the loop.)
- * - Why do we check whether a potential accumulator is referenced
- *   only once
- *   in the right-hand side of its assignment? Is there any good
- *   reason for that?
- *   Make tests. If nothing changes, we should probably stop doing that.
- *   (Noted by Gerson.)
  * - Add a test case for a loop whose body is an expression statement,
  *   rather than a compound statement (i.e. a block).
  * - Do proper encapsulation. Make public only what needs to be public.
  *   Use getter methods.
- * - Be able to receive command-line arguments. Options like
- *   --print-unrecognized-loops (which shall default
- *   to false) and --verbose, which causes it to explain all its reasonings
- *   as
- *   precisely as possible (thus printing unrecognized loops too, of
- *   course).
- * - Get more example loops from real software systems. (See PARSEC,
- *   Cowichan.)
+ * - The program should explain its reasonings only when asked to
+ *   (for example, through an option --verbose).
  * - How well do we deal with nested loops? Write some test cases for that.
  * - An accumulator isn't necessarily a variable directly named by an
  *   identifier.
  *   It can be any recurring lvalue − for example, a member of a struct
  *   or an element of an array. We need to be able to recognize those
  *   accumulators too. (Noted by Gerson.) Make diverse test cases.
- * - Be able to receive a directory as input (rather than only a single
- *   file).
- *   Then, test on larger software systems (such as Linux).
- * - Make the program optionally write its output to a given file, with
- *   detailed information about the location of each potential reduction loop
- *   and what the potential reduction accumulators are.
- * - Comment the code.
- * - Use deeper indentation to make reading easier. At least 4 spaces.
- * - If we plan to work with C++ too, we'll probably have to deal with other
- *   ways of iterating over an array (like range-based for loops)
- *   and with collections other than arrays.
+ *   See the last few paragraphs of
+ *   https://clang.llvm.org/docs/LibASTMatchersTutorial.html.
+ * - Make the program optionally write its output to a given file.
+ * - Use deeper indentation to make reading easier. Use 4 spaces.
+ *   (See how to make clang-format do that for you.)
  * - Make a basic testing framework that allows a good number of regression
  *   tests without requiring laborious output-checking effort.
  *   Each loop would go in a separate function with a unique name. Each
@@ -135,6 +106,5 @@ int main(int argc, const char **argv) {
  *      for (int i = 0; i < arr_length; i++)
  *          if (max < arr[i])
  *              max = arr[i];
- * - Separate the code into multiple source files.
  * - Run Valgrind. Make sure we're not leaking memory.
  */
