@@ -16,7 +16,10 @@
 namespace reduction_detector {
 namespace translation_unit_finder {
 
-llvm::cl::opt<bool> debugInputFiles("debug-input-files", llvm::cl::cat(command_line_options::reduction_detector_option_category));
+llvm::cl::opt<bool> debugInputFiles(
+    "debug-input-files",
+    llvm::cl::desc("Write list of all analyzed source files to stderr"),
+    llvm::cl::cat(command_line_options::reduction_detector_option_category));
 
 /*
  * Decide whether a regular file is one we should analyze.
@@ -26,7 +29,7 @@ static bool isProperInputFile(std::string fileName, struct stat *stat_struct) {
          fileName.find(".cpp") !=
              std::string::npos; // TODO: this is catching files ending in ".cg"
                                 // and ".commons" and "README.carefully" and a
-                                // bunch of other weird stuff lol. check
+                                // bunch of other weird stuff. check
                                 // suffix only.
 }
 
@@ -66,8 +69,6 @@ static void get_files_in_directory(std::string &directory_path,
 
 void expand_directories(std::vector<std::string> &input_list,
                         std::vector<std::string> &output_list) {
-  // TODO: write debugging stderr output only if given option
-  // "--debug-input-files" or something.
   if (debugInputFiles) {
     llvm::errs() << "input_path_list:\n";
     dump_string_vector(input_list);
