@@ -1,4 +1,5 @@
 #include "loop_analysis.h"
+#include "internal.h"
 
 #include "../constants.h"
 

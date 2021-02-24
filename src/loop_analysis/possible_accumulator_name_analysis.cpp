@@ -1,5 +1,6 @@
 #include "../constants.h"
 #include "loop_analysis.h"
+#include "internal.h"
 
 #include <string>
 #include <vector>

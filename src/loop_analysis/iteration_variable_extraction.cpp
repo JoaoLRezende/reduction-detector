@@ -1,4 +1,5 @@
 #include "loop_analysis.h"
+#include "internal.h"
 
 #include "clang/ASTMatchers/ASTMatchers.h"
 using namespace clang::ast_matchers;

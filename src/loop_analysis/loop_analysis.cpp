@@ -1,4 +1,5 @@
 #include "loop_analysis.h"
+#include "internal.h"
 using namespace reduction_detector::loop_analysis::internal;
 
 #include "../command_line.h"
@@ -15,6 +16,35 @@ llvm::cl::opt<bool> print_non_reduction_loops(
 
 namespace reduction_detector {
 namespace loop_analysis {
+
+/*
+ * Update the statistics stored in LoopAnalyser to account for a
+ * newly analyzed loop.
+ */
+static void registerAnalyzedLoop(LoopAnalyser &loopAnalyser,
+                                 PossibleReductionLoopInfo &loopInfo) {
+  loopAnalyser.loopCounts.totals.all += 1;
+  if (loopInfo.hasALikelyAccumulator) {
+    loopAnalyser.loopCounts.likelyReductionLoops.all += 1;
+  }
+
+  if (clang::isa<clang::ForStmt>(loopInfo.loopStmt)) {
+    loopAnalyser.loopCounts.totals.forLoops += 1;
+    if (loopInfo.hasALikelyAccumulator) {
+      loopAnalyser.loopCounts.likelyReductionLoops.forLoops += 1;
+    }
+  } else if (clang::isa<clang::WhileStmt>(loopInfo.loopStmt)) {
+    loopAnalyser.loopCounts.totals.whileLoops += 1;
+    if (loopInfo.hasALikelyAccumulator) {
+      loopAnalyser.loopCounts.likelyReductionLoops.whileLoops += 1;
+    }
+  } else if (clang::isa<clang::DoStmt>(loopInfo.loopStmt)) {
+    loopAnalyser.loopCounts.totals.doWhileLoops += 1;
+    if (loopInfo.hasALikelyAccumulator) {
+      loopAnalyser.loopCounts.likelyReductionLoops.doWhileLoops += 1;
+    }
+  }
+}
 
 // run is called by MatchFinder for each for loop.
 void LoopAnalyser::run(
@@ -87,31 +117,8 @@ void LoopAnalyser::run(
   //   loop_analysis_report_stream << "\n";
   // }
 
-  registerAnalyzedLoop(loop_info);
+  registerAnalyzedLoop(*this, loop_info);
 }
 
-void LoopAnalyser::registerAnalyzedLoop(PossibleReductionLoopInfo &loopInfo) {
-  loopCounts.totals.all += 1;
-  if (loopInfo.hasALikelyAccumulator) {
-    loopCounts.likelyReductionLoops.all += 1;
-  }
-
-  if (clang::isa<clang::ForStmt>(loopInfo.loopStmt)) {
-    loopCounts.totals.forLoops += 1;
-    if (loopInfo.hasALikelyAccumulator) {
-      loopCounts.likelyReductionLoops.forLoops += 1;
-    }
-  } else if (clang::isa<clang::WhileStmt>(loopInfo.loopStmt)) {
-    loopCounts.totals.whileLoops += 1;
-    if (loopInfo.hasALikelyAccumulator) {
-      loopCounts.likelyReductionLoops.whileLoops += 1;
-    }
-  } else if (clang::isa<clang::DoStmt>(loopInfo.loopStmt)) {
-    loopCounts.totals.doWhileLoops += 1;
-    if (loopInfo.hasALikelyAccumulator) {
-      loopCounts.likelyReductionLoops.doWhileLoops += 1;
-    }
-  }
-}
 }
 }

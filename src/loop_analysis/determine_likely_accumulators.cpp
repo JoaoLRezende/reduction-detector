@@ -1,5 +1,7 @@
 #include "../constants.h"
 #include "loop_analysis.h"
+#include "internal.h"
+
 #include "../command_line.h"
 
 #include "llvm/Support/CommandLine.h"
