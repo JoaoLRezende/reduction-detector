@@ -4,9 +4,12 @@ using namespace reduction_detector::loop_analysis::internal;
 
 #include "../command_line.h"
 
+#include "llvm/Support/CommandLine.h"
+
 using namespace clang::ast_matchers;
 
-#include "llvm/Support/CommandLine.h"
+namespace reduction_detector {
+namespace loop_analysis {
 
 llvm::cl::opt<bool> print_non_reduction_loops(
     "print-non-reduction-loops",
@@ -15,39 +18,6 @@ llvm::cl::opt<bool> print_non_reduction_loops(
         "recognized as likely reduction loops"),
     llvm::cl::cat(reduction_detector::command_line_options::
                       reduction_detector_option_category));
-
-namespace reduction_detector {
-namespace loop_analysis {
-
-/*
- * Update the statistics stored in LoopAnalyser to account for a
- * newly analyzed loop.
- * TODO: move this to the bottom of this file. (Use a forward declaration.)
- */
-static void registerAnalyzedLoop(LoopAnalyser &loopAnalyser,
-                                 PossibleReductionLoopInfo &loopInfo) {
-  loopAnalyser.loopCounts.totals.all += 1;
-  if (loopInfo.hasALikelyAccumulator) {
-    loopAnalyser.loopCounts.likelyReductionLoops.all += 1;
-  }
-
-  if (clang::isa<clang::ForStmt>(loopInfo.loopStmt)) {
-    loopAnalyser.loopCounts.totals.forLoops += 1;
-    if (loopInfo.hasALikelyAccumulator) {
-      loopAnalyser.loopCounts.likelyReductionLoops.forLoops += 1;
-    }
-  } else if (clang::isa<clang::WhileStmt>(loopInfo.loopStmt)) {
-    loopAnalyser.loopCounts.totals.whileLoops += 1;
-    if (loopInfo.hasALikelyAccumulator) {
-      loopAnalyser.loopCounts.likelyReductionLoops.whileLoops += 1;
-    }
-  } else if (clang::isa<clang::DoStmt>(loopInfo.loopStmt)) {
-    loopAnalyser.loopCounts.totals.doWhileLoops += 1;
-    if (loopInfo.hasALikelyAccumulator) {
-      loopAnalyser.loopCounts.likelyReductionLoops.doWhileLoops += 1;
-    }
-  }
-}
 
 clang::ast_matchers::StatementMatcher loopMatcher =
     stmt(anyOf(forStmt(), whileStmt(), doStmt())).bind("loop");

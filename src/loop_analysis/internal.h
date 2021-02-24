@@ -95,6 +95,13 @@ void determineLikelyAccumulatorsIn(PossibleReductionLoopInfo &loop_info,
 
 void detectIterationVariableReferencesInArraySubscripts(
     PossibleReductionLoopInfo &loopInfo, clang::ASTContext *context);
+
+/*
+ * Update the statistics stored in LoopAnalyser to account for a
+ * newly analyzed loop.
+ */
+void registerAnalyzedLoop(LoopAnalyser &loopAnalyser,
+                          PossibleReductionLoopInfo &loopInfo);
 }
 }
 }
