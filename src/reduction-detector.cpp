@@ -15,7 +15,6 @@ using namespace clang::ast_matchers;
 using reduction_detector::translation_unit_finder::expand_directories;
 
 #include "loop_analysis/loop_analysis.h"
-using reduction_detector::loop_analysis::LoopAnalyser;
 
 #include "constants.h"
 
@@ -40,11 +39,10 @@ int main(int argc, const char **argv) {
   clang::tooling::ClangTool clangTool(optionsParser.getCompilations(),
                                       expanded_path_list);
 
-  StatementMatcher loopMatcher =
-      stmt(anyOf(forStmt(), whileStmt(), doStmt())).bind("loop");
-  LoopAnalyser loopAnalyser;
+  loop_analysis::LoopAnalyser loopAnalyser;
   clang::ast_matchers::MatchFinder finder;
-  finder.addMatcher(loopMatcher, &loopAnalyser);
+  finder.addMatcher(loop_analysis::loopMatcher,
+                    &loopAnalyser);
 
   int statusCode =
       clangTool.run(clang::tooling::newFrontendActionFactory(&finder).get());

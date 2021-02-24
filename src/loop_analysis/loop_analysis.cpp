@@ -4,6 +4,8 @@ using namespace reduction_detector::loop_analysis::internal;
 
 #include "../command_line.h"
 
+using namespace clang::ast_matchers;
+
 #include "llvm/Support/CommandLine.h"
 
 llvm::cl::opt<bool> print_non_reduction_loops(
@@ -20,6 +22,7 @@ namespace loop_analysis {
 /*
  * Update the statistics stored in LoopAnalyser to account for a
  * newly analyzed loop.
+ * TODO: move this to the bottom of this file. (Use a forward declaration.)
  */
 static void registerAnalyzedLoop(LoopAnalyser &loopAnalyser,
                                  PossibleReductionLoopInfo &loopInfo) {
@@ -46,7 +49,10 @@ static void registerAnalyzedLoop(LoopAnalyser &loopAnalyser,
   }
 }
 
-// run is called by MatchFinder for each for loop.
+clang::ast_matchers::StatementMatcher loopMatcher =
+    stmt(anyOf(forStmt(), whileStmt(), doStmt())).bind("loop");
+
+// run is called by MatchFinder for each for loop matched by loopMatcher.
 void LoopAnalyser::run(
     const clang::ast_matchers::MatchFinder::MatchResult &result) {
   PossibleReductionLoopInfo loop_info(
@@ -119,6 +125,5 @@ void LoopAnalyser::run(
 
   registerAnalyzedLoop(*this, loop_info);
 }
-
 }
 }
