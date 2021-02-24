@@ -74,25 +74,6 @@ void LoopAnalyser::run(
     loop_info.dump(llvm::outs(), context);
   }
 
-  // TODO:
-  // recycle the following stuff. use printPossibleAccumulatorsIn and
-  // printOutsideReferenceCountsIn
-  // if (we were given "--debug-loop-analysis" or something) {
-  //   // TODO: report all the information we gathered on this for loop.
-  //   llvm::errs() << "Found a for loop at ";
-  //   forStmt->getForLoc().print(llvm::errs(), context->getSourceManager());
-  //   llvm::errs() << ":\n";
-  //   forStmt->printPretty(llvm::errs(), nullptr,
-  //   PrintingPolicy(LangOptions()));
-
-  //   if (accumulatorChecker.likelyAccumulatorsFound) {
-  //     llvm::errs() << INDENT "This might be a reduction loop.\n";
-  //   } else {
-  //     llvm::errs() << INDENT "This probably isn't a reduction loop.\n";
-  //   }
-  //   loop_analysis_report_stream << "\n";
-  // }
-
   registerAnalyzedLoop(*this, loop_info);
 }
 }
