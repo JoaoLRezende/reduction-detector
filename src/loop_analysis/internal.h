@@ -1,10 +1,9 @@
 #ifndef LOOP_ANALYSIS_INTERNAL_H
 #define LOOP_ANALYSIS_INTERNAL_H
 
-#include "clang/AST/Decl.h"
-#include "clang/AST/Expr.h"
 #include "clang/AST/Stmt.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
+
 #include <string>
 
 namespace reduction_detector {
@@ -70,31 +69,60 @@ struct PossibleReductionLoopInfo {
 };
 
 /* * * *
- * Analysis passes.
+ * Analysis passes
  * * * */
-void getPossibleAccumulatorsIn(PossibleReductionLoopInfo *loop_info,
-                               clang::ASTContext *context);
 
-void detectPossibleAccumulatorReferencesInRHSOfPossibleAccumulatingStatements(
-    PossibleReductionLoopInfo &loop_info, clang::ASTContext *context);
-
-void countOutsideReferencesIn(PossibleReductionLoopInfo &loop_info,
-                              clang::ASTContext *context);
-
-void analysePossibleAccumulatorNames(PossibleReductionLoopInfo &loop_info,
-                                     clang::ASTContext *context);
-
+// Determine the loop's iteration variable, if there is one, and set
+// loopInfo.iteration_variable.
 void determineIterationVariable(PossibleReductionLoopInfo &loopInfo,
                                 clang::ASTContext *context);
 
+// If we have identified the loop's iteration variable, then determine how many
+// times it is referenced in array-subscript expressions
+// (for example, array[i]). Also, for each array, determine how many
+// times that array is subscripted by an expression that involves the iteration
+// variable. Update the corresponding fields of loopInfo.
+void detectIterationVariableReferencesInArraySubscripts(
+    PossibleReductionLoopInfo &loopInfo, clang::ASTContext *context);
+
+// Find possible accumulators, populating loopInfo.possible_accumulators.
+void getPossibleAccumulatorsIn(PossibleReductionLoopInfo *loop_info,
+                               clang::ASTContext *context);
+
+// For each possible accumulating assignment in the loop, determine whether the
+// variable in its left-hand side (which is a possible accumulator) also appears
+// in its right-hand side (like in acc = acc + array[i]) or the
+// assignment is a compound assignment (like acc += array[i]).
+// Update the instances of PossibleAccumulatingAssignmentInfo that describe
+// those assignments accordingly.
+void detectPossibleAccumulatorReferencesInRHSOfPossibleAccumulatingStatements(
+    PossibleReductionLoopInfo &loop_info, clang::ASTContext *context);
+
+// For each possible accumulator, count the number of times it is referenced
+// in that loop outside of its possible accumulating assignments.
+// Store that number in the instance of PossibleAccumulatorInfo that
+// describes that possible accumulator.
+void countOutsideReferencesIn(PossibleReductionLoopInfo &loop_info,
+                              clang::ASTContext *context);
+
+// If we have identified the loop's iteration variable, then, for each possible
+// accumulating assignment in the loop, determine whether the loop's iteration
+// variable is referenced in it.
 void detectIterationVariableReferencesInApparentAccumulatingStatements(
     PossibleReductionLoopInfo &loopInfo, clang::ASTContext *context);
 
+// Check whether each possible accumulator's name contains one of the
+// strings in COMMON_ACCUMULATOR_NAME_SUBSTRINGS as a substring.
+void analysePossibleAccumulatorNames(PossibleReductionLoopInfo &loop_info,
+                                     clang::ASTContext *context);
+
+
+/* Decide whether each possible accumulator is a likely accumulator.
+ * Set each possible accumulator's likelyAccumulatorScore and
+ * isLikelyAccumulator.
+ */
 void determineLikelyAccumulatorsIn(PossibleReductionLoopInfo &loop_info,
                                    clang::ASTContext *context);
-
-void detectIterationVariableReferencesInArraySubscripts(
-    PossibleReductionLoopInfo &loopInfo, clang::ASTContext *context);
 
 /*
  * Update the statistics stored in LoopAnalyser to account for a

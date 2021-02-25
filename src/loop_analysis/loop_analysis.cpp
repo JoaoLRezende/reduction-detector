@@ -11,6 +11,7 @@ using namespace clang::ast_matchers;
 namespace reduction_detector {
 namespace loop_analysis {
 
+// Define command-line option --print-non-reduction-loops.
 llvm::cl::opt<bool> print_non_reduction_loops(
     "print-non-reduction-loops",
     llvm::cl::desc(
@@ -22,9 +23,8 @@ llvm::cl::opt<bool> print_non_reduction_loops(
 clang::ast_matchers::StatementMatcher loopMatcher =
     stmt(anyOf(forStmt(), whileStmt(), doStmt())).bind("loop");
 
-// run is called by MatchFinder for each for loop matched by loopMatcher.
-void LoopAnalyser::run(
-    const clang::ast_matchers::MatchFinder::MatchResult &result) {
+// run is called by MatchFinder for each loop matched by loopMatcher.
+void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   PossibleReductionLoopInfo loop_info(
       result.Nodes.getNodeAs<clang::Stmt>("loop"));
 
@@ -41,22 +41,15 @@ void LoopAnalyser::run(
     return;
   }
 
-  // Determine the loop's iteration variable, if there is one (and set
-  // loop_info.iteration_variable).
   determineIterationVariable(loop_info, context);
 
   detectIterationVariableReferencesInArraySubscripts(loop_info, context);
 
-  // Find possible accumulators (populating loop_info.possible_accumulators).
   getPossibleAccumulatorsIn(&loop_info, context);
 
   detectPossibleAccumulatorReferencesInRHSOfPossibleAccumulatingStatements(
       loop_info, context);
 
-  // For each possible accumulator, count the number of times it is referenced
-  // in that loop outside of its possible accumulating assignments
-  // (and store that number in the structure that describes that possible
-  // accumulator).
   countOutsideReferencesIn(loop_info, context);
 
   detectIterationVariableReferencesInApparentAccumulatingStatements(loop_info,
@@ -64,9 +57,6 @@ void LoopAnalyser::run(
 
   analysePossibleAccumulatorNames(loop_info, context);
 
-  // Decide whether each possible accumulator is a likely accumulator.
-  // Set each possible accumulator's likelyAccumulatorScore and
-  // isLikelyAccumulator.
   determineLikelyAccumulatorsIn(loop_info, context);
 
   if ((!print_non_reduction_loops && loop_info.hasALikelyAccumulator) ||

@@ -18,9 +18,6 @@ using clang::BinaryOperator;
 #include "clang/AST/Decl.h"
 using clang::VarDecl;
 
-#include "clang/AST/Stmt.h"
-using clang::ForStmt;
-
 namespace reduction_detector {
 namespace loop_analysis {
 namespace internal {

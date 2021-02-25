@@ -1,5 +1,5 @@
-#include "loop_analysis.h"
 #include "internal.h"
+#include "loop_analysis.h"
 
 #include "clang/AST/ASTContext.h"
 
@@ -102,6 +102,9 @@ void detectIterationVariableReferencesInArraySubscripts(
   loopInfo.numberOfIterationVariableReferencesInArraySubscripts =
       callbackStruct
           .totalNumberOfArrayAccessesWhoseRHSInvolvesTheIterationVariable;
+  // TODO: the following assignment copies a map. Probably not ideal.
+  // callbackStruct should have modified
+  // loopInfo.numberOfArrayAccessesInvolvingIterationVariablePerArray in place.
   loopInfo.numberOfArrayAccessesInvolvingIterationVariablePerArray =
       callbackStruct.numberOfAccessesPerArray;
 }
