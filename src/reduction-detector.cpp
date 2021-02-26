@@ -67,6 +67,13 @@ int main(int argc, const char **argv) {
 }
 
 /* TODO:
+ * - An accumulator isn't necessarily a variable directly named by an
+ *   identifier.
+ *   It can be any recurring lvalue − for example, a member of a struct
+ *   or an element of an array. We need to be able to recognize those
+ *   accumulators too. (Noted by Gerson.) Make diverse test cases.
+ *   See the last few paragraphs of
+ *   https://clang.llvm.org/docs/LibASTMatchersTutorial.html.
  * - The output of --help should state the default value of
  *   --min-score. See whether the CommandLine library can help with that.
  * - Documment (in header-file comments) every function whose behavior
@@ -81,13 +88,6 @@ int main(int argc, const char **argv) {
  * - The program should explain its reasonings only when asked to
  *   (for example, through an option --verbose).
  * - How well do we deal with nested loops? Write some test cases for that.
- * - An accumulator isn't necessarily a variable directly named by an
- *   identifier.
- *   It can be any recurring lvalue − for example, a member of a struct
- *   or an element of an array. We need to be able to recognize those
- *   accumulators too. (Noted by Gerson.) Make diverse test cases.
- *   See the last few paragraphs of
- *   https://clang.llvm.org/docs/LibASTMatchersTutorial.html.
  * - Make the program optionally write its output to a given file.
  * - Use deeper indentation to make reading easier. Use 4 spaces.
  *   (See how to make clang-format do that for you.)
