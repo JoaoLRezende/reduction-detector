@@ -52,7 +52,7 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
 
   countOutsideReferencesIn(loop_info, context);
 
-  detectIterationVariableReferencesInApparentAccumulatingStatements(loop_info,
+  detectIterationVariableReferencesInPossibleAccumulatingStatements(loop_info,
                                                                     context);
 
   analysePossibleAccumulatorNames(loop_info, context);

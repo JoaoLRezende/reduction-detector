@@ -108,7 +108,7 @@ void countOutsideReferencesIn(PossibleReductionLoopInfo &loop_info,
 // If we have identified the loop's iteration variable, then, for each possible
 // accumulating assignment in the loop, determine whether the loop's iteration
 // variable is referenced in it.
-void detectIterationVariableReferencesInApparentAccumulatingStatements(
+void detectIterationVariableReferencesInPossibleAccumulatingStatements(
     PossibleReductionLoopInfo &loopInfo, clang::ASTContext *context);
 
 // Check whether each possible accumulator's name contains one of the

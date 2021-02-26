@@ -24,7 +24,7 @@ struct SimpleBooleanMatchCallback : public MatchFinder::MatchCallback {
   }
 };
 
-void detectIterationVariableReferencesInApparentAccumulatingStatements(
+void detectIterationVariableReferencesInPossibleAccumulatingStatements(
     PossibleReductionLoopInfo &loopInfo, clang::ASTContext *context) {
   if (loopInfo.iteration_variable == nullptr)
     return;
