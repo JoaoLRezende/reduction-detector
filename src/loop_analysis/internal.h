@@ -1,6 +1,8 @@
 #ifndef LOOP_ANALYSIS_INTERNAL_H
 #define LOOP_ANALYSIS_INTERNAL_H
 
+#include "loop_analysis.h"
+
 #include "clang/AST/Stmt.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
 
