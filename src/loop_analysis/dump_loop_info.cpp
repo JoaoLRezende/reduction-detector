@@ -1,5 +1,5 @@
-#include "loop_analysis.h"
 #include "internal.h"
+#include "loop_analysis.h"
 
 #include "../command_line.h"
 #include "../constants.h"
@@ -114,7 +114,15 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
                    << possibleAccumulator.first->getName()
                    << " outside of those "
                       "possible accumulating assignments.\n";
-      outputStream << "\n";
+
+      outputStream << INDENT "It is "
+                   << (possibleAccumulator.second.is_trivial_accumulator
+                           ? ""
+                           : "not ")
+                   << "a trivial accumulator.\n";
+
+          outputStream
+                   << "\n";
     }
   }
 }
