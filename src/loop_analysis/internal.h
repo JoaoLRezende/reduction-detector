@@ -49,13 +49,10 @@ struct PossibleAccumulatorInfo {
 
   /* We call a "trivial accumulator" an accumulator that does not appear
    * anywhere in the loop outside of its accumulating assignments, and is
-   * referenced
-   * in the right-hand side of all of its accumulating assignments. Thus: a
-   * trivial
-   * accumulator is one that would likely be identified as a reduction
-   * accumulator by
-   * Cetus as described in section 2.2.6 of "The Cetus source-to-source compiler
-   * infrastructure: overview and evaluation" (2013).
+   * referenced in the right-hand side of all of its accumulating assignments.
+   * Thus: a trivial accumulator is one that would likely be identified as a
+   * reduction accumulator by Cetus as described in section 2.2.6 of "The Cetus
+   * source-to-source compiler infrastructure: overview and evaluation" (2013).
    */
   bool is_trivial_accumulator = false;
 
@@ -78,14 +75,7 @@ struct PossibleReductionLoopInfo {
 
   bool hasALikelyAccumulator = false;
 
-  /* A trivial reduction is a reduction loop whose possible accumulators are all
-   * trivial accumulators. Thus: it is a loop that would likely be identified as
-   * a reduction loop and then possibly parallelized by Cetus as such, as
-   * described in
-   * section 2.2.6 of "The Cetus source-to-source compiler infrastructure:
-   * overview and * evaluation" (2013).
-  */
-  bool is_trivial_reduction = false;
+  bool has_likely_but_non_trivial_accumulator = false;
 
   PossibleReductionLoopInfo(const clang::Stmt *loopStmt) : loopStmt(loopStmt){};
   void dump(llvm::raw_ostream &outputStream, clang::ASTContext *context);

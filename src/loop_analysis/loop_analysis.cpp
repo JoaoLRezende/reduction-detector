@@ -8,6 +8,16 @@ using namespace reduction_detector::loop_analysis::internal;
 
 using namespace clang::ast_matchers;
 
+/* onlyNonTrivialReductions holds whether we are to show only loops that would
+ * not usually be detected by other reduction-detecting tools.
+ */
+static llvm::cl::opt<bool> onlyNonTrivialReductions(
+    "only-non-trivial-reductions",
+    llvm::cl::desc(
+        "Show only reductions that probably aren't detected by Cetus"),
+    llvm::cl::cat(reduction_detector::command_line_options::
+                      reduction_detector_option_category));
+
 namespace reduction_detector {
 namespace loop_analysis {
 
@@ -61,8 +71,11 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
 
   determineTrivialAccumulators(loop_info);
 
-  if ((!print_non_reduction_loops && loop_info.hasALikelyAccumulator) ||
-      (print_non_reduction_loops && !loop_info.hasALikelyAccumulator)) {
+  if ((!onlyNonTrivialReductions ||
+       (onlyNonTrivialReductions &&
+        loop_info.has_likely_but_non_trivial_accumulator)) &&
+      ((!print_non_reduction_loops && loop_info.hasALikelyAccumulator) ||
+       (print_non_reduction_loops && !loop_info.hasALikelyAccumulator))) {
     loop_info.dump(llvm::outs(), context);
   }
 

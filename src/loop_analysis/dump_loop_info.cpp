@@ -75,8 +75,12 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
                            ? "likely accumulator"
                            : "possible accumulator, but not as a likely one")
                    << " (score: "
-                   << possibleAccumulator.second.likelyAccumulatorScore
-                   << ").\n";
+                   << possibleAccumulator.second.likelyAccumulatorScore << ").";
+      if (possibleAccumulator.second.is_trivial_accumulator) {
+        outputStream << " But it is a trivial accumulator.\n";
+      } else {
+        outputStream << " It is not a trivial accumulator.\n";
+      }
 
       if (possibleAccumulator.second.notableNameSubstring) {
         outputStream << INDENT "Its name has the substring \""
@@ -115,14 +119,7 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
                    << " outside of those "
                       "possible accumulating assignments.\n";
 
-      outputStream << INDENT "It is "
-                   << (possibleAccumulator.second.is_trivial_accumulator
-                           ? ""
-                           : "not ")
-                   << "a trivial accumulator.\n";
-
-          outputStream
-                   << "\n";
+      outputStream << "\n";
     }
   }
 }
