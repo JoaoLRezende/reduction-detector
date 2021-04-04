@@ -7,7 +7,7 @@ This is an application of Clang’s LibTooling API. See [here][1] for a tutorial
 
 ***
 
-# Setup
+# Build
 
 This program links against LLVM 9.0.0. Download a binary distribution of LLVM 9.0.0 from [LLVM's website][3], change the value of `LLVM_PATH` in our makefile accordingly, and then run `make`. The program will be built as `build/reduction-detector`. 
 
@@ -21,6 +21,8 @@ You can invoke reduction-detector on a C file or on a directory with multiple C 
 ```
 build/reduction-detector "test inputs/test.c"
 ```
+
+Invoke reduction-detector with `--help` to see other possible arguments.
 
 ***
 
