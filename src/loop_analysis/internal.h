@@ -31,6 +31,8 @@ struct PossibleAccumulatorInfo {
   std::map<const clang::BinaryOperator *, PossibleAccumulatingAssignmentInfo>
       possible_accumulating_assignments;
 
+  int declarationDistanceFromLoopInLines = -1;
+
   unsigned int
       number_of_possible_accumulating_assignments_whose_RHS_also_references_this =
           0;
@@ -103,6 +105,12 @@ void detectIterationVariableReferencesInArraySubscripts(
 // Find possible accumulators, populating loopInfo.possible_accumulators.
 void getPossibleAccumulatorsIn(PossibleReductionLoopInfo *loop_info,
                                clang::ASTContext *context);
+
+// For each possible accumulator, populate the member
+// declarationDistanceFromLoopInLines of the structure that descibes that
+// possible accumulator.
+void getDistanceOfDeclarationOfPossibleAccumulators(
+    PossibleReductionLoopInfo &loop_info, clang::ASTContext *context);
 
 // For each possible accumulating assignment in the loop, determine whether
 // the

@@ -57,6 +57,8 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
 
   getPossibleAccumulatorsIn(&loop_info, context);
 
+  getDistanceOfDeclarationOfPossibleAccumulators(loop_info, context);
+
   detectPossibleAccumulatorReferencesInRHSOfPossibleAccumulatingStatements(
       loop_info, context);
 

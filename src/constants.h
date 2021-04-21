@@ -10,6 +10,9 @@ namespace constants {
 #define INDENT "    " // a string with 4 spaces, for indenting debug ouput
 
 #define INITIAL_ACCUMULATOR_LIKELIHOOD_SCORE    5
+#define MAX_DISTANCE_IN_LINES_BETWEEM_DECLARATION_AND_LOOP_FOR_LOCALITY_BONUS \
+                                                2
+#define LOCALITY_BONUS                          2
 #define ACCUMULATOR_REFERENCE_IN_RHS_BONUS      3
 #define OUTSIDE_REFERENCE_PENALTY               1
 #define COMMON_ACCUMULATOR_NAME_SUBSTRINGS      "acc", "total", "sum"
