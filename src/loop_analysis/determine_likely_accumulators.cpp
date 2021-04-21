@@ -1,6 +1,6 @@
 #include "../constants.h"
-#include "loop_analysis.h"
 #include "internal.h"
+#include "loop_analysis.h"
 
 #include "../command_line.h"
 
@@ -23,6 +23,11 @@ static llvm::cl::opt<int> accumulatorScoreThreshold(
 static int
 computeLikelyAccumulatorScore(PossibleAccumulatorInfo &possibleAccumulator) {
   int score = INITIAL_ACCUMULATOR_LIKELIHOOD_SCORE;
+
+  if (possibleAccumulator.declarationDistanceFromLoopInLines <=
+      MAX_DISTANCE_IN_LINES_BETWEEM_DECLARATION_AND_LOOP_FOR_LOCALITY_BONUS) {
+    score += DECLARATION_LOCALITY_BONUS;
+  }
 
   score += std::lround(
       ACCUMULATOR_REFERENCE_IN_RHS_BONUS *
