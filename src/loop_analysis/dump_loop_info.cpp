@@ -98,6 +98,11 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
           outputStream << " It is not a trivial accumulator.\n";
         }
 
+        outputStream
+            << INDENT "It was declared "
+            << possibleAccumulator.second.declarationDistanceFromLoopInLines
+            << " lines above the loop.\n";
+
         if (possibleAccumulator.second.notableNameSubstring) {
           outputStream << INDENT "Its name has the substring \""
                        << *possibleAccumulator.second.notableNameSubstring
