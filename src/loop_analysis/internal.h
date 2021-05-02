@@ -24,12 +24,11 @@ struct PossibleAccumulatingAssignmentInfo {
   bool references_iteration_variable = false;
 };
 
-// A possible accumulator is an lvalue that is the left side of an assignment in
-// a loop's body and whose _base_ (the earliest identifier that appears in it)
-// is declared outside of that loop. For example, a possible accumulator can be
-// represented by an array-subscript expression like arr[i], or a member-access
-// expression like
-// stats.sum (where stats is a structure with a field named "sum").
+// A _possible accumulator_ is an lvalue that is the left side of an assignment
+// in a loop's body and that contains an identifier declared outside of that
+// loop. For example, a possible accumulator can be an array-subscript
+// expression like arr[i], or a member-access expression like stats.sum (where
+// stats is a structure with a field named "sum").
 struct PossibleAccumulatorInfo {
   // A pointer to the first encountered reference to the possible
   // accumulator in the left-hand side of an assignment.
@@ -82,7 +81,7 @@ struct PossibleReductionLoopInfo {
    * will be mapped to one same PossibleAccumulatorInfo as long as they are
    * identical. (But, for example, array[0] will not be
    * detected as the same as array[1-1], and *(&ptr) will not be detected as the
-   * same as ptr.) TODO: detail here how that hash value is to be acquired for
+   * same as ptr.) TODO: detail here how that hash value is acquired for
    * an expression.
    */
   std::map<llvm::FoldingSetNodeID, PossibleAccumulatorInfo>
