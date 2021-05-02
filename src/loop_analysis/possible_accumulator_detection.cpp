@@ -62,7 +62,8 @@ public:
     // Note that std::map.insert does nothing if there already is an element
     // with the given key.
     loop_info->possible_accumulators.insert(
-        {possibleAccumulatorFoldingSetID, PossibleAccumulatorInfo(possibleAccumulator)});
+        {possibleAccumulatorFoldingSetID,
+         PossibleAccumulatorInfo(possibleAccumulator)});
 
     loop_info->possible_accumulators.find(possibleAccumulatorFoldingSetID)
         ->second.possible_accumulating_assignments.insert(
