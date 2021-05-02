@@ -26,6 +26,8 @@ int main(int argc, const char **argv) {
   clang::tooling::CommonOptionsParser optionsParser(
       argc, argv, command_line_options::reduction_detector_option_category);
 
+  reduction_detector::command_line_options::open_output_file();
+
   // Construct  a list of all source files reachable from this directory.
   // TODO: This whole thing is a hack, and almost certainly much less efficient
   // than it should be. We probably should be descending recursively into
@@ -41,27 +43,28 @@ int main(int argc, const char **argv) {
 
   loop_analysis::LoopAnalyser loopAnalyser;
   clang::ast_matchers::MatchFinder finder;
-  finder.addMatcher(loop_analysis::loopMatcher,
-                    &loopAnalyser);
+  finder.addMatcher(loop_analysis::loopMatcher, &loopAnalyser);
 
   int statusCode =
       clangTool.run(clang::tooling::newFrontendActionFactory(&finder).get());
 
-  llvm::outs() << loopAnalyser.loopCounts.likelyReductionLoops.all << " out of "
-               << loopAnalyser.loopCounts.totals.all
-               << " loops detected as likely reduction loops.\n"
-               << INDENT
-               << loopAnalyser.loopCounts.likelyReductionLoops.forLoops
-               << " out of " << loopAnalyser.loopCounts.totals.forLoops
-               << " for loops.\n"
-               << INDENT
-               << loopAnalyser.loopCounts.likelyReductionLoops.whileLoops
-               << " out of " << loopAnalyser.loopCounts.totals.whileLoops
-               << " while loops.\n"
-               << INDENT
-               << loopAnalyser.loopCounts.likelyReductionLoops.doWhileLoops
-               << " out of " << loopAnalyser.loopCounts.totals.doWhileLoops
-               << " do-while loops.\n";
+  *reduction_detector::command_line_options::output_file
+      << loopAnalyser.loopCounts.likelyReductionLoops.all << " out of "
+      << loopAnalyser.loopCounts.totals.all
+      << " loops detected as likely reduction loops.\n"
+      << INDENT << loopAnalyser.loopCounts.likelyReductionLoops.forLoops
+      << " out of " << loopAnalyser.loopCounts.totals.forLoops
+      << " for loops.\n"
+      << INDENT << loopAnalyser.loopCounts.likelyReductionLoops.whileLoops
+      << " out of " << loopAnalyser.loopCounts.totals.whileLoops
+      << " while loops.\n"
+      << INDENT << loopAnalyser.loopCounts.likelyReductionLoops.doWhileLoops
+      << " out of " << loopAnalyser.loopCounts.totals.doWhileLoops
+      << " do-while loops.\n";
+
+  llvm::errs() << "Detected likely reductions were written to "
+               << reduction_detector::command_line_options::output_file_name
+               << ".\n";
 
   return statusCode;
 }

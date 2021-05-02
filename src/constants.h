@@ -7,6 +7,8 @@ namespace constants {
 }
 }
 
+#define DEFAULT_OUTPUT_FILE_NAME    "detected_reductions.out"
+
 #define INDENT "    " // a string with 4 spaces, for indenting debug ouput
 
 #define INITIAL_ACCUMULATOR_LIKELIHOOD_SCORE    5

@@ -78,7 +78,8 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
         loop_info.has_likely_but_non_trivial_accumulator)) &&
       ((!print_non_reduction_loops && loop_info.hasALikelyAccumulator) ||
        (print_non_reduction_loops && !loop_info.hasALikelyAccumulator))) {
-    loop_info.dump(llvm::outs(), context);
+    loop_info.dump(*reduction_detector::command_line_options::output_file,
+                   context);
   }
 
   registerAnalyzedLoop(*this, loop_info);

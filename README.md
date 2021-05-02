@@ -24,6 +24,8 @@ build/reduction-detector "test inputs/test.c"
 
 Invoke reduction-detector with `--help` to see other possible arguments.
 
+By default, reduction-detector writes its output to `detected_reductions.out`.
+
 ***
 
 # FAQ
