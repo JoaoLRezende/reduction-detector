@@ -31,6 +31,8 @@ struct PossibleAccumulatorInfo {
   std::map<const clang::BinaryOperator *, PossibleAccumulatingAssignmentInfo>
       possible_accumulating_assignments;
 
+  int declarationDistanceFromLoopInLines = -1;
+
   unsigned int
       number_of_possible_accumulating_assignments_whose_RHS_also_references_this =
           0;
@@ -46,6 +48,15 @@ struct PossibleAccumulatorInfo {
    * its possible accumulating assignments.
    */
   unsigned int outside_references = 0;
+
+  /* We call a "trivial accumulator" an accumulator that does not appear
+   * anywhere in the loop outside of its accumulating assignments, and is
+   * referenced in the right-hand side of all of its accumulating assignments.
+   * Thus: a trivial accumulator is one that would likely be identified as a
+   * reduction accumulator by Cetus as described in section 2.2.6 of "The Cetus
+   * source-to-source compiler infrastructure: overview and evaluation" (2013).
+   */
+  bool is_trivial_accumulator = false;
 
   int likelyAccumulatorScore = 0;
   bool isLikelyAccumulator = false;
@@ -66,6 +77,8 @@ struct PossibleReductionLoopInfo {
 
   bool hasALikelyAccumulator = false;
 
+  bool has_likely_but_non_trivial_accumulator = false;
+
   PossibleReductionLoopInfo(const clang::Stmt *loopStmt) : loopStmt(loopStmt){};
   void dump(llvm::raw_ostream &outputStream, clang::ASTContext *context);
 };
@@ -79,10 +92,12 @@ struct PossibleReductionLoopInfo {
 void determineIterationVariable(PossibleReductionLoopInfo &loopInfo,
                                 clang::ASTContext *context);
 
-// If we have identified the loop's iteration variable, then determine how many
+// If we have identified the loop's iteration variable, then determine how
+// many
 // times it is referenced in array-subscript expressions
 // (for example, array[i]). Also, for each array, determine how many
-// times that array is subscripted by an expression that involves the iteration
+// times that array is subscripted by an expression that involves the
+// iteration
 // variable. Update the corresponding fields of loopInfo.
 void detectIterationVariableReferencesInArraySubscripts(
     PossibleReductionLoopInfo &loopInfo, clang::ASTContext *context);
@@ -91,8 +106,16 @@ void detectIterationVariableReferencesInArraySubscripts(
 void getPossibleAccumulatorsIn(PossibleReductionLoopInfo *loop_info,
                                clang::ASTContext *context);
 
-// For each possible accumulating assignment in the loop, determine whether the
-// variable in its left-hand side (which is a possible accumulator) also appears
+// For each possible accumulator, populate the member
+// declarationDistanceFromLoopInLines of the structure that descibes that
+// possible accumulator.
+void getDistanceOfDeclarationOfPossibleAccumulators(
+    PossibleReductionLoopInfo &loop_info, clang::ASTContext *context);
+
+// For each possible accumulating assignment in the loop, determine whether
+// the
+// variable in its left-hand side (which is a possible accumulator) also
+// appears
 // in its right-hand side (like in acc = acc + array[i]) or the
 // assignment is a compound assignment (like acc += array[i]).
 // Update the instances of PossibleAccumulatingAssignmentInfo that describe
@@ -107,7 +130,8 @@ void detectPossibleAccumulatorReferencesInRHSOfPossibleAccumulatingStatements(
 void countOutsideReferencesIn(PossibleReductionLoopInfo &loop_info,
                               clang::ASTContext *context);
 
-// If we have identified the loop's iteration variable, then, for each possible
+// If we have identified the loop's iteration variable, then, for each
+// possible
 // accumulating assignment in the loop, determine whether the loop's iteration
 // variable is referenced in it.
 void detectIterationVariableReferencesInPossibleAccumulatingStatements(
@@ -117,7 +141,6 @@ void detectIterationVariableReferencesInPossibleAccumulatingStatements(
 // strings in COMMON_ACCUMULATOR_NAME_SUBSTRINGS as a substring.
 void analysePossibleAccumulatorNames(PossibleReductionLoopInfo &loop_info,
                                      clang::ASTContext *context);
-
 
 /* Decide whether each possible accumulator is a likely accumulator.
  * Set each possible accumulator's likelyAccumulatorScore and
@@ -132,6 +155,12 @@ void determineLikelyAccumulatorsIn(PossibleReductionLoopInfo &loop_info,
  */
 void registerAnalyzedLoop(LoopAnalyser &loopAnalyser,
                           PossibleReductionLoopInfo &loopInfo);
+
+/* Determine which possible accumulators are trivial accumulators, and update
+ * the corresponding fields of loop_info and of the relevant
+ * PossibleAccumulatorInfos.
+*/
+void determineTrivialAccumulators(PossibleReductionLoopInfo &loop_info);
 }
 }
 }

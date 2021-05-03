@@ -1,0 +1,38 @@
+Likely reduction loop at /home/jplrez/Desktop/reduction-detector v2.0 (master branch)/test inputs/reduction loops/NPB 4.c:26:4:
+for (nOnes = 0 , i = 0; i < 64; i++) {
+    if (s & ob)
+        nOnes++;
+    ob >>= 1;
+}
+I couldn't determine its iteration variable.
+Likely accumulators: ob
+
+    ob was detected as a likely accumulator (score: 7). It is not a trivial accumulator.
+    It was declared 4 lines above the loop.
+    Its name doesn't have any of the common accumulator-name substrings.
+    It might be accumulated in the following assignments:
+        ob >>= 1
+    0 of those assignments involve the loop's iteration variable.
+    There are 1 other in-loop references to ob outside of those possible accumulating assignments.
+
+Likely reduction loop at /home/jplrez/Desktop/reduction-detector v2.0 (master branch)/test inputs/reduction loops/artificial examples.c:27:3:
+for (int i = 0; i < array_size; i++) {
+    int old_sum = sum;
+    old_sum += array[i];
+    sum = old_sum;
+}
+Its iteration variable is i.
+Arrays subscripted by i: array (1 accesses).
+Likely accumulators: sum
+
+    sum was detected as a likely accumulator (score: 11). It is not a trivial accumulator.
+    It was declared 1 lines above the loop.
+    Its name has the substring "sum".
+    It might be accumulated in the following assignments:
+    0 of those assignments involve the loop's iteration variable.
+    There are 1 other in-loop references to sum outside of those possible accumulating assignments.
+
+13 out of 16 loops detected as likely reduction loops.
+    13 out of 16 for loops.
+    0 out of 0 while loops.
+    0 out of 0 do-while loops.

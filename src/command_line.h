@@ -10,6 +10,8 @@
 #ifndef COMMAND_LINE_H
 #define COMMAND_LINE_H
 
+#include <fstream>
+
 #include "clang/Tooling/CommonOptionsParser.h"
 #include "llvm/Support/CommandLine.h"
 
@@ -22,6 +24,12 @@ namespace command_line_options {
  */
 extern llvm::cl::OptionCategory reduction_detector_option_category;
 
+extern llvm::cl::opt<std::string> output_file_name;
+extern std::unique_ptr<llvm::raw_fd_ostream> output_file;;
+
+// open_output_file needs to be called before anything is written to
+// output_file.
+void open_output_file();
 }
 }
 
