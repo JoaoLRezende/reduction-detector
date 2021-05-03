@@ -1,6 +1,6 @@
 #include "../constants.h"
-#include "loop_analysis.h"
 #include "internal.h"
+#include "loop_analysis.h"
 
 #include <string>
 #include <vector>
@@ -13,11 +13,13 @@ static std::vector<std::string> COMMON_ACCUMULATOR_NAME_SUBSTRINGS_VECTOR = {
     COMMON_ACCUMULATOR_NAME_SUBSTRINGS};
 
 void analysePossibleAccumulatorNames(PossibleReductionLoopInfo &loopInfo,
-                                      clang::ASTContext *context) {
+                                     clang::ASTContext *context) {
   for (auto &possibleAccumulator : loopInfo.possible_accumulators) {
-    // TODO: creating an std::string object for every analysed name probably
-    // isn't very efficient. do something better.
-    std::string possibleAccumulatorName(possibleAccumulator.first->getName());
+    std::string possibleAccumulatorName;
+    llvm::raw_string_ostream nameStringStream(possibleAccumulatorName);
+    possibleAccumulator.second.possibleAccumulator->printPretty(
+        nameStringStream, nullptr, clang::PrintingPolicy(clang::LangOptions()));
+    nameStringStream.flush();
 
     for (std::string &commonAccumulatorNameSubstring :
          COMMON_ACCUMULATOR_NAME_SUBSTRINGS_VECTOR)

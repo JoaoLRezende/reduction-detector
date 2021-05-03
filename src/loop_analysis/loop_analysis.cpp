@@ -58,7 +58,7 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   // detectIterationVariableReferencesInPossibleAccumulatingStatements(loop_info,
   //                                                                   context);
 
-  // analysePossibleAccumulatorNames(loop_info, context);
+  analysePossibleAccumulatorNames(loop_info, context);
 
   // determineLikelyAccumulatorsIn(loop_info, context);
 
