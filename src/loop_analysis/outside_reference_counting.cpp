@@ -51,6 +51,26 @@ isExpressionInOneOfPossibleAccumulatingAssignmentsOfPossibleAccumulator(
   return false;
 }
 
+static clang::ast_matchers::internal::BindableMatcher<clang::Stmt>
+getMatcherForSpecificExpressionType(const clang::Expr *expression) {
+  if (llvm::isa<clang::DeclRefExpr>(expression))
+    return clang::ast_matchers::declRefExpr();
+
+  if (llvm::isa<clang::ArraySubscriptExpr>(expression))
+    return clang::ast_matchers::arraySubscriptExpr();
+
+  if (llvm::isa<clang::MemberExpr>(expression))
+    return clang::ast_matchers::memberExpr();
+
+  if (llvm::isa<clang::UnaryOperator>(expression))
+    return clang::ast_matchers::unaryOperator();
+
+  // I can't think of any l-value in C that isn't of any of the types above, so
+  // the matchers above should be enough. But I might be wrong. In that case,
+  // we check all expressions anyway:
+  return expr();
+}
+
 /*
  * For each possible accumulator, count the number of times it
  * appears in the body of the loop but outside of the assignments
@@ -94,8 +114,11 @@ void countOutsideReferencesIn(PossibleReductionLoopInfo &loop_info,
 
     // Count number of outside references.
     MatchFinder referenceFinder;
-    referenceFinder.addMatcher(findAll(expr().bind("expression")),
-                               &matcherCallback);
+    referenceFinder.addMatcher(
+        findAll(getMatcherForSpecificExpressionType(
+                    possibleAccumulator.second.possibleAccumulator)
+                    .bind("expression")),
+        &matcherCallback);
     referenceFinder.match(*loop_info.loopStmt, *context);
 
     // Get the resulting count of outside references.

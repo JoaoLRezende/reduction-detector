@@ -70,6 +70,7 @@ static bool doesSubtreeHaveAnExpressionWithFoldingSetNodeID(
   // that of the expression we're looking for. For example: if the target
   // expression is an array-subscript expression, then match only
   // array-subscript expressions.
+  // We've done something very similar in outside_reference_counting.cpp.
   matchFinder.addMatcher(findAll(expr().bind("expression")), &matcherCallback);
   matchFinder.match(subtree, *context);
   return matcherCallback.foundAnExpressionWithTargetFoldingSetNodeID;

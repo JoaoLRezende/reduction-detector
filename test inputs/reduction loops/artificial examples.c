@@ -73,11 +73,39 @@ int reduce7(int array[], size_t array_size) {
   return sum;
 }
 
-void reduce8(int array[], size_t array_size, int *result_destination) {
+void reduce8(int array[], size_t array_size, int *accumulator) {
+  for (size_t i = 0; i < array_size; i++) {
+    *accumulator += array[i];
+    printf("%d ", *accumulator);
+  }
+}
+
+void reduce9(int array[], size_t array_size, int accumulators[]) {
+  for (size_t i = 0; i < array_size; i++) {
+    accumulators[0] += array[i];
+    printf("%d ", accumulators[0]);
+  }
+}
+
+struct values {
+  int sum;
+  int product;
+};
+
+void reduce10(int array[], size_t size, struct values *result) {
+  result->sum = 0;
+  for (size_t i = 0; i < size; ++i) {
+    result->sum += array[i];
+    printf("%d ", result->sum);
+  }
+}
+
+void reduce11(int array[], size_t array_size, int *result_destination) {
   struct { int *result_array[1]; } result_struct = { { result_destination } };
 
   *result_struct.result_array[0] = 0;
   for (size_t i = 0; i < array_size; i++) {
     *result_struct.result_array[0] = array[i];
+    printf("%d ", *result_struct.result_array[0]);
   }
 }
