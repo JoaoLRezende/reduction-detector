@@ -47,9 +47,6 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
 
   getPossibleAccumulatorsIn(&loop_info, context);
 
-  // some of the analysis-pass calls below are temporarily commented out for
-  // testing of detection of arbitrary l-values as possible accumulators
-
   detectPossibleAccumulatorReferencesInRHSOfPossibleAccumulatingStatements(
       loop_info, context);
 
@@ -60,7 +57,7 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
 
   analysePossibleAccumulatorNames(loop_info, context);
 
-  // determineLikelyAccumulatorsIn(loop_info, context);
+  determineLikelyAccumulatorsIn(loop_info, context);
 
   if ((!print_non_reduction_loops && loop_info.hasALikelyAccumulator) ||
       (print_non_reduction_loops && !loop_info.hasALikelyAccumulator)) {
