@@ -72,3 +72,12 @@ int reduce7(int array[], size_t array_size) {
   }
   return sum;
 }
+
+void reduce8(int array[], size_t array_size, int *result_destination) {
+  struct { int *result_array[1]; } result_struct = { { result_destination } };
+
+  *result_struct.result_array[0] = 0;
+  for (size_t i = 0; i < array_size; i++) {
+    *result_struct.result_array[0] = array[i];
+  }
+}

@@ -50,8 +50,8 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   // some of the analysis-pass calls below are temporarily commented out for
   // testing of detection of arbitrary l-values as possible accumulators
 
-  // detectPossibleAccumulatorReferencesInRHSOfPossibleAccumulatingStatements(
-  //     loop_info, context);
+  detectPossibleAccumulatorReferencesInRHSOfPossibleAccumulatingStatements(
+      loop_info, context);
 
   // countOutsideReferencesIn(loop_info, context);
 
