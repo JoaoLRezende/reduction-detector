@@ -1,5 +1,5 @@
-#include "loop_analysis.h"
 #include "internal.h"
+#include "loop_analysis.h"
 
 #include "../constants.h"
 
@@ -13,10 +13,6 @@ using namespace clang::ast_matchers;
 using clang::ast_matchers::MatchFinder;
 
 #include "clang/AST/Expr.h"
-using clang::BinaryOperator;
-
-#include "clang/AST/Decl.h"
-using clang::VarDecl;
 
 namespace reduction_detector {
 namespace loop_analysis {
@@ -24,8 +20,8 @@ namespace internal {
 
 /*
  * One instance of PossibleAccumulatorFinder is created for each for loop.
- * For each assignment whose left side is a variable declared outside
- * of the loop, it stores that variable in the map possible_accumulators of
+ * For each assignment whose left-hand side is a possible accumulator, it stores
+ * that left-hand side in the map possible_accumulators of
  * the struct PossibleReductionLoopInfo that describes that loop.
  */
 class PossibleAccumulatorFinder : public MatchFinder::MatchCallback {
@@ -40,24 +36,36 @@ public:
   PossibleAccumulatorFinder(PossibleReductionLoopInfo *loop_info)
       : loop_info(loop_info) {}
 
-  // run is called by MatchFinder for each reduction-looking assignment.
+  // run is called by MatchFinder for each assignment whose left-hand side is a
+  // possible accumulator.
   virtual void run(const MatchFinder::MatchResult &result) {
 
     // Get the matched assignment.
-    const BinaryOperator *possibleAccumulatingAssignment =
-        result.Nodes.getNodeAs<BinaryOperator>(
+    const clang::BinaryOperator *possibleAccumulatingAssignment =
+        result.Nodes.getNodeAs<clang::BinaryOperator>(
             "possibleAccumulatingAssignment");
 
+    // getNodeAs returns nullptr "if there was no node bound to ID or if there
+    // is a node but it cannot be converted to the specified type".
+    assert(possibleAccumulatingAssignment != nullptr);
+
     // Get the assignment's assignee.
-    const VarDecl *possibleAccumulator =
-        result.Nodes.getNodeAs<VarDecl>("possibleAccumulator");
+    const clang::Expr *possibleAccumulator =
+        possibleAccumulatingAssignment->getLHS();
+
+    // TODO: experiment with passing different values for the third parameter of
+    // the Profile method. What does that change?
+    llvm::FoldingSetNodeID possibleAccumulatorFoldingSetID;
+    possibleAccumulator->Profile(possibleAccumulatorFoldingSetID,
+                                 *result.Context, true);
 
     // Note that std::map.insert does nothing if there already is an element
     // with the given key.
     loop_info->possible_accumulators.insert(
-        {possibleAccumulator, PossibleAccumulatorInfo()});
+        {possibleAccumulatorFoldingSetID,
+         PossibleAccumulatorInfo(possibleAccumulator)});
 
-    loop_info->possible_accumulators.find(possibleAccumulator)
+    loop_info->possible_accumulators.find(possibleAccumulatorFoldingSetID)
         ->second.possible_accumulating_assignments.insert(
             {possibleAccumulatingAssignment,
              PossibleAccumulatingAssignmentInfo()});
@@ -69,7 +77,7 @@ void getPossibleAccumulatorsIn(PossibleReductionLoopInfo *loop_info,
   PossibleAccumulatorFinder possibleAccumulatorFinder(loop_info);
 
   // Construct a matcher that will match assignments whose LHS
-  // contains a variable declared outside of the loop.
+  // contains a reference to a variable declared outside of the loop.
   StatementMatcher possibleAccumulatingAssignmentMatcher =
       binaryOperator(
           anyOf(hasOperatorName("="), hasOperatorName("+="),
@@ -78,9 +86,15 @@ void getPossibleAccumulatorsIn(PossibleReductionLoopInfo *loop_info,
                 hasOperatorName("&="), hasOperatorName("|="),
                 hasOperatorName("^="), hasOperatorName("<<="),
                 hasOperatorName(">>=")),
-          hasLHS(declRefExpr(to(varDecl(unless(hasAncestor(stmt(
-                                            equalsNode(loop_info->loopStmt)))))
-                                    .bind("possibleAccumulator")))))
+          hasLHS(anyOf(
+              // The assignment's left-hand side can be a reference to a
+              // variable declared outside of the loop ...
+              declRefExpr(to(varDecl(
+                  unless(hasAncestor(stmt(equalsNode(loop_info->loopStmt))))))),
+              // ... or it can be a larger sub-tree that contains such a
+              // reference.
+              hasDescendant(declRefExpr(to(varDecl(unless(
+                  hasAncestor(stmt(equalsNode(loop_info->loopStmt)))))))))))
           .bind("possibleAccumulatingAssignment");
 
   MatchFinder possibleAccumulatingAssignmentFinder;

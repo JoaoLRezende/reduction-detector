@@ -107,5 +107,14 @@ int main(int argc, const char **argv) {
  *      for (int i = 0; i < arr_length; i++)
  *          if (max < arr[i])
  *              max = arr[i];
+ * - Currently, a _possible accumulator_ is an lvalue that is the left side of
+ * an assignment in a loop's body and that contains an identifier declared
+ * outside of that loop. That definition might cause undesired lvalues to be
+ * detected as possible accumulators. For example: local_array[important_index],
+ * where local_array is declared in the loop but important_index isn't. Perhaps
+ * a more useful definition would be the following. A _possible accumulator_ is
+ * an lvalue that is the left side of an assignment in a loop's body and whose
+ * _base_ (the earliest identifier that appears in it) is declared outside of
+ * that loop.
  * - Run Valgrind. Make sure we're not leaking memory.
  */

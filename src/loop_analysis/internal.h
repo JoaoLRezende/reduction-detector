@@ -24,9 +24,18 @@ struct PossibleAccumulatingAssignmentInfo {
   bool references_iteration_variable = false;
 };
 
-// A possible accumulator is a variable whose declaration is outside of a
-// loop, but is the left side of an assignment in that loop's body.
+// A _possible accumulator_ is an l-value that is the left-hand operand of an
+// assignment in a loop's body and that contains an identifier declared outside
+// of that loop. For example, a possible accumulator can be an array-subscript
+// expression like arr[i], or a member-access expression like stats.sum (where
+// stats is a structure with a field named "sum").
 struct PossibleAccumulatorInfo {
+  // A pointer to the first encountered occurrence of the possible
+  // accumulator in the left-hand side of an assignment.
+  const clang::Expr *possibleAccumulator;
+
+  PossibleAccumulatorInfo(const clang::Expr *possibleAccumulator)
+      : possibleAccumulator(possibleAccumulator){};
 
   std::map<const clang::BinaryOperator *, PossibleAccumulatingAssignmentInfo>
       possible_accumulating_assignments;
@@ -72,7 +81,20 @@ struct PossibleReductionLoopInfo {
   std::map<const clang::VarDecl *, int>
       numberOfArrayAccessesInvolvingIterationVariablePerArray;
 
-  std::map<const clang::VarDecl *, PossibleAccumulatorInfo>
+  /* Each possible accumulator is identified by its llvm::FoldingSetNodeID
+   * (something like a hash code). Note that a possible accumulator, which
+   * is an expression, can be, for example, a bare declaration-reference
+   * expression (i.e. a reference to a bare variable), an array-subscript
+   * expression, a member-access expression, or a pointer-dereference
+   * expression. Every occurrence of an expression has a same
+   * llvm::FoldingSetNodeID. Thus, multiple occurrences of a possible
+   * accumulator will be mapped to one same PossibleAccumulatorInfo as long as
+   * they are identical. (But, for example, array[0] will not be detected as the
+   * same as array[1-1], and *(&ptr) will not be detected as the
+   * same as ptr.) TODO: detail here how that hash value is acquired for
+   * an expression.
+   */
+  std::map<llvm::FoldingSetNodeID, PossibleAccumulatorInfo>
       possible_accumulators;
 
   bool hasALikelyAccumulator = false;

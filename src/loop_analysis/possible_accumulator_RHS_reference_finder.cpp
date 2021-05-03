@@ -1,5 +1,5 @@
-#include "loop_analysis.h"
 #include "internal.h"
+#include "loop_analysis.h"
 
 #include "../constants.h"
 
@@ -22,36 +22,58 @@ namespace reduction_detector {
 namespace loop_analysis {
 namespace internal {
 
-static bool isVariableReferencedInRHSOfBinaryOperation(
-    const VarDecl *variable, const BinaryOperator *binaryOperation,
+static bool doesSubtreeHaveAnExpressionWithFoldingSetNodeID(
+    const clang::Expr &subtree,
+    const llvm::FoldingSetNodeID &expressionFoldingSetNodeID,
     ASTContext *context) {
-  /* Construct a matcher that will match binaryOperator only if it either has a
-   * reference to variable in its RHS or it is an application of a compound
-   * assignment operator
-   * and its LHS is variable (which means the assignment is equivalent to
-   * a simple assignment whose RHS has a reference to variable).
-   */
-  StatementMatcher referencingAssignmentMatcher = binaryOperator(anyOf(
-      hasRHS(hasDescendant(declRefExpr(to(varDecl(equalsNode(variable)))))),
-      allOf(hasLHS(declRefExpr(to(varDecl(equalsNode(variable))))),
-            anyOf(hasOperatorName("+="), hasOperatorName("-="),
-                  hasOperatorName("*="), hasOperatorName("/="),
-                  hasOperatorName("%="), hasOperatorName("&="),
-                  hasOperatorName("|="), hasOperatorName("^="),
-                  hasOperatorName("<<="), hasOperatorName(">>=")))));
 
   // Instantiate a struct to be used as a MatchFinder callback.
+  // We'll match every expression and compare its folding-set node ID
+  // with our target folding-set node ID.
   struct MatcherCallback : public MatchFinder::MatchCallback {
-    bool wasCalled = false;
+    const llvm::FoldingSetNodeID &targetExpressionFoldingSetNodeID;
+
+    MatcherCallback(
+        const llvm::FoldingSetNodeID &targetExpressionFoldingSetNodeID)
+        : targetExpressionFoldingSetNodeID(targetExpressionFoldingSetNodeID){};
+
+    bool foundAnExpressionWithTargetFoldingSetNodeID = false;
+
     virtual void run(const MatchFinder::MatchResult &result) {
-      wasCalled = true;
+      const clang::Expr *thisExpression =
+          result.Nodes.getNodeAs<clang::Expr>("expression");
+
+      // getNodeAs returns nullptr "if there was no node bound to ID or if there
+      // is a node but it cannot be converted to the specified type". This
+      // shouldn't happen.
+      assert(thisExpression != nullptr);
+
+      // TODO: do anything only if foundAnExpressionWithTargetFoldingSetNodeID
+      // isn't already true.
+      llvm::FoldingSetNodeID thisExpressionFoldingSetID;
+      thisExpression->Profile(thisExpressionFoldingSetID, *result.Context,
+                              true);
+
+      if (thisExpressionFoldingSetID == targetExpressionFoldingSetNodeID) {
+        foundAnExpressionWithTargetFoldingSetNodeID = true;
+      }
     }
-  } matcherCallback;
+  } matcherCallback(expressionFoldingSetNodeID);
 
   MatchFinder matchFinder;
-  matchFinder.addMatcher(referencingAssignmentMatcher, &matcherCallback);
-  matchFinder.match(*binaryOperation, *context);
-  return matcherCallback.wasCalled;
+  // TODO: here, we match, and compute the hash sum of, every expression under
+  // the given
+  // subtree. This is a waste, and might result in a lot of unnecessary
+  // work in more complex subtrees. (Computing the hash sum of each node
+  // involves visiting all of its descendants.) We could avoid a lot of
+  // useless work by considering only expressions whose type is the same as
+  // that of the expression we're looking for. For example: if the target
+  // expression is an array-subscript expression, then match only
+  // array-subscript expressions.
+  // We've done something very similar in outside_reference_counting.cpp.
+  matchFinder.addMatcher(findAll(expr().bind("expression")), &matcherCallback);
+  matchFinder.match(subtree, *context);
+  return matcherCallback.foundAnExpressionWithTargetFoldingSetNodeID;
 }
 
 void detectPossibleAccumulatorReferencesInRHSOfPossibleAccumulatingStatements(
@@ -59,9 +81,16 @@ void detectPossibleAccumulatorReferencesInRHSOfPossibleAccumulatingStatements(
   for (auto &possibleAccumulator : loop_info.possible_accumulators) {
     for (auto &possibleAccumulatingAssignment :
          possibleAccumulator.second.possible_accumulating_assignments) {
-      if (isVariableReferencedInRHSOfBinaryOperation(
-              possibleAccumulator.first, possibleAccumulatingAssignment.first,
-              context)) {
+      // we consider possibleAccumulatingAssignment to have a reference to
+      // possibleAccumulator in its right-hand side if either ...
+      if ( // possibleAccumulatingAssignment is an application of a compound
+           // assignment operator (like +=) ...
+          possibleAccumulatingAssignment.first->isCompoundAssignmentOp() ||
+          // or possibleAccumulatingAssignment really, explicitly has a
+          // reference to possibleAccumulator in its right-hand side.
+          doesSubtreeHaveAnExpressionWithFoldingSetNodeID(
+              *possibleAccumulatingAssignment.first->getRHS(),
+              possibleAccumulator.first, context)) {
         possibleAccumulatingAssignment.second
             .rhs_also_references_possible_accumulator = true;
         possibleAccumulator.second

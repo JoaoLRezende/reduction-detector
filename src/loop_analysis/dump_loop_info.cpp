@@ -74,7 +74,10 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
   outputStream << "Likely accumulators:";
   for (auto &possible_accumulator : this->possible_accumulators) {
     if (possible_accumulator.second.isLikelyAccumulator) {
-      outputStream << " " << possible_accumulator.first->getName();
+      outputStream << " ";
+      possible_accumulator.second.possibleAccumulator->printPretty(
+          outputStream, nullptr, clang::PrintingPolicy(clang::LangOptions()));
+      ;
     }
   }
 
@@ -84,8 +87,20 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
     for (auto &possibleAccumulator : this->possible_accumulators) {
       if (possibleAccumulator.second.isLikelyAccumulator ||
           reportUnlikelyAccumulators) {
-        outputStream << "\n" INDENT << possibleAccumulator.first->getName()
-                     << " was detected as a "
+        outputStream << "\n" INDENT;
+        possibleAccumulator.second.possibleAccumulator
+            ->printPretty( // TODO: instead of calling this method
+                           // here, make
+                           // PossibleAccumulatingAssignmentInfo
+                           // have a field named "name" that
+                           // stores that possible accumulator's
+                           // textual representation. Fill that
+                // field in the class' constructor. Use that field
+                // in all places in which we print the thing's
+                // name.
+                outputStream, nullptr,
+                clang::PrintingPolicy(clang::LangOptions()));
+        outputStream << " was detected as a "
                      << (possibleAccumulator.second.isLikelyAccumulator
                              ? "likely accumulator"
                              : "possible accumulator, but not as a likely one")
@@ -135,9 +150,10 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
 
         outputStream << INDENT "There are "
                      << possibleAccumulator.second.outside_references
-                     << " other in-loop references to "
-                     << possibleAccumulator.first->getName()
-                     << " outside of those "
+                     << " other in-loop references to ";
+        possibleAccumulator.second.possibleAccumulator->printPretty(
+            outputStream, nullptr, clang::PrintingPolicy(clang::LangOptions()));
+        outputStream << " outside of those "
                         "possible accumulating assignments.\n";
       }
     }

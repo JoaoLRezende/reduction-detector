@@ -57,7 +57,7 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
 
   getPossibleAccumulatorsIn(&loop_info, context);
 
-  getDistanceOfDeclarationOfPossibleAccumulators(loop_info, context);
+//   getDistanceOfDeclarationOfPossibleAccumulators(loop_info, context); // temporarily disabled to fix merge issues first
 
   detectPossibleAccumulatorReferencesInRHSOfPossibleAccumulatingStatements(
       loop_info, context);
