@@ -77,7 +77,6 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
       outputStream << " ";
       possible_accumulator.second.possibleAccumulator->printPretty(
           outputStream, nullptr, clang::PrintingPolicy(clang::LangOptions()));
-      ;
     }
   }
 

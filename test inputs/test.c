@@ -5,6 +5,12 @@ int accumulators[3];
 
 int main() {
 	int acc = 0;
+
+	for (int i = 0; i < 5; i++) {
+		acc += arr[i];
+		printf("%d ", acc);
+	}
+
 	for (int i = 0; i < 5; i++) {
 		accumulators[0] = arr[i] + accumulators[0];
 		printf("%d ", accumulators[0]);
