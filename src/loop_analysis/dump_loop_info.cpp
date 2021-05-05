@@ -66,8 +66,8 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
             outputStream << ", ";
           }
         }
-        outputStream << ".\n";
       }
+      outputStream << "\n";
     }
   }
 
