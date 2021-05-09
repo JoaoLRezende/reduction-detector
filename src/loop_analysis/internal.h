@@ -25,17 +25,23 @@ struct PossibleAccumulatingAssignmentInfo {
 };
 
 // A _possible accumulator_ is an l-value that is the left-hand operand of an
-// assignment in a loop's body and that contains an identifier declared outside
-// of that loop. For example, a possible accumulator can be an array-subscript
-// expression like arr[i], or a member-access expression like stats.sum (where
-// stats is a structure with a field named "sum").
+// assignment in a loop's body and whose _base_ (the earliest identifier that
+// appears in it) is declared outside of that loop. For example, a possible
+// accumulator can be an array-subscript expression like arr[i], or a
+// member-access expression like stats.sum (where stats is a structure with a
+// field named "sum").
 struct PossibleAccumulatorInfo {
   // A pointer to the first encountered occurrence of the possible
   // accumulator in the left-hand side of an assignment.
   const clang::Expr *possibleAccumulator;
 
-  PossibleAccumulatorInfo(const clang::Expr *possibleAccumulator)
-      : possibleAccumulator(possibleAccumulator){};
+  // base is the earliest declaration-reference expression that exists in the
+  // first occurrence of the possible accumulator.
+  const clang::DeclRefExpr *base;
+
+  PossibleAccumulatorInfo(const clang::Expr *possibleAccumulator,
+                          const clang::DeclRefExpr *base)
+      : possibleAccumulator(possibleAccumulator), base(base){};
 
   std::map<const clang::BinaryOperator *, PossibleAccumulatingAssignmentInfo>
       possible_accumulating_assignments;

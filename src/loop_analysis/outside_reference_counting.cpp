@@ -13,7 +13,7 @@ namespace reduction_detector {
 namespace loop_analysis {
 namespace internal {
 
-// Checke whether expression1 is a descendant of expression2.
+// Check whether expression1 is a descendant of expression2.
 static bool isExpressionInExpression(const clang::Expr *expression1,
                                      const clang::Expr *expression2,
                                      clang::ASTContext *context) {

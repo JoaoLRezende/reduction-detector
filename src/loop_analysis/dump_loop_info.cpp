@@ -113,7 +113,8 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
         }
 
         outputStream
-            << INDENT "It was declared "
+            << INDENT "Its base is " << possibleAccumulator.second.base->getDecl()->getName()
+            << ", which was declared "
             << possibleAccumulator.second.declarationDistanceFromLoopInLines
             << " lines above the loop.\n";
 

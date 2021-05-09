@@ -12,7 +12,7 @@ int reduce1(int array[], size_t array_size) {
 
 // An example in which an actual array appears in an array-subscript expression,
 // rather than a pointer.
-int reducee1(size_t array_size) {
+int reduce1point5(size_t array_size) {
   int arr[5] = {1, 2, 3, 4, 5};
 
   int sum = 0;
@@ -62,6 +62,17 @@ int reduce6(int array[], size_t array_size) {
     sum += array[i];
   }
   return sum;
+}
+
+int reduce6point5(int array1[], int array2[], size_t arrays_size) {
+  int sum_of_array1 = 0;
+  int sum_of_both_arrays = 0;
+	for (size_t i = 0; i < arrays_size; ++i) {
+    sum_of_array1 += array1[i];
+		sum_of_both_arrays += array1[i];
+		sum_of_both_arrays += array2[i];
+	}
+  return sum_of_both_arrays;
 }
 
 int reduce7(int array[], size_t array_size) {

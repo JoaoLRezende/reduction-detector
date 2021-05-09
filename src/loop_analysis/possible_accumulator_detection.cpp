@@ -18,11 +18,51 @@ namespace reduction_detector {
 namespace loop_analysis {
 namespace internal {
 
+// Check whether a clang::ValueDecl (for example, a declaration of the base of a
+// possible accumulator) is a descendant of a clang::Stmt (for example, a loop
+// statement).
+static bool isDeclarationInStatement(const clang::ValueDecl *declaration,
+                                     const clang::Stmt *statement,
+                                     clang::ASTContext *context) {
+  /* Construct a matcher that will match declaration only if it is a descendant
+   * of statement.
+   */
+  DeclarationMatcher declarationMatcher =
+      valueDecl(hasAncestor(stmt(equalsNode(statement))));
+
+  // Instantiate a struct to be used as a MatchFinder callback.
+  struct MatcherCallback : public MatchFinder::MatchCallback {
+    bool wasCalled = false;
+    virtual void run(const MatchFinder::MatchResult &result) {
+      wasCalled = true;
+    }
+  } matcherCallback;
+
+  MatchFinder matchFinder;
+  matchFinder.addMatcher(declarationMatcher, &matcherCallback);
+  matchFinder.match(*declaration, *context);
+  return matcherCallback.wasCalled;
+}
+
 /*
  * One instance of PossibleAccumulatorFinder is created for each for loop.
  * For each assignment whose left-hand side is a possible accumulator, it stores
- * that left-hand side in the map possible_accumulators of
- * the struct PossibleReductionLoopInfo that describes that loop.
+ * that left-hand side in the map possible_accumulators of the struct
+ * PossibleReductionLoopInfo that describes that loop, together with its base.
+ *
+ * Here, we consider the _base_ of an expression to be the earliest identifier
+ * that appears in it. For example, the base of structitty.member is structitty.
+ * The base of *ptr is ptr. The base of array[i] is array.
+ *
+ * It seems to me that, in expressions that don't involve type names, there is a
+ * one-to-one mapping between identifiers and declaration-reference expressions.
+ * And there is no AST matcher for identifiers. Thus, we look for the earliest
+ * declaration-reference expression in an l-value and take that as its base.
+ *
+ * To find the earliest declaration-reference expression in an expression, we're
+ * going to rely on the fact that it seems that Clang's AST-matchers framework
+ * always traverses ASTs in pre-order when looking for matches, even though that
+ * isn't formally guaranteed anywhere (I think).
  */
 class PossibleAccumulatorFinder : public MatchFinder::MatchCallback {
 
@@ -36,39 +76,48 @@ public:
   PossibleAccumulatorFinder(PossibleReductionLoopInfo *loop_info)
       : loop_info(loop_info) {}
 
-  // run is called by MatchFinder for each assignment whose left-hand side is a
-  // possible accumulator.
+  // run is called by MatchFinder for each assignment expression.
   virtual void run(const MatchFinder::MatchResult &result) {
-
-    // Get the matched assignment.
-    const clang::BinaryOperator *possibleAccumulatingAssignment =
+    const clang::BinaryOperator *possible_possible_accumulating_assignment =
         result.Nodes.getNodeAs<clang::BinaryOperator>(
-            "possibleAccumulatingAssignment");
+            "possible_possible_accumulating_assignment");
+    const clang::DeclRefExpr *possible_possible_accumulator_base =
+        result.Nodes.getNodeAs<clang::DeclRefExpr>(
+            "possible_possible_accumulator_base");
 
     // getNodeAs returns nullptr "if there was no node bound to ID or if there
     // is a node but it cannot be converted to the specified type".
-    assert(possibleAccumulatingAssignment != nullptr);
+    assert(possible_possible_accumulating_assignment != nullptr);
+    assert(possible_possible_accumulator_base != nullptr);
 
-    // Get the assignment's assignee.
-    const clang::Expr *possibleAccumulator =
-        possibleAccumulatingAssignment->getLHS();
+    // If possible_possible_accumulator_base is declared inside the loop we're
+    // examining, then possible_possible_accumulator is not a possible
+    // accumulator.
+    if (isDeclarationInStatement(possible_possible_accumulator_base->getDecl(),
+                                 loop_info->loopStmt, result.Context)) {
+      return;
+    }
 
-    // TODO: experiment with passing different values for the third parameter of
-    // the Profile method. What does that change?
+    const clang::Expr *possible_accumulator =
+        possible_possible_accumulating_assignment->getLHS();
+
+    // TODO: what does the third argument to the Profile method do?
+    // Experiment.
     llvm::FoldingSetNodeID possibleAccumulatorFoldingSetID;
-    possibleAccumulator->Profile(possibleAccumulatorFoldingSetID,
-                                 *result.Context, true);
+    possible_accumulator->Profile(possibleAccumulatorFoldingSetID,
+                                  *result.Context, true);
 
-    // Note that std::map.insert does nothing if there already is an element
-    // with the given key.
-    loop_info->possible_accumulators.insert(
+    // Note that std::map's insert method, if there already is an element with
+    // the given key, simply returns that element instead of inserting a new
+    // one.
+    auto inserted_map_node = loop_info->possible_accumulators.insert(
         {possibleAccumulatorFoldingSetID,
-         PossibleAccumulatorInfo(possibleAccumulator)});
+         PossibleAccumulatorInfo(possible_accumulator,
+                                 possible_possible_accumulator_base)});
 
-    loop_info->possible_accumulators.find(possibleAccumulatorFoldingSetID)
-        ->second.possible_accumulating_assignments.insert(
-            {possibleAccumulatingAssignment,
-             PossibleAccumulatingAssignmentInfo()});
+    inserted_map_node.first->second.possible_accumulating_assignments.insert(
+        {possible_possible_accumulating_assignment,
+         PossibleAccumulatingAssignmentInfo()});
   };
 };
 
@@ -76,9 +125,8 @@ void getPossibleAccumulatorsIn(PossibleReductionLoopInfo *loop_info,
                                ASTContext *context) {
   PossibleAccumulatorFinder possibleAccumulatorFinder(loop_info);
 
-  // Construct a matcher that will match assignments whose LHS
-  // contains a reference to a variable declared outside of the loop.
-  StatementMatcher possibleAccumulatingAssignmentMatcher =
+  // Construct a matcher that will match assignment expressions.
+  StatementMatcher possiblePossibleAccumulatingAssignmentMatcher =
       binaryOperator(
           anyOf(hasOperatorName("="), hasOperatorName("+="),
                 hasOperatorName("-="), hasOperatorName("*="),
@@ -86,20 +134,15 @@ void getPossibleAccumulatorsIn(PossibleReductionLoopInfo *loop_info,
                 hasOperatorName("&="), hasOperatorName("|="),
                 hasOperatorName("^="), hasOperatorName("<<="),
                 hasOperatorName(">>=")),
-          hasLHS(anyOf(
-              // The assignment's left-hand side can be a reference to a
-              // variable declared outside of the loop ...
-              declRefExpr(to(varDecl(
-                  unless(hasAncestor(stmt(equalsNode(loop_info->loopStmt))))))),
-              // ... or it can be a larger sub-tree that contains such a
-              // reference.
-              hasDescendant(declRefExpr(to(varDecl(unless(
-                  hasAncestor(stmt(equalsNode(loop_info->loopStmt)))))))))))
-          .bind("possibleAccumulatingAssignment");
+          hasLHS(anyOf(declRefExpr().bind("possible_possible_accumulator_base"),
+                       hasDescendant(declRefExpr().bind(
+                           "possible_possible_accumulator_base")))))
+          .bind("possible_possible_accumulating_assignment");
 
   MatchFinder possibleAccumulatingAssignmentFinder;
   possibleAccumulatingAssignmentFinder.addMatcher(
-      clang::ast_matchers::findAll(possibleAccumulatingAssignmentMatcher),
+      clang::ast_matchers::findAll(
+          possiblePossibleAccumulatingAssignmentMatcher),
       &possibleAccumulatorFinder);
 
   possibleAccumulatingAssignmentFinder.match(*loop_info->loopStmt, *context);
