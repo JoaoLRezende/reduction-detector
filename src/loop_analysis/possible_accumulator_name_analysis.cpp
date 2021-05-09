@@ -15,15 +15,9 @@ static std::vector<std::string> COMMON_ACCUMULATOR_NAME_SUBSTRINGS_VECTOR = {
 void analysePossibleAccumulatorNames(PossibleReductionLoopInfo &loopInfo,
                                      clang::ASTContext *context) {
   for (auto &possibleAccumulator : loopInfo.possible_accumulators) {
-    std::string possibleAccumulatorName;
-    llvm::raw_string_ostream nameStringStream(possibleAccumulatorName);
-    possibleAccumulator.second.possibleAccumulator->printPretty(
-        nameStringStream, nullptr, clang::PrintingPolicy(clang::LangOptions()));
-    nameStringStream.flush();
-
     for (std::string &commonAccumulatorNameSubstring :
          COMMON_ACCUMULATOR_NAME_SUBSTRINGS_VECTOR)
-      if (possibleAccumulatorName.find(commonAccumulatorNameSubstring) !=
+      if (possibleAccumulator.second.name.find(commonAccumulatorNameSubstring) !=
           std::string::npos) {
         possibleAccumulator.second.notableNameSubstring =
             &commonAccumulatorNameSubstring;

@@ -67,16 +67,14 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
           }
         }
       }
-      outputStream << "\n";
+      outputStream << ".\n";
     }
   }
 
   outputStream << "Likely accumulators:";
   for (auto &possible_accumulator : this->possible_accumulators) {
     if (possible_accumulator.second.isLikelyAccumulator) {
-      outputStream << " ";
-      possible_accumulator.second.possibleAccumulator->printPretty(
-          outputStream, nullptr, clang::PrintingPolicy(clang::LangOptions()));
+      outputStream << " " << possible_accumulator.second.name;
     }
   }
 
@@ -86,20 +84,8 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
     for (auto &possibleAccumulator : this->possible_accumulators) {
       if (possibleAccumulator.second.isLikelyAccumulator ||
           reportUnlikelyAccumulators) {
-        outputStream << "\n" INDENT;
-        possibleAccumulator.second.possibleAccumulator
-            ->printPretty( // TODO: instead of calling this method
-                           // here, make
-                           // PossibleAccumulatingAssignmentInfo
-                           // have a field named "name" that
-                           // stores that possible accumulator's
-                           // textual representation. Fill that
-                // field in the class' constructor. Use that field
-                // in all places in which we print the thing's
-                // name.
-                outputStream, nullptr,
-                clang::PrintingPolicy(clang::LangOptions()));
-        outputStream << " was detected as a "
+        outputStream << "\n" INDENT << possibleAccumulator.second.name
+                     << " was detected as a "
                      << (possibleAccumulator.second.isLikelyAccumulator
                              ? "likely accumulator"
                              : "possible accumulator, but not as a likely one")
@@ -113,7 +99,8 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
         }
 
         outputStream
-            << INDENT "Its base is " << possibleAccumulator.second.base->getDecl()->getName()
+            << INDENT "Its base is "
+            << possibleAccumulator.second.base->getDecl()->getName()
             << ", which was declared "
             << possibleAccumulator.second.declarationDistanceFromLoopInLines
             << " lines above the loop.\n";
@@ -148,13 +135,11 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
             << " of those assignments involve "
                "the loop's iteration variable.\n";
 
-        outputStream << INDENT "There are "
-                     << possibleAccumulator.second.outside_references
-                     << " other in-loop references to ";
-        possibleAccumulator.second.possibleAccumulator->printPretty(
-            outputStream, nullptr, clang::PrintingPolicy(clang::LangOptions()));
-        outputStream << " outside of those "
-                        "possible accumulating assignments.\n";
+        outputStream
+            << INDENT "There are "
+            << possibleAccumulator.second.outside_references
+            << " other in-loop references to " << possibleAccumulator.second.name
+            << " outside of those possible accumulating assignments.\n";
       }
     }
   }

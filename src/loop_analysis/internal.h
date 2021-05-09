@@ -39,9 +39,19 @@ struct PossibleAccumulatorInfo {
   // first occurrence of the possible accumulator.
   const clang::DeclRefExpr *base;
 
+  // textual representation of the possible accumulator (unparsed from
+  // possibleAccumulator)
+  std::string name;
+
   PossibleAccumulatorInfo(const clang::Expr *possibleAccumulator,
                           const clang::DeclRefExpr *base)
-      : possibleAccumulator(possibleAccumulator), base(base){};
+      : possibleAccumulator(possibleAccumulator), base(base) {
+    // Unparse the possible accumulator into this->name.
+    llvm::raw_string_ostream nameStringStream(this->name);
+    this->possibleAccumulator->printPretty(
+        nameStringStream, nullptr, clang::PrintingPolicy(clang::LangOptions()));
+    nameStringStream.flush();
+  };
 
   std::map<const clang::BinaryOperator *, PossibleAccumulatingAssignmentInfo>
       possible_accumulating_assignments;

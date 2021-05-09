@@ -1,4 +1,4 @@
-Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test inputs/test.c:9:2:
+Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test inputs/test.c:16:2:
 for (int i = 0; i < 5; i++) {
     acc += arr[i];
     printf("%d ", acc);
@@ -7,15 +7,15 @@ Its iteration variable is i.
 Arrays subscripted by i: arr (1 accesses).
 Likely accumulators: acc
 
-    acc was detected as a likely accumulator (score: 14). It is not a trivial accumulator.
-    It was declared 2 lines above the loop.
+    acc was detected as a likely accumulator (score: 12). It is not a trivial accumulator.
+    Its base is acc, which was declared 10 lines above the loop.
     Its name has the substring "acc".
     It might be accumulated in the following assignments:
         acc += arr[i]
     1 of those assignments involve the loop's iteration variable.
     There are 1 other in-loop references to acc outside of those possible accumulating assignments.
 
-Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test inputs/test.c:14:2:
+Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test inputs/test.c:21:2:
 for (int i = 0; i < 5; i++) {
     accumulators[0] = arr[i] + accumulators[0];
     printf("%d ", accumulators[0]);
@@ -25,14 +25,14 @@ Arrays subscripted by i: arr (1 accesses).
 Likely accumulators: accumulators[0]
 
     accumulators[0] was detected as a likely accumulator (score: 12). It is not a trivial accumulator.
-    It was declared 10 lines above the loop.
+    Its base is accumulators, which was declared 14 lines above the loop.
     Its name has the substring "acc".
     It might be accumulated in the following assignments:
         accumulators[0] = arr[i] + accumulators[0]
     1 of those assignments involve the loop's iteration variable.
     There are 1 other in-loop references to accumulators[0] outside of those possible accumulating assignments.
 
-Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test inputs/test.c:21:2:
+Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test inputs/test.c:28:2:
 while (i < 10)
     {
         accumulators[1] += arr[i];
@@ -42,7 +42,7 @@ I couldn't determine its iteration variable.
 Likely accumulators: i accumulators[1]
 
     i was detected as a likely accumulator (score: 8). It is not a trivial accumulator.
-    It was declared 1 lines above the loop.
+    Its base is i, which was declared 1 lines above the loop.
     Its name doesn't have any of the common accumulator-name substrings.
     It might be accumulated in the following assignments:
         i += 1
@@ -50,14 +50,14 @@ Likely accumulators: i accumulators[1]
     There are 2 other in-loop references to i outside of those possible accumulating assignments.
 
     accumulators[1] was detected as a likely accumulator (score: 13). But it is a trivial accumulator.
-    It was declared 17 lines above the loop.
+    Its base is accumulators, which was declared 21 lines above the loop.
     Its name has the substring "acc".
     It might be accumulated in the following assignments:
         accumulators[1] += arr[i]
     0 of those assignments involve the loop's iteration variable.
     There are 0 other in-loop references to accumulators[1] outside of those possible accumulating assignments.
 
-4 out of 4 loops detected as likely reduction loops.
-    2 out of 2 for loops.
+5 out of 5 loops detected as likely reduction loops.
+    3 out of 3 for loops.
     1 out of 1 while loops.
     1 out of 1 do-while loops.
