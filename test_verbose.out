@@ -1,0 +1,89 @@
+Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test inputs/reduction loops/NPB 4.c:26:4:
+for (nOnes = 0 , i = 0; i < 64; i++) {
+    if (s & ob)
+        nOnes++;
+    ob >>= 1;
+}
+I couldn't determine its iteration variable.
+Likely accumulators: ob
+
+    ob was detected as a likely accumulator (score: 7). It is not a trivial accumulator.
+    Its base is ob, which was declared 4 lines above the loop.
+    Its name doesn't have any of the common accumulator-name substrings.
+    It might be accumulated in the following assignments:
+        ob >>= 1
+    0 of those assignments involve the loop's iteration variable.
+    There are 1 other in-loop references to ob outside of those possible accumulating assignments.
+
+Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test inputs/reduction loops/artificial examples.c:27:3:
+for (int i = 0; i < array_size; i++) {
+    int old_sum = sum;
+    old_sum += array[i];
+    sum = old_sum;
+}
+Its iteration variable is i.
+Arrays subscripted by i: array (1 accesses).
+Likely accumulators: sum
+
+    sum was detected as a likely accumulator (score: 11). It is not a trivial accumulator.
+    Its base is sum, which was declared 1 lines above the loop.
+    Its name has the substring "sum".
+    It might be accumulated in the following assignments:
+    0 of those assignments involve the loop's iteration variable.
+    There are 1 other in-loop references to sum outside of those possible accumulating assignments.
+
+Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test inputs/reduction loops/artificial examples.c:88:3:
+for (size_t i = 0; i < array_size; i++) {
+    *accumulator += array[i];
+    printf("%d ", *accumulator);
+}
+Its iteration variable is i.
+Arrays subscripted by i: array (1 accesses).
+Likely accumulators: *accumulator
+
+    *accumulator was detected as a likely accumulator (score: 14). It is not a trivial accumulator.
+    Its base is accumulator, which was declared 1 lines above the loop.
+    Its name has the substring "acc".
+    It might be accumulated in the following assignments:
+        *accumulator += array[i]
+    1 of those assignments involve the loop's iteration variable.
+    There are 1 other in-loop references to *accumulator outside of those possible accumulating assignments.
+
+Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test inputs/reduction loops/artificial examples.c:95:3:
+for (size_t i = 0; i < array_size; i++) {
+    accumulators[0] += array[i];
+    printf("%d ", accumulators[0]);
+}
+Its iteration variable is i.
+Arrays subscripted by i: array (1 accesses).
+Likely accumulators: accumulators[0]
+
+    accumulators[0] was detected as a likely accumulator (score: 14). It is not a trivial accumulator.
+    Its base is accumulators, which was declared 1 lines above the loop.
+    Its name has the substring "acc".
+    It might be accumulated in the following assignments:
+        accumulators[0] += array[i]
+    1 of those assignments involve the loop's iteration variable.
+    There are 1 other in-loop references to accumulators[0] outside of those possible accumulating assignments.
+
+Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test inputs/reduction loops/artificial examples.c:108:3:
+for (size_t i = 0; i < size; ++i) {
+    result->sum += array[i];
+    printf("%d ", result->sum);
+}
+Its iteration variable is i.
+Arrays subscripted by i: array (1 accesses).
+Likely accumulators: result->sum
+
+    result->sum was detected as a likely accumulator (score: 14). It is not a trivial accumulator.
+    Its base is result, which was declared 2 lines above the loop.
+    Its name has the substring "sum".
+    It might be accumulated in the following assignments:
+        result->sum += array[i]
+    1 of those assignments involve the loop's iteration variable.
+    There are 1 other in-loop references to result->sum outside of those possible accumulating assignments.
+
+19 out of 21 loops detected as likely reduction loops.
+    19 out of 21 for loops.
+    0 out of 0 while loops.
+    0 out of 0 do-while loops.
