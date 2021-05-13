@@ -15,7 +15,14 @@ namespace command_line_options {
 llvm::cl::OptionCategory
     reduction_detector_option_category("reduction-detector options");
 
-// The value of output_file_name is used only in opening output_file.
+llvm::cl::opt<bool> only_non_trivial_reductions(
+    "only-non-trivial-reductions",
+    llvm::cl::desc(
+        "Show only reductions that probably aren't detected by Cetus"),
+    llvm::cl::cat(reduction_detector::command_line_options::
+                      reduction_detector_option_category));
+
+// The value of output_file_name is used in opening output_file.
 llvm::cl::opt<std::string> output_file_name(
     "output", llvm::cl::desc("Specify output file"),
     llvm::cl::value_desc("filename"), llvm::cl::init(DEFAULT_OUTPUT_FILE_NAME),
