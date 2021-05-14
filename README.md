@@ -24,6 +24,12 @@ build/reduction-detector "test cases/test.c"
 
 Invoke reduction-detector with `--help` to see other possible arguments.
 
+Like other Clang-based tools, reduction-detector benefits greatly from a JSON compilation database describing the program under analysis (including, for example, where its header files are). Without one, you'll probably see many parsing errors and receive very incomplete output. See [this][4], [this][5] and [this][6].
+
+[4]: <https://eli.thegreenplace.net/2014/05/21/compilation-databases-for-clang-based-tools> (Eli Bendersky's very good introduction to compilation databases)
+[5]: <https://clang.llvm.org/docs/JSONCompilationDatabase.html> (Official Clang documentation)
+[6]: <https://sarcasm.github.io/notes/dev/compilation-database.html> (Other good stuff I found on Google)
+
 By default, reduction-detector writes its output to `detected_reductions.out`.
 
 ***
