@@ -1,4 +1,4 @@
-Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test inputs/reduction loops/NPB 4.c:26:4:
+Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test cases/reduction loops/NPB 4.c:26:4:
 for (nOnes = 0 , i = 0; i < 64; i++) {
     if (s & ob)
         nOnes++;
@@ -15,7 +15,7 @@ Likely accumulators: ob
     0 of those assignments involve the loop's iteration variable.
     There are 1 other in-loop references to ob outside of those possible accumulating assignments.
 
-Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test inputs/reduction loops/artificial examples.c:27:3:
+Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:27:3:
 for (int i = 0; i < array_size; i++) {
     int old_sum = sum;
     old_sum += array[i];
@@ -32,7 +32,7 @@ Likely accumulators: sum
     0 of those assignments involve the loop's iteration variable.
     There are 1 other in-loop references to sum outside of those possible accumulating assignments.
 
-Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test inputs/reduction loops/artificial examples.c:88:3:
+Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:88:3:
 for (size_t i = 0; i < array_size; i++) {
     *accumulator += array[i];
     printf("%d ", *accumulator);
@@ -49,7 +49,7 @@ Likely accumulators: *accumulator
     1 of those assignments involve the loop's iteration variable.
     There are 1 other in-loop references to *accumulator outside of those possible accumulating assignments.
 
-Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test inputs/reduction loops/artificial examples.c:95:3:
+Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:95:3:
 for (size_t i = 0; i < array_size; i++) {
     accumulators[0] += array[i];
     printf("%d ", accumulators[0]);
@@ -66,7 +66,7 @@ Likely accumulators: accumulators[0]
     1 of those assignments involve the loop's iteration variable.
     There are 1 other in-loop references to accumulators[0] outside of those possible accumulating assignments.
 
-Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test inputs/reduction loops/artificial examples.c:108:3:
+Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:108:3:
 for (size_t i = 0; i < size; ++i) {
     result->sum += array[i];
     printf("%d ", result->sum);

@@ -19,7 +19,7 @@ This program links against LLVM 9.0.0. Download a binary distribution of LLVM 9.
 
 You can invoke reduction-detector on a C file or on a directory with multiple C files. For example:
 ```
-build/reduction-detector "test inputs/test.c"
+build/reduction-detector "test cases/test.c"
 ```
 
 Invoke reduction-detector with `--help` to see other possible arguments.

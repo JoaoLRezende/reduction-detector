@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TEST_CASE="test inputs/reduction loops"
+TEST_CASE="test cases/reduction loops"
 
 EXTRA_ARGUMENTS="--only-non-trivial-reductions"
 
