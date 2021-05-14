@@ -24,13 +24,13 @@ namespace command_line_options {
  */
 extern llvm::cl::OptionCategory reduction_detector_option_category;
 
-/* onlyNonTrivialReductions holds whether we are to show only loops that would
- * not usually be detected by other reduction-detecting tools.
+/* only_non_trivial_reductions holds whether we are to show only loops that
+ * would not usually be detected by other reduction-detecting tools.
  */
 extern llvm::cl::opt<bool> only_non_trivial_reductions;
 
 extern llvm::cl::opt<std::string> output_file_name;
-extern std::unique_ptr<llvm::raw_fd_ostream> output_file;;
+extern std::unique_ptr<llvm::raw_fd_ostream> output_file;
 
 // open_output_file needs to be called before anything is written to
 // output_file.

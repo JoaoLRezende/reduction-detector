@@ -45,7 +45,7 @@ static bool isDeclarationInStatement(const clang::ValueDecl *declaration,
 }
 
 /*
- * One instance of PossibleAccumulatorFinder is created for each for loop.
+ * One instance of PossibleAccumulatorFinder is created for each loop.
  * For each assignment whose left-hand side is a possible accumulator, it stores
  * that left-hand side in the map possible_accumulators of the struct
  * PossibleReductionLoopInfo that describes that loop, together with its base.
@@ -59,8 +59,8 @@ static bool isDeclarationInStatement(const clang::ValueDecl *declaration,
  * And there is no AST matcher for identifiers. Thus, we look for the earliest
  * declaration-reference expression in an l-value and take that as its base.
  *
- * To find the earliest declaration-reference expression in an expression, we're
- * going to rely on the fact that it seems that Clang's AST-matchers framework
+ * To find the earliest declaration-reference expression in an expression, we
+ * rely on the fact that it seems that Clang's AST-matchers framework
  * always traverses ASTs in pre-order when looking for matches, even though that
  * isn't formally guaranteed anywhere (I think).
  */
