@@ -40,10 +40,11 @@ std::unique_ptr<llvm::raw_fd_ostream> output_file;
 // open_output_file needs to be called before any output is written.
 void open_output_file() {
   std::error_code error_code;
-  output_file =
-      std::unique_ptr<llvm::raw_fd_ostream>(new llvm::raw_fd_ostream(output_file_name, error_code));
+  output_file = std::unique_ptr<llvm::raw_fd_ostream>(
+      new llvm::raw_fd_ostream(output_file_name, error_code));
   if (error_code) {
-    llvm::errs() << "Could not open output file " << output_file_name << ".\n";
+    llvm::errs() << "Could not open output file " << output_file_name << ": "
+                 << error_code.message() << ".\n";
     std::terminate(); // can't throw exceptions :/
   }
 }
