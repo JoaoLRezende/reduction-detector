@@ -134,9 +134,14 @@ void getPossibleAccumulatorsIn(PossibleReductionLoopInfo *loop_info,
                 hasOperatorName("&="), hasOperatorName("|="),
                 hasOperatorName("^="), hasOperatorName("<<="),
                 hasOperatorName(">>=")),
-          hasLHS(anyOf(declRefExpr().bind("possible_possible_accumulator_base"),
-                       hasDescendant(declRefExpr().bind(
-                           "possible_possible_accumulator_base")))))
+          hasLHS(anyOf(
+              // The LHS can be either a naked declaration-reference
+              // expression ...
+              declRefExpr().bind("possible_possible_accumulator_base"),
+              // ... or a larger subtree that includes a
+              // declaration-reference expression.
+              hasDescendant(
+                  declRefExpr().bind("possible_possible_accumulator_base")))))
           .bind("possible_possible_accumulating_assignment");
 
   MatchFinder possibleAccumulatingAssignmentFinder;
