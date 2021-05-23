@@ -114,7 +114,7 @@ struct PossibleReductionLoopInfo {
       possible_accumulators;
 
   bool hasALikelyAccumulator = false;
-
+  bool has_a_trivial_accumulator = false;
   bool has_likely_but_non_trivial_accumulator = false;
 
   PossibleReductionLoopInfo(const clang::Stmt *loopStmt) : loopStmt(loopStmt){};

@@ -29,6 +29,8 @@ extern llvm::cl::OptionCategory reduction_detector_option_category;
  */
 extern llvm::cl::opt<bool> only_non_trivial_reductions;
 
+extern llvm::cl::opt<bool> only_trivial_reductions;
+
 extern llvm::cl::opt<std::string> output_file_name;
 extern std::unique_ptr<llvm::raw_fd_ostream> output_file;
 

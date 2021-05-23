@@ -67,6 +67,9 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   if ((!command_line_options::only_non_trivial_reductions ||
        (command_line_options::only_non_trivial_reductions &&
         loop_info.has_likely_but_non_trivial_accumulator)) &&
+      (!command_line_options::only_trivial_reductions ||
+       (command_line_options::only_trivial_reductions &&
+        loop_info.has_a_trivial_accumulator)) &&
       ((!print_non_reduction_loops && loop_info.hasALikelyAccumulator) ||
        (print_non_reduction_loops && !loop_info.hasALikelyAccumulator))) {
     loop_info.dump(*reduction_detector::command_line_options::output_file,

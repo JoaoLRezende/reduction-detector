@@ -12,6 +12,7 @@ void determineTrivialAccumulators(PossibleReductionLoopInfo &loop_info) {
              .number_of_possible_accumulating_assignments_whose_RHS_also_references_this) &&
         possible_accumulator.second.outside_references == 0) {
       possible_accumulator.second.is_trivial_accumulator = true;
+      loop_info.has_a_trivial_accumulator = true;
     } else {
       possible_accumulator.second.is_trivial_accumulator = false;
       if (possible_accumulator.second.isLikelyAccumulator) {

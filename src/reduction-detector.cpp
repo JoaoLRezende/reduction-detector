@@ -56,6 +56,10 @@ int main(int argc, const char **argv) {
     *reduction_detector::command_line_options::output_file
         << " (Trivial reductions not shown.)";
   }
+  if (command_line_options::only_trivial_reductions) {
+    *reduction_detector::command_line_options::output_file
+        << " (Only trivial reductions shown.)";
+  }
   *reduction_detector::command_line_options::output_file
       << "\n" INDENT << loopAnalyser.loopCounts.likelyReductionLoops.forLoops
       << " out of " << loopAnalyser.loopCounts.totals.forLoops
