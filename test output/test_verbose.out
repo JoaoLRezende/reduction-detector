@@ -15,6 +15,190 @@ Likely accumulators: ob
     0 of those assignments involve the loop's iteration variable.
     There are 1 other in-loop references to ob outside of those possible accumulating assignments.
 
+Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test cases/reduction loops/NPB 3.c:65:5:
+for (iib = 1; iib <= nsgs; iib++) {
+    if (iib > 1)
+        fseek(avp->viewFile, inpfOffset, 0);
+    ;
+    if (iib == nsgs)
+        ncur = nlst;
+    else
+        ncur = nreg;
+    fread(ib, ncur * avp->inpRecSize, 1, avp->viewFile);
+    inpfOffset = ftell(avp->viewFile);
+    for (ibOffset = 0 , iRec = 1; iRec <= ncur; iRec++) {
+        memcpy(attrs, &ib[ibOffset], avp->inpRecSize);
+        ibOffset += avp->inpRecSize;
+        SelectToView(attrs, avp->selection, currBuf, avp->nd, avp->nm, avp->nv);
+        currV = currBuf[2 * avp->nm];
+        if (iib == 1 && iRec == 1) {
+            prevV = currV;
+            nPart = 1;
+            InitializeTree(avp->tree, avp->nv, avp->nm);
+            TreeInsert(avp->tree, currBuf);
+        } else {
+            if (currV == prevV) {
+                nPart++;
+                TreeInsert(avp->tree, currBuf);
+                if (avp->tree->memoryIsFull) {
+                    avp->chunksParams[avp->numberOfChunks].curChunkNum = avp->tree->count;
+                    avp->chunksParams[avp->numberOfChunks].chunkOffset = chunkOffset;
+                    (avp->numberOfChunks)++;
+                    if (avp->numberOfChunks >= 1024) {
+                        fprintf(stderr, "Too many chunks were created.\n");
+                        exit(1);
+                    }
+                    chunkOffset += (uint64)(avp->tree->count * avp->outRecSize);
+                    retCode = WriteChunkToDisk(avp->outRecSize, avp->fileOfChunks, avp->tree->root.left, avp->logf);
+                    if (retCode != 0) {
+                        fprintf(stderr, "SharedSortAggregate: Write error occured.\n");
+                        return retCode;
+                    }
+                    InitializeTree(avp->tree, avp->nv, avp->nm);
+                }
+            } else {
+                if (avp->numberOfChunks && avp->tree->count != 0) {
+                    avp->chunksParams[avp->numberOfChunks].curChunkNum = avp->tree->count;
+                    avp->chunksParams[avp->numberOfChunks].chunkOffset = chunkOffset;
+                    (avp->numberOfChunks)++;
+                    chunkOffset += (uint64)(avp->tree->count * (4 * avp->nv + 8 * avp->nm));
+                    retCode = WriteChunkToDisk(avp->outRecSize, avp->fileOfChunks, avp->tree->root.left, avp->logf);
+                    if (retCode != 0) {
+                        fprintf(stderr, "SharedSortAggregate: Write error occured.\n");
+                        return retCode;
+                    }
+                }
+                fseek(avp->viewFile, 0L, 2);
+                ;
+                if (!avp->numberOfChunks) {
+                    avp->nViewRows += avp->tree->count;
+                    retCode = WriteViewToDiskCS(avp, avp->tree->root.left, &ordern);
+                    if (retCode != 0) {
+                        fprintf(stderr, "SharedSortAggregate: Write error occured.\n");
+                        return retCode;
+                    }
+                } else {
+                    retCode = MultiWayMerge(avp);
+                    if (retCode != 0) {
+                        fprintf(stderr, "SharedSortAggregate.MultiWayMerge: failed.\n");
+                        return retCode;
+                    }
+                }
+                InitializeTree(avp->tree, avp->nv, avp->nm);
+                TreeInsert(avp->tree, currBuf);
+                total += nPart;
+                nPart = 1;
+            }
+        }
+        prevV = currV;
+    }
+}
+Its iteration variable is iib.
+No arrays are subscripted by iib..
+Likely accumulators: total avp->nViewRows
+
+    total was detected as a likely accumulator (score: 13). But it is a trivial accumulator.
+    Its base is total, which was declared 5 lines above the loop.
+    Its name has the substring "total".
+    It might be accumulated in the following assignments:
+        total += nPart
+    0 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to total outside of those possible accumulating assignments.
+
+    avp->nViewRows was detected as a likely accumulator (score: 8). It is not a trivial accumulator.
+    Its base is avp, which was declared 29 lines above the loop.
+    Its name doesn't have any of the common accumulator-name substrings.
+    It might be accumulated in the following assignments:
+        avp->nViewRows += avp->tree->count
+    0 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to avp->nViewRows outside of those possible accumulating assignments.
+
+Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test cases/reduction loops/NPB 3.c:75:9:
+for (ibOffset = 0 , iRec = 1; iRec <= ncur; iRec++) {
+    memcpy(attrs, &ib[ibOffset], avp->inpRecSize);
+    ibOffset += avp->inpRecSize;
+    SelectToView(attrs, avp->selection, currBuf, avp->nd, avp->nm, avp->nv);
+    currV = currBuf[2 * avp->nm];
+    if (iib == 1 && iRec == 1) {
+        prevV = currV;
+        nPart = 1;
+        InitializeTree(avp->tree, avp->nv, avp->nm);
+        TreeInsert(avp->tree, currBuf);
+    } else {
+        if (currV == prevV) {
+            nPart++;
+            TreeInsert(avp->tree, currBuf);
+            if (avp->tree->memoryIsFull) {
+                avp->chunksParams[avp->numberOfChunks].curChunkNum = avp->tree->count;
+                avp->chunksParams[avp->numberOfChunks].chunkOffset = chunkOffset;
+                (avp->numberOfChunks)++;
+                if (avp->numberOfChunks >= 1024) {
+                    fprintf(stderr, "Too many chunks were created.\n");
+                    exit(1);
+                }
+                chunkOffset += (uint64)(avp->tree->count * avp->outRecSize);
+                retCode = WriteChunkToDisk(avp->outRecSize, avp->fileOfChunks, avp->tree->root.left, avp->logf);
+                if (retCode != 0) {
+                    fprintf(stderr, "SharedSortAggregate: Write error occured.\n");
+                    return retCode;
+                }
+                InitializeTree(avp->tree, avp->nv, avp->nm);
+            }
+        } else {
+            if (avp->numberOfChunks && avp->tree->count != 0) {
+                avp->chunksParams[avp->numberOfChunks].curChunkNum = avp->tree->count;
+                avp->chunksParams[avp->numberOfChunks].chunkOffset = chunkOffset;
+                (avp->numberOfChunks)++;
+                chunkOffset += (uint64)(avp->tree->count * (4 * avp->nv + 8 * avp->nm));
+                retCode = WriteChunkToDisk(avp->outRecSize, avp->fileOfChunks, avp->tree->root.left, avp->logf);
+                if (retCode != 0) {
+                    fprintf(stderr, "SharedSortAggregate: Write error occured.\n");
+                    return retCode;
+                }
+            }
+            fseek(avp->viewFile, 0L, 2);
+            ;
+            if (!avp->numberOfChunks) {
+                avp->nViewRows += avp->tree->count;
+                retCode = WriteViewToDiskCS(avp, avp->tree->root.left, &ordern);
+                if (retCode != 0) {
+                    fprintf(stderr, "SharedSortAggregate: Write error occured.\n");
+                    return retCode;
+                }
+            } else {
+                retCode = MultiWayMerge(avp);
+                if (retCode != 0) {
+                    fprintf(stderr, "SharedSortAggregate.MultiWayMerge: failed.\n");
+                    return retCode;
+                }
+            }
+            InitializeTree(avp->tree, avp->nv, avp->nm);
+            TreeInsert(avp->tree, currBuf);
+            total += nPart;
+            nPart = 1;
+        }
+    }
+    prevV = currV;
+}
+I couldn't determine its iteration variable.
+Likely accumulators: total avp->nViewRows
+
+    total was detected as a likely accumulator (score: 13). But it is a trivial accumulator.
+    Its base is total, which was declared 15 lines above the loop.
+    Its name has the substring "total".
+    It might be accumulated in the following assignments:
+        total += nPart
+    0 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to total outside of those possible accumulating assignments.
+
+    avp->nViewRows was detected as a likely accumulator (score: 8). It is not a trivial accumulator.
+    Its base is avp, which was declared 39 lines above the loop.
+    Its name doesn't have any of the common accumulator-name substrings.
+    It might be accumulated in the following assignments:
+        avp->nViewRows += avp->tree->count
+    0 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to avp->nViewRows outside of those possible accumulating assignments.
+
 Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:27:3:
 for (int i = 0; i < array_size; i++) {
     int old_sum = sum;

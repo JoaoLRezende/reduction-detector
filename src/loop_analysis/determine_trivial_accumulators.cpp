@@ -10,7 +10,12 @@ void determineTrivialAccumulators(PossibleReductionLoopInfo &loop_info) {
     if ((possible_accumulator.second.possible_accumulating_assignments.size() ==
          possible_accumulator.second
              .number_of_possible_accumulating_assignments_whose_RHS_also_references_this) &&
-        possible_accumulator.second.outside_references == 0) {
+        possible_accumulator.second.outside_references == 0 &&
+        (llvm::isa<clang::DeclRefExpr>(
+             possible_accumulator.second.possibleAccumulator) ||
+         llvm::isa<clang::ArraySubscriptExpr>(
+             possible_accumulator.second.possibleAccumulator)) &&
+        (llvm::isa<clang::ForStmt>(loop_info.loopStmt))) {
       possible_accumulator.second.is_trivial_accumulator = true;
       loop_info.has_a_trivial_accumulator = true;
     } else {

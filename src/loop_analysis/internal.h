@@ -74,11 +74,18 @@ struct PossibleAccumulatorInfo {
    */
   unsigned int outside_references = 0;
 
-  /* We call a "trivial accumulator" an accumulator that does not appear
-   * anywhere in the loop outside of its accumulating assignments, and is
-   * referenced in the right-hand side of all of its accumulating assignments.
+  /* We call a "trivial accumulator" a possible accumulator for which all of the
+   * following are true:
+   * (1) It does not appear anywhere in the loop outside of its accumulating
+   * assignments.
+   * (2) It is referenced in the right-hand side of all of its accumulating
+   * assignments.
+   * (3) It is either a declaration-reference expression or an array-subscript
+   * expression.
+   * (4) It appears in a for loop (rather than in a while or do-while loop).
    * Thus: a trivial accumulator is one that would likely be identified as a
-   * reduction accumulator by Cetus as described in section 2.2.6 of "The Cetus
+   * reduction accumulator by Cetus 1.4.4, as described in section 2.2.6 of "The
+   * Cetus
    * source-to-source compiler infrastructure: overview and evaluation" (2013).
    */
   bool is_trivial_accumulator = false;
