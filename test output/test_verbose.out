@@ -83,7 +83,7 @@ Likely accumulators: result->sum
     1 of those assignments involve the loop's iteration variable.
     There are 1 other in-loop references to result->sum outside of those possible accumulating assignments.
 
-19 out of 21 loops detected as likely reduction loops. (Trivial reductions not shown.)
+19 out of 21 loops detected as likely reduction loops. 14 of them are trivial reductions. (Trivial reductions not shown.)
     19 out of 21 for loops.
     0 out of 0 while loops.
     0 out of 0 do-while loops.

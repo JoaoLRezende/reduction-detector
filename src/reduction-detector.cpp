@@ -52,6 +52,10 @@ int main(int argc, const char **argv) {
       << loopAnalyser.loopCounts.likelyReductionLoops.all << " out of "
       << loopAnalyser.loopCounts.totals.all
       << " loops detected as likely reduction loops.";
+  *reduction_detector::command_line_options::output_file
+      << " " << loopAnalyser.loopCounts.trivialReductionLoops.all
+      << " of them are trivial reductions.";
+
   if (command_line_options::only_non_trivial_reductions) {
     *reduction_detector::command_line_options::output_file
         << " (Trivial reductions not shown.)";
@@ -60,6 +64,7 @@ int main(int argc, const char **argv) {
     *reduction_detector::command_line_options::output_file
         << " (Only trivial reductions shown.)";
   }
+  
   *reduction_detector::command_line_options::output_file
       << "\n" INDENT << loopAnalyser.loopCounts.likelyReductionLoops.forLoops
       << " out of " << loopAnalyser.loopCounts.totals.forLoops

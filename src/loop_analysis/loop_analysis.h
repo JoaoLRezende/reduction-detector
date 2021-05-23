@@ -33,7 +33,7 @@ public:
       unsigned int forLoops = 0;
       unsigned int whileLoops = 0;
       unsigned int doWhileLoops = 0;
-    } totals, likelyReductionLoops;
+    } totals, likelyReductionLoops, trivialReductionLoops;
   } loopCounts;
 
   // run is called by MatchFinder for each for loop.
