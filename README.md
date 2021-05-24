@@ -17,14 +17,14 @@ This program links against LLVM 9.0.0. Download a binary distribution of LLVM 9.
 
 # Usage
 
-You can invoke reduction-detector on a C file or on a directory with multiple C files. For example:
+You can invoke reduction-detector on an individual C file or on a tree with multiple C files. For example:
 ```
-build/reduction-detector "test cases/test.c"
+build/reduction-detector "test cases"
 ```
 
-Invoke reduction-detector with `--help` to see other possible arguments.
+Use `--help` to see other possible arguments.
 
-Like other Clang-based tools, reduction-detector benefits greatly from a JSON compilation database describing the program under analysis (including, for example, where its header files are). Without one, you'll probably see many parsing errors and receive very incomplete output. See [this][4], [this][5] and [this][6].
+Like other Clang-based tools, reduction-detector benefits greatly from a JSON [compilation database][4] describing the program under analysis (including, for example, the location of its header files). Without one, you'll probably see many parsing errors and receive very incomplete output. See [this][5] and [this][6].
 
 [4]: <https://eli.thegreenplace.net/2014/05/21/compilation-databases-for-clang-based-tools> (Eli Bendersky's very good introduction to compilation databases)
 [5]: <https://clang.llvm.org/docs/JSONCompilationDatabase.html> (Official Clang documentation)
@@ -37,7 +37,7 @@ By default, reduction-detector writes its output to `detected_reductions.out`.
 # FAQ
  
 ### Why does reduction-detector complain that it can't find header files included by the C files being analyzed?
-To analyse a C program, reduction-detector needs to be able to find header files `#include`d by it. (Clang's parser reasonably aborts with an error message if it can't find a header file `#include`d by a C translation unit.) If those header files aren't in the same directories as the source files that include them (for example, if they are in a separate `include` directory), you have to tell reduction-detector where to find them. You can do that by using the [`-I`](https://clang.llvm.org/docs/ClangCommandLineReference.html#id8) option after a double dash (`--`). (The arguments passed after `--` are captured by the Clang tooling we use internally.)
+This is usually caused by a lack of a compilation database. To analyse a C program, reduction-detector needs to be able to find header files `#include`d by it. (Clang's parser reasonably aborts with an error message if it can't find a header file `#include`d by a C translation unit.) If those header files aren't in the same directories as the source files that include them (for example, if they are in a separate `include` directory), you'll have to either create a compilation database or directly tell reduction-detector where to find them. You can do the latter by using the [`-I`](https://clang.llvm.org/docs/ClangCommandLineReference.html#id8) option after a double dash (`--`). (The arguments passed after `--` are captured by the Clang tooling we use internally.)
  
 For example, the following command line could be used to analyze a copy of the source code of [OpenSSL](https://github.com/openssl/openssl) that sits at `../openssl-master`:
 ```
