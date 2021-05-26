@@ -1,7 +1,7 @@
 /*
  * This header file describes the public interface to the loop-analysis
  * subsystem. For declarations of the data types and functions used by
- * the subsystem internally, see internal.h.
+ * it internally, see internal.h.
  */
 
 #ifndef LOOP_ANALYSIS_H
@@ -21,7 +21,7 @@ extern clang::ast_matchers::StatementMatcher loopMatcher;
 /*
  * LoopAnalyser is the entry point into the loop-analysis subsystem.
  * Only one instance of LoopAnalyser is to be created per execution.
- * It is to be used as the callback for loopMatcher
+ * It is to be used as the callback object for loopMatcher
  * with clang::ast_matchers::MatchFinder.
  * It checks each for loop it is called upon, accumulating statistics.
  */
