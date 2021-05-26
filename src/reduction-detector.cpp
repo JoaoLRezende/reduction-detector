@@ -22,6 +22,36 @@ using reduction_detector::translation_unit_finder::expand_directories;
 
 using namespace reduction_detector;
 
+static void
+print_loop_analyser_statistics(loop_analysis::LoopAnalyser &loopAnalyser,
+                               llvm::raw_ostream &output_stream) {
+  output_stream << loopAnalyser.loopCounts.likelyReductionLoops.all
+                << " out of " << loopAnalyser.loopCounts.totals.all
+                << " loops detected as likely reduction loops.";
+  output_stream << " " << loopAnalyser.loopCounts.trivialReductionLoops.all
+                << " of them are trivial reductions.";
+
+  if (command_line_options::only_non_trivial_reductions) {
+    output_stream << " (Trivial reductions not shown.)";
+  }
+  if (command_line_options::only_trivial_reductions) {
+    output_stream << " (Only trivial reductions shown.)";
+  }
+
+  output_stream << "\n" INDENT
+                << loopAnalyser.loopCounts.likelyReductionLoops.forLoops
+                << " out of " << loopAnalyser.loopCounts.totals.forLoops
+                << " for loops.\n"
+                << INDENT
+                << loopAnalyser.loopCounts.likelyReductionLoops.whileLoops
+                << " out of " << loopAnalyser.loopCounts.totals.whileLoops
+                << " while loops.\n"
+                << INDENT
+                << loopAnalyser.loopCounts.likelyReductionLoops.doWhileLoops
+                << " out of " << loopAnalyser.loopCounts.totals.doWhileLoops
+                << " do-while loops.\n";
+}
+
 int main(int argc, const char **argv) {
   clang::tooling::CommonOptionsParser optionsParser(
       argc, argv, command_line_options::reduction_detector_option_category);
@@ -41,44 +71,20 @@ int main(int argc, const char **argv) {
   clang::tooling::ClangTool clangTool(optionsParser.getCompilations(),
                                       expanded_path_list);
 
+  // Invoke loop_analysis::LoopAnalyser on loops matched by
+  // loop_analysis::loopMatcher. These are described in
+  // loop_analysis/loop_analysis.h.
   loop_analysis::LoopAnalyser loopAnalyser;
-  clang::ast_matchers::MatchFinder finder;
-  finder.addMatcher(loop_analysis::loopMatcher, &loopAnalyser);
+  clang::ast_matchers::MatchFinder match_finder;
+  match_finder.addMatcher(loop_analysis::loopMatcher, &loopAnalyser);
+  int statusCode = clangTool.run(
+      clang::tooling::newFrontendActionFactory(&match_finder).get());
 
-  int statusCode =
-      clangTool.run(clang::tooling::newFrontendActionFactory(&finder).get());
-
-  *reduction_detector::command_line_options::output_file
-      << loopAnalyser.loopCounts.likelyReductionLoops.all << " out of "
-      << loopAnalyser.loopCounts.totals.all
-      << " loops detected as likely reduction loops.";
-  *reduction_detector::command_line_options::output_file
-      << " " << loopAnalyser.loopCounts.trivialReductionLoops.all
-      << " of them are trivial reductions.";
-
-  if (command_line_options::only_non_trivial_reductions) {
-    *reduction_detector::command_line_options::output_file
-        << " (Trivial reductions not shown.)";
-  }
-  if (command_line_options::only_trivial_reductions) {
-    *reduction_detector::command_line_options::output_file
-        << " (Only trivial reductions shown.)";
-  }
-  
-  *reduction_detector::command_line_options::output_file
-      << "\n" INDENT << loopAnalyser.loopCounts.likelyReductionLoops.forLoops
-      << " out of " << loopAnalyser.loopCounts.totals.forLoops
-      << " for loops.\n"
-      << INDENT << loopAnalyser.loopCounts.likelyReductionLoops.whileLoops
-      << " out of " << loopAnalyser.loopCounts.totals.whileLoops
-      << " while loops.\n"
-      << INDENT << loopAnalyser.loopCounts.likelyReductionLoops.doWhileLoops
-      << " out of " << loopAnalyser.loopCounts.totals.doWhileLoops
-      << " do-while loops.\n";
+  print_loop_analyser_statistics(loopAnalyser,
+                                 *command_line_options::output_file);
 
   llvm::errs() << "Detected likely reductions were written to "
-               << reduction_detector::command_line_options::output_file_name
-               << ".\n";
+               << command_line_options::output_file_name << ".\n";
 
   return statusCode;
 }
