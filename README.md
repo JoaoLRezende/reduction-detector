@@ -9,9 +9,12 @@ This is an application of Clang’s LibTooling API. See [here][1] for a tutorial
 
 # Build
 
-This program links against LLVM 9.0.0. Download a binary distribution of LLVM 9.0.0 from [LLVM's website][3], change the value of `LLVM_PATH` in our makefile accordingly, and then run `make`. The program will be built as `build/reduction-detector`. 
+On Ubuntu 20.04, you might first need to execute
+<pre><code>sudo apt install <a href="https://packages.ubuntu.com/focal/zlib1g-dev">zlib1g-dev</a></code></pre>
 
-[3]: <https://releases.llvm.org/download.html#9.0.0>
+reduction-detector links against LLVM 12.0.0. Download [a build of LLVM 12.0.0][3], change the value of `LLVM_PATH` in our makefile accordingly, and then run `make`. The program will be built as `build/reduction-detector`.
+
+[3]: <https://github.com/llvm/llvm-project/releases/tag/llvmorg-12.0.0#:~:text=566%20Bytes-,clang%2Bllvm-12.0.0-x86_64-linux-gnu-ubuntu-20.04.tar.xz,-432%20MB>
 
 ***
 

@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 
 int f(int sum, int next) { return sum + next; }

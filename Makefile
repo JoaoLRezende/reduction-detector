@@ -9,11 +9,10 @@
 # only relocatable object files whose source files were changed since
 # the last build). Make it aware of header files.
 
-# To link against a binary distribution of LLVM
-# (downloaded from llvm.org), LLVM_PATH is to point to its location
+# To link against a build of LLVM, LLVM_PATH should point to its location
 # (the untarred directory that contains bin/, lib/, include/
 # and other directories).
-LLVM_PATH 		:= clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-16.04
+LLVM_PATH 		:= "$${HOME}/slightly-more-important-downloads/clang+llvm-12.0.0-x86_64-linux-gnu-ubuntu-20.04"
 LLVM_BIN_PATH 	:= $(LLVM_PATH)/bin
 
 $(info -----------------------------------------------)

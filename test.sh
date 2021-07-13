@@ -1,14 +1,15 @@
 #!/bin/bash
 
-TEST_CASE="test cases/reduction loops"
+TEST_CASE="test cases/reduction loops/artificial examples.c"
 
 ADDITIONAL_ARGUMENTS="--only-non-trivial-reductions"
 
 # CLANG_ARGUMENTS can be used to inform the tool of where to find system header
 # files (for example, if you see errors like "fatal error: 'stddef.h' file
 # not found").
-CLANG_ARGUMENTS="-I /usr/lib/llvm-3.8/bin/../lib/clang/3.8.0/include
-		 -I /home/jplrez/intel/oneapi/compiler/2021.1.1/linux/compiler/include"
+CLANG_ARGUMENTS="-I /usr/lib/gcc/x86_64-linux-gnu/9/include
+                 -I /usr/lib/llvm-3.8/bin/../lib/clang/3.8.0/include
+                 -I /home/jplrez/intel/oneapi/compiler/2021.1.1/linux/compiler/include"
 
 OUTPUT_DIRECTORY="test output"
 

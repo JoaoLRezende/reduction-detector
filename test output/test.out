@@ -1,161 +1,4 @@
-Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test cases/reduction loops/NPB 4.c:26:4:
-for (nOnes = 0 , i = 0; i < 64; i++) {
-    if (s & ob)
-        nOnes++;
-    ob >>= 1;
-}
-Likely accumulators: ob
-
-Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test cases/reduction loops/NPB 3.c:65:5:
-for (iib = 1; iib <= nsgs; iib++) {
-    if (iib > 1)
-        fseek(avp->viewFile, inpfOffset, 0);
-    ;
-    if (iib == nsgs)
-        ncur = nlst;
-    else
-        ncur = nreg;
-    fread(ib, ncur * avp->inpRecSize, 1, avp->viewFile);
-    inpfOffset = ftell(avp->viewFile);
-    for (ibOffset = 0 , iRec = 1; iRec <= ncur; iRec++) {
-        memcpy(attrs, &ib[ibOffset], avp->inpRecSize);
-        ibOffset += avp->inpRecSize;
-        SelectToView(attrs, avp->selection, currBuf, avp->nd, avp->nm, avp->nv);
-        currV = currBuf[2 * avp->nm];
-        if (iib == 1 && iRec == 1) {
-            prevV = currV;
-            nPart = 1;
-            InitializeTree(avp->tree, avp->nv, avp->nm);
-            TreeInsert(avp->tree, currBuf);
-        } else {
-            if (currV == prevV) {
-                nPart++;
-                TreeInsert(avp->tree, currBuf);
-                if (avp->tree->memoryIsFull) {
-                    avp->chunksParams[avp->numberOfChunks].curChunkNum = avp->tree->count;
-                    avp->chunksParams[avp->numberOfChunks].chunkOffset = chunkOffset;
-                    (avp->numberOfChunks)++;
-                    if (avp->numberOfChunks >= 1024) {
-                        fprintf(stderr, "Too many chunks were created.\n");
-                        exit(1);
-                    }
-                    chunkOffset += (uint64)(avp->tree->count * avp->outRecSize);
-                    retCode = WriteChunkToDisk(avp->outRecSize, avp->fileOfChunks, avp->tree->root.left, avp->logf);
-                    if (retCode != 0) {
-                        fprintf(stderr, "SharedSortAggregate: Write error occured.\n");
-                        return retCode;
-                    }
-                    InitializeTree(avp->tree, avp->nv, avp->nm);
-                }
-            } else {
-                if (avp->numberOfChunks && avp->tree->count != 0) {
-                    avp->chunksParams[avp->numberOfChunks].curChunkNum = avp->tree->count;
-                    avp->chunksParams[avp->numberOfChunks].chunkOffset = chunkOffset;
-                    (avp->numberOfChunks)++;
-                    chunkOffset += (uint64)(avp->tree->count * (4 * avp->nv + 8 * avp->nm));
-                    retCode = WriteChunkToDisk(avp->outRecSize, avp->fileOfChunks, avp->tree->root.left, avp->logf);
-                    if (retCode != 0) {
-                        fprintf(stderr, "SharedSortAggregate: Write error occured.\n");
-                        return retCode;
-                    }
-                }
-                fseek(avp->viewFile, 0L, 2);
-                ;
-                if (!avp->numberOfChunks) {
-                    avp->nViewRows += avp->tree->count;
-                    retCode = WriteViewToDiskCS(avp, avp->tree->root.left, &ordern);
-                    if (retCode != 0) {
-                        fprintf(stderr, "SharedSortAggregate: Write error occured.\n");
-                        return retCode;
-                    }
-                } else {
-                    retCode = MultiWayMerge(avp);
-                    if (retCode != 0) {
-                        fprintf(stderr, "SharedSortAggregate.MultiWayMerge: failed.\n");
-                        return retCode;
-                    }
-                }
-                InitializeTree(avp->tree, avp->nv, avp->nm);
-                TreeInsert(avp->tree, currBuf);
-                total += nPart;
-                nPart = 1;
-            }
-        }
-        prevV = currV;
-    }
-}
-Likely accumulators: total avp->nViewRows
-
-Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test cases/reduction loops/NPB 3.c:75:9:
-for (ibOffset = 0 , iRec = 1; iRec <= ncur; iRec++) {
-    memcpy(attrs, &ib[ibOffset], avp->inpRecSize);
-    ibOffset += avp->inpRecSize;
-    SelectToView(attrs, avp->selection, currBuf, avp->nd, avp->nm, avp->nv);
-    currV = currBuf[2 * avp->nm];
-    if (iib == 1 && iRec == 1) {
-        prevV = currV;
-        nPart = 1;
-        InitializeTree(avp->tree, avp->nv, avp->nm);
-        TreeInsert(avp->tree, currBuf);
-    } else {
-        if (currV == prevV) {
-            nPart++;
-            TreeInsert(avp->tree, currBuf);
-            if (avp->tree->memoryIsFull) {
-                avp->chunksParams[avp->numberOfChunks].curChunkNum = avp->tree->count;
-                avp->chunksParams[avp->numberOfChunks].chunkOffset = chunkOffset;
-                (avp->numberOfChunks)++;
-                if (avp->numberOfChunks >= 1024) {
-                    fprintf(stderr, "Too many chunks were created.\n");
-                    exit(1);
-                }
-                chunkOffset += (uint64)(avp->tree->count * avp->outRecSize);
-                retCode = WriteChunkToDisk(avp->outRecSize, avp->fileOfChunks, avp->tree->root.left, avp->logf);
-                if (retCode != 0) {
-                    fprintf(stderr, "SharedSortAggregate: Write error occured.\n");
-                    return retCode;
-                }
-                InitializeTree(avp->tree, avp->nv, avp->nm);
-            }
-        } else {
-            if (avp->numberOfChunks && avp->tree->count != 0) {
-                avp->chunksParams[avp->numberOfChunks].curChunkNum = avp->tree->count;
-                avp->chunksParams[avp->numberOfChunks].chunkOffset = chunkOffset;
-                (avp->numberOfChunks)++;
-                chunkOffset += (uint64)(avp->tree->count * (4 * avp->nv + 8 * avp->nm));
-                retCode = WriteChunkToDisk(avp->outRecSize, avp->fileOfChunks, avp->tree->root.left, avp->logf);
-                if (retCode != 0) {
-                    fprintf(stderr, "SharedSortAggregate: Write error occured.\n");
-                    return retCode;
-                }
-            }
-            fseek(avp->viewFile, 0L, 2);
-            ;
-            if (!avp->numberOfChunks) {
-                avp->nViewRows += avp->tree->count;
-                retCode = WriteViewToDiskCS(avp, avp->tree->root.left, &ordern);
-                if (retCode != 0) {
-                    fprintf(stderr, "SharedSortAggregate: Write error occured.\n");
-                    return retCode;
-                }
-            } else {
-                retCode = MultiWayMerge(avp);
-                if (retCode != 0) {
-                    fprintf(stderr, "SharedSortAggregate.MultiWayMerge: failed.\n");
-                    return retCode;
-                }
-            }
-            InitializeTree(avp->tree, avp->nv, avp->nm);
-            TreeInsert(avp->tree, currBuf);
-            total += nPart;
-            nPart = 1;
-        }
-    }
-    prevV = currV;
-}
-Likely accumulators: total avp->nViewRows
-
-Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:27:3:
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:28:3:
 for (int i = 0; i < array_size; i++) {
     int old_sum = sum;
     old_sum += array[i];
@@ -163,28 +6,28 @@ for (int i = 0; i < array_size; i++) {
 }
 Likely accumulators: sum
 
-Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:88:3:
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:89:3:
 for (size_t i = 0; i < array_size; i++) {
     *accumulator += array[i];
     printf("%d ", *accumulator);
 }
 Likely accumulators: *accumulator
 
-Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:95:3:
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:96:3:
 for (size_t i = 0; i < array_size; i++) {
     accumulators[0] += array[i];
     printf("%d ", accumulators[0]);
 }
 Likely accumulators: accumulators[0]
 
-Likely reduction loop at /home/jplrez/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:108:3:
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:109:3:
 for (size_t i = 0; i < size; ++i) {
     result->sum += array[i];
     printf("%d ", result->sum);
 }
 Likely accumulators: result->sum
 
-19 out of 21 loops detected as likely reduction loops. 14 of them are trivial reductions. (Trivial reductions not shown.)
-    19 out of 21 for loops.
+12 out of 13 loops detected as likely reduction loops. 8 of them are trivial reductions. (Trivial reductions not shown.)
+    12 out of 13 for loops.
     0 out of 0 while loops.
     0 out of 0 do-while loops.
