@@ -99,7 +99,7 @@ void detectIterationVariableReferencesInArraySubscripts(
 
   arraySubscriptExpressionFinder.match(*loopInfo.loopStmt, *context);
 
-  loopInfo.numberOfIterationVariableReferencesInArraySubscripts =
+  loopInfo.number_of_iteration_variable_references_in_array_subscripts =
       callbackStruct
           .totalNumberOfArrayAccessesWhoseRHSInvolvesTheIterationVariable;
   // TODO: the following assignment copies a map. Probably not ideal.

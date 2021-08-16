@@ -47,7 +47,7 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
     } else {
       outputStream << "Its iteration variable is "
                    << this->iteration_variable->getName() << ".";
-      if (this->numberOfIterationVariableReferencesInArraySubscripts == 0) {
+      if (this->number_of_iteration_variable_references_in_array_subscripts == 0) {
         outputStream << "\nNo arrays are subscripted by "
                      << this->iteration_variable->getName() << ".";
       } else {

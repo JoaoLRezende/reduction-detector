@@ -100,7 +100,7 @@ struct PossibleReductionLoopInfo {
   // iteration_variable might receive a non-null value only if this is a for
   // loop.
   const clang::VarDecl *iteration_variable = nullptr;
-  int numberOfIterationVariableReferencesInArraySubscripts = 0;
+  int number_of_iteration_variable_references_in_array_subscripts = 0;
   std::map<const clang::VarDecl *, int>
       numberOfArrayAccessesInvolvingIterationVariablePerArray;
 
