@@ -23,7 +23,7 @@ using reduction_detector::translation_unit_finder::expand_directories;
 using namespace reduction_detector;
 
 static void
-print_loop_analyser_statistics(loop_analysis::LoopAnalyser &loopAnalyser,
+write_loop_analyser_statistics(loop_analysis::LoopAnalyser &loopAnalyser,
                                llvm::raw_ostream &output_stream) {
   output_stream << loopAnalyser.loopCounts.likelyReductionLoops.all
                 << " out of " << loopAnalyser.loopCounts.totals.all
@@ -74,44 +74,28 @@ int main(int argc, const char **argv) {
   // Invoke loop_analysis::LoopAnalyser on loops matched by
   // loop_analysis::loopMatcher. These are described in
   // loop_analysis/loop_analysis.h.
-  loop_analysis::LoopAnalyser loopAnalyser;
+  loop_analysis::LoopAnalyser loop_analyser;
   clang::ast_matchers::MatchFinder match_finder;
-  match_finder.addMatcher(loop_analysis::loopMatcher, &loopAnalyser);
-  int statusCode = clangTool.run(
+  match_finder.addMatcher(loop_analysis::loopMatcher, &loop_analyser);
+  int status_code = clangTool.run(
       clang::tooling::newFrontendActionFactory(&match_finder).get());
 
-  print_loop_analyser_statistics(loopAnalyser,
+  write_loop_analyser_statistics(loop_analyser,
                                  *command_line_options::output_file);
 
   llvm::errs() << "Detected likely reductions were written to "
                << command_line_options::output_file_name << ".\n";
 
-  return statusCode;
+  return status_code;
 }
 
 /* TODO:
- * - An accumulator isn't necessarily a variable directly named by an
- *   identifier.
- *   It can be any recurring lvalue − for example, a member of a struct
- *   or an element of an array. We need to be able to recognize those
- *   accumulators too. (Noted by Gerson.) Make diverse test cases.
- *   See the last few paragraphs of
- *   https://clang.llvm.org/docs/LibASTMatchersTutorial.html.
- * - The output of --help should state the default value of
- *   --min-score. See whether the CommandLine library can help with that.
- * - Documment (in header-file comments) every function whose behavior
- *   isn't obvious.
  * - Recognize uses of the unary increment and decrement operators
  *   as if they were reduction assignments. NPB code does at least two
  *   reductions using those.
  * - Add a test case for a loop whose body is an expression statement,
  *   rather than a compound statement (i.e. a block).
- * - Do proper encapsulation. Make public only what needs to be public.
- *   Use getter methods.
- * - The program should explain its reasonings only when asked to
- *   (for example, through an option --verbose).
  * - How well do we deal with nested loops? Write some test cases for that.
- * - Make the program optionally write its output to a given file.
  * - Use deeper indentation to make reading easier. Use 4 spaces.
  *   (See how to make clang-format do that for you.)
  * - Make a basic testing framework that allows a good number of regression

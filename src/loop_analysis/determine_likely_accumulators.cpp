@@ -25,7 +25,7 @@ computeLikelyAccumulatorScore(PossibleAccumulatorInfo &possibleAccumulator) {
   int score = INITIAL_ACCUMULATOR_LIKELIHOOD_SCORE;
 
   if (possibleAccumulator.declaration_distance_from_loop_in_lines <=
-      MAX_DISTANCE_IN_LINES_BETWEEM_DECLARATION_AND_LOOP_FOR_LOCALITY_BONUS) {
+      MAX_DISTANCE_IN_LINES_BETWEEN_DECLARATION_AND_LOOP_FOR_LOCALITY_BONUS) {
     score += DECLARATION_LOCALITY_BONUS;
   }
 
