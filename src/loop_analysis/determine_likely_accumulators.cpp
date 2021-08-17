@@ -24,7 +24,7 @@ static int
 computeLikelyAccumulatorScore(PossibleAccumulatorInfo &possibleAccumulator) {
   int score = INITIAL_ACCUMULATOR_LIKELIHOOD_SCORE;
 
-  if (possibleAccumulator.declarationDistanceFromLoopInLines <=
+  if (possibleAccumulator.declaration_distance_from_loop_in_lines <=
       MAX_DISTANCE_IN_LINES_BETWEEM_DECLARATION_AND_LOOP_FOR_LOCALITY_BONUS) {
     score += DECLARATION_LOCALITY_BONUS;
   }
@@ -37,7 +37,7 @@ computeLikelyAccumulatorScore(PossibleAccumulatorInfo &possibleAccumulator) {
 
   score -= possibleAccumulator.outside_references * OUTSIDE_REFERENCE_PENALTY;
 
-  if (possibleAccumulator.notableNameSubstring)
+  if (possibleAccumulator.notable_name_substring)
     score += COMMON_ACCUMULATOR_NAME_BONUS;
 
   return score;
@@ -47,12 +47,12 @@ void determineLikelyAccumulatorsIn(PossibleReductionLoopInfo &loopInfo,
                                    clang::ASTContext *context) {
   for (auto &possibleAccumulator : loopInfo.possible_accumulators) {
     int score = computeLikelyAccumulatorScore(possibleAccumulator.second);
-    possibleAccumulator.second.likelyAccumulatorScore = score;
+    possibleAccumulator.second.likely_accumulator_score = score;
 
     bool isLikelyAccumulator = score >= accumulatorScoreThreshold;
-    possibleAccumulator.second.isLikelyAccumulator = isLikelyAccumulator;
+    possibleAccumulator.second.is_likely_accumulator = isLikelyAccumulator;
     if (isLikelyAccumulator)
-      loopInfo.hasALikelyAccumulator = true;
+      loopInfo.has_a_likely_accumulator = true;
   }
 }
 }

@@ -30,15 +30,15 @@ static llvm::cl::opt<bool> verbose(
 
 void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
                                      clang::ASTContext *context) {
-  if (this->hasALikelyAccumulator) {
+  if (this->has_a_likely_accumulator) {
     outputStream << "Likely reduction loop at ";
   } else {
     outputStream << "Unlikely reduction loop at ";
   }
-  this->loopStmt->getBeginLoc().print(outputStream,
+  this->loop_stmt->getBeginLoc().print(outputStream,
                                       context->getSourceManager());
   outputStream << ":\n";
-  this->loopStmt->printPretty(outputStream, nullptr,
+  this->loop_stmt->printPretty(outputStream, nullptr,
                               clang::PrintingPolicy(clang::LangOptions()));
 
   if (verbose) {
@@ -54,12 +54,12 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
         outputStream << "\nArrays subscripted by "
                      << this->iteration_variable->getName() << ": ";
         for (auto &array_accessCount_pair :
-             this->numberOfArrayAccessesInvolvingIterationVariablePerArray) {
+             this->number_of_array_accesses_involving_iteration_variable_per_array) {
           outputStream << array_accessCount_pair.first->getName() << " ("
                        << array_accessCount_pair.second << " accesses)";
           if (array_accessCount_pair.first !=
               std::prev(
-                  this->numberOfArrayAccessesInvolvingIterationVariablePerArray
+                  this->number_of_array_accesses_involving_iteration_variable_per_array
                       .end())
                   ->first) { // if this is not the last element. TODO: there
                              // definitely is a better way to do this.
@@ -73,7 +73,7 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
 
   outputStream << "Likely accumulators:";
   for (auto &possible_accumulator : this->possible_accumulators) {
-    if (possible_accumulator.second.isLikelyAccumulator) {
+    if (possible_accumulator.second.is_likely_accumulator) {
       outputStream << " " << possible_accumulator.second.name;
     }
   }
@@ -82,15 +82,15 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
 
   if (verbose) {
     for (auto &possibleAccumulator : this->possible_accumulators) {
-      if (possibleAccumulator.second.isLikelyAccumulator ||
+      if (possibleAccumulator.second.is_likely_accumulator ||
           reportUnlikelyAccumulators) {
         outputStream << "\n" INDENT << possibleAccumulator.second.name
                      << " was detected as a "
-                     << (possibleAccumulator.second.isLikelyAccumulator
+                     << (possibleAccumulator.second.is_likely_accumulator
                              ? "likely accumulator"
                              : "possible accumulator, but not as a likely one")
                      << " (score: "
-                     << possibleAccumulator.second.likelyAccumulatorScore
+                     << possibleAccumulator.second.likely_accumulator_score
                      << ").";
         if (possibleAccumulator.second.is_trivial_accumulator) {
           outputStream << " But it is a trivial accumulator.\n";
@@ -102,12 +102,12 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
             << INDENT "Its base is "
             << possibleAccumulator.second.base->getDecl()->getName()
             << ", which was declared "
-            << possibleAccumulator.second.declarationDistanceFromLoopInLines
+            << possibleAccumulator.second.declaration_distance_from_loop_in_lines
             << " lines above the loop.\n";
 
-        if (possibleAccumulator.second.notableNameSubstring) {
+        if (possibleAccumulator.second.notable_name_substring) {
           outputStream << INDENT "Its name has the substring \""
-                       << *possibleAccumulator.second.notableNameSubstring
+                       << *possibleAccumulator.second.notable_name_substring
                        << "\".\n";
         } else {
           outputStream << INDENT "Its name doesn't have any of the common "

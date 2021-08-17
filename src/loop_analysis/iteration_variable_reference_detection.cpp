@@ -97,15 +97,15 @@ void detectIterationVariableReferencesInArraySubscripts(
       clang::ast_matchers::findAll(arraySubscriptExpressionMatcher),
       &callbackStruct);
 
-  arraySubscriptExpressionFinder.match(*loopInfo.loopStmt, *context);
+  arraySubscriptExpressionFinder.match(*loopInfo.loop_stmt, *context);
 
   loopInfo.number_of_iteration_variable_references_in_array_subscripts =
       callbackStruct
           .totalNumberOfArrayAccessesWhoseRHSInvolvesTheIterationVariable;
   // TODO: the following assignment copies a map. Probably not ideal.
   // callbackStruct should have modified
-  // loopInfo.numberOfArrayAccessesInvolvingIterationVariablePerArray in place.
-  loopInfo.numberOfArrayAccessesInvolvingIterationVariablePerArray =
+  // loopInfo.number_of_array_accesses_involving_iteration_variable_per_array in place.
+  loopInfo.number_of_array_accesses_involving_iteration_variable_per_array =
       callbackStruct.numberOfAccessesPerArray;
 }
 }

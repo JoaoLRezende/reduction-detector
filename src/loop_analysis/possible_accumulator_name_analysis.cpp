@@ -19,7 +19,7 @@ void analysePossibleAccumulatorNames(PossibleReductionLoopInfo &loopInfo,
          COMMON_ACCUMULATOR_NAME_SUBSTRINGS_VECTOR)
       if (possibleAccumulator.second.name.find(commonAccumulatorNameSubstring) !=
           std::string::npos) {
-        possibleAccumulator.second.notableNameSubstring =
+        possibleAccumulator.second.notable_name_substring =
             &commonAccumulatorNameSubstring;
         break;
       };

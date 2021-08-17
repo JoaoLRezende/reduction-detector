@@ -33,22 +33,22 @@ struct PossibleAccumulatingAssignmentInfo {
 struct PossibleAccumulatorInfo {
   // A pointer to the first encountered occurrence of the possible
   // accumulator in the left-hand side of an assignment.
-  const clang::Expr *possibleAccumulator;
+  const clang::Expr *possible_accumulator;
 
   // base is the earliest declaration-reference expression that exists in the
   // first occurrence of the possible accumulator.
   const clang::DeclRefExpr *base;
 
   // textual representation of the possible accumulator (unparsed from
-  // possibleAccumulator)
+  // possible_accumulator)
   std::string name;
 
-  PossibleAccumulatorInfo(const clang::Expr *possibleAccumulator,
+  PossibleAccumulatorInfo(const clang::Expr *possible_accumulator,
                           const clang::DeclRefExpr *base)
-      : possibleAccumulator(possibleAccumulator), base(base) {
+      : possible_accumulator(possible_accumulator), base(base) {
     // Unparse the possible accumulator into this->name.
     llvm::raw_string_ostream nameStringStream(this->name);
-    this->possibleAccumulator->printPretty(
+    this->possible_accumulator->printPretty(
         nameStringStream, nullptr, clang::PrintingPolicy(clang::LangOptions()));
     nameStringStream.flush();
   };
@@ -56,7 +56,7 @@ struct PossibleAccumulatorInfo {
   std::map<const clang::BinaryOperator *, PossibleAccumulatingAssignmentInfo>
       possible_accumulating_assignments;
 
-  int declarationDistanceFromLoopInLines = -1;
+  int declaration_distance_from_loop_in_lines = -1;
 
   unsigned int
       number_of_possible_accumulating_assignments_whose_RHS_also_references_this =
@@ -66,8 +66,8 @@ struct PossibleAccumulatorInfo {
       number_of_possible_accumulating_assignments_that_reference_the_iteration_variable =
           0;
 
-  // If not null, notableNameSubstring points to a string constant.
-  std::string *notableNameSubstring = nullptr;
+  // If not null, notable_name_substring points to a string constant.
+  std::string *notable_name_substring = nullptr;
 
   /* The number of in-loop references to this variable outside of
    * its possible accumulating assignments.
@@ -90,19 +90,19 @@ struct PossibleAccumulatorInfo {
    */
   bool is_trivial_accumulator = false;
 
-  int likelyAccumulatorScore = 0;
-  bool isLikelyAccumulator = false;
+  int likely_accumulator_score = 0;
+  bool is_likely_accumulator = false;
 };
 
 struct PossibleReductionLoopInfo {
-  const clang::Stmt *loopStmt = nullptr;
+  const clang::Stmt *loop_stmt = nullptr;
 
   // iteration_variable might receive a non-null value only if this is a for
   // loop.
   const clang::VarDecl *iteration_variable = nullptr;
   int number_of_iteration_variable_references_in_array_subscripts = 0;
   std::map<const clang::VarDecl *, int>
-      numberOfArrayAccessesInvolvingIterationVariablePerArray;
+      number_of_array_accesses_involving_iteration_variable_per_array;
 
   /* Each possible accumulator is identified by its llvm::FoldingSetNodeID
    * (something like a hash code). Note that a possible accumulator, which
@@ -120,11 +120,11 @@ struct PossibleReductionLoopInfo {
   std::map<llvm::FoldingSetNodeID, PossibleAccumulatorInfo>
       possible_accumulators;
 
-  bool hasALikelyAccumulator = false;
+  bool has_a_likely_accumulator = false;
   bool has_a_trivial_accumulator = false;
   bool has_likely_but_non_trivial_accumulator = false;
 
-  PossibleReductionLoopInfo(const clang::Stmt *loopStmt) : loopStmt(loopStmt){};
+  PossibleReductionLoopInfo(const clang::Stmt *loopStmt) : loop_stmt(loopStmt){};
   void dump(llvm::raw_ostream &outputStream, clang::ASTContext *context);
 };
 
@@ -152,7 +152,7 @@ void getPossibleAccumulatorsIn(PossibleReductionLoopInfo *loop_info,
                                clang::ASTContext *context);
 
 // For each possible accumulator, populate the member
-// declarationDistanceFromLoopInLines of the structure that descibes that
+// declaration_distance_from_loop_in_lines of the structure that descibes that
 // possible accumulator.
 void getDistanceOfDeclarationOfPossibleAccumulators(
     PossibleReductionLoopInfo &loop_info, clang::ASTContext *context);
@@ -188,8 +188,8 @@ void analysePossibleAccumulatorNames(PossibleReductionLoopInfo &loop_info,
                                      clang::ASTContext *context);
 
 /* Decide whether each possible accumulator is a likely accumulator.
- * Set each possible accumulator's likelyAccumulatorScore and
- * isLikelyAccumulator.
+ * Set each possible accumulator's likely_accumulator_score and
+ * is_likely_accumulator.
  */
 void determineLikelyAccumulatorsIn(PossibleReductionLoopInfo &loop_info,
                                    clang::ASTContext *context);

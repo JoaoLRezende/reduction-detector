@@ -116,10 +116,10 @@ void countOutsideReferencesIn(PossibleReductionLoopInfo &loop_info,
     MatchFinder referenceFinder;
     referenceFinder.addMatcher(
         findAll(getMatcherForSpecificExpressionType(
-                    possibleAccumulator.second.possibleAccumulator)
+                    possibleAccumulator.second.possible_accumulator)
                     .bind("expression")),
         &matcherCallback);
-    referenceFinder.match(*loop_info.loopStmt, *context);
+    referenceFinder.match(*loop_info.loop_stmt, *context);
 
     // Get the resulting count of outside references.
     possibleAccumulator.second.outside_references =

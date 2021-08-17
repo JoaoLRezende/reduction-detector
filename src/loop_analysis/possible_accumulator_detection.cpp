@@ -94,7 +94,7 @@ public:
     // examining, then possible_possible_accumulator is not a possible
     // accumulator.
     if (isDeclarationInStatement(possible_possible_accumulator_base->getDecl(),
-                                 loop_info->loopStmt, result.Context)) {
+                                 loop_info->loop_stmt, result.Context)) {
       return;
     }
 
@@ -150,7 +150,7 @@ void getPossibleAccumulatorsIn(PossibleReductionLoopInfo *loop_info,
           possiblePossibleAccumulatingAssignmentMatcher),
       &possibleAccumulatorFinder);
 
-  possibleAccumulatingAssignmentFinder.match(*loop_info->loopStmt, *context);
+  possibleAccumulatingAssignmentFinder.match(*loop_info->loop_stmt, *context);
 }
 }
 }

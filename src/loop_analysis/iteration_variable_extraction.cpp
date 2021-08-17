@@ -32,15 +32,15 @@ struct IterationVariableCallback : public MatchFinder::MatchCallback {
 
 void determineIterationVariable(PossibleReductionLoopInfo &loopInfo,
                                 clang::ASTContext *context) {
-  // Act only if loopInfo.loopStmt points to a for loop (as opposed to other
+  // Act only if loopInfo.loop_stmt points to a for loop (as opposed to other
   // kinds of loop).
   if (const clang::ForStmt *forStmt =
-          clang::dyn_cast<clang::ForStmt>(loopInfo.loopStmt)) {
+          clang::dyn_cast<clang::ForStmt>(loopInfo.loop_stmt)) {
     IterationVariableCallback iterationVariableCallback;
     MatchFinder iterationVariableFinder;
     iterationVariableFinder.addMatcher(iterationVariableMatcher,
                                        &iterationVariableCallback);
-    iterationVariableFinder.match(*loopInfo.loopStmt, *context);
+    iterationVariableFinder.match(*loopInfo.loop_stmt, *context);
     loopInfo.iteration_variable = iterationVariableCallback.iterationVariable;
   }
 }

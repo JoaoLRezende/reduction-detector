@@ -32,13 +32,13 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
   // getNodeAs returns nullptr "if there was no node bound to ID or if there is
   // a node but it cannot be converted to the specified type". This shouldn't
   // happen.
-  assert(loop_info.loopStmt != nullptr);
+  assert(loop_info.loop_stmt != nullptr);
 
   clang::ASTContext *context = result.Context;
 
   // If this loop is in an included header file, do nothing.
   if (!context->getSourceManager().isWrittenInMainFile(
-          loop_info.loopStmt->getBeginLoc())) {
+          loop_info.loop_stmt->getBeginLoc())) {
     return;
   }
 
@@ -70,8 +70,8 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
       (!command_line_options::only_trivial_reductions ||
        (command_line_options::only_trivial_reductions &&
         loop_info.has_a_trivial_accumulator)) &&
-      ((!print_non_reduction_loops && loop_info.hasALikelyAccumulator) ||
-       (print_non_reduction_loops && !loop_info.hasALikelyAccumulator))) {
+      ((!print_non_reduction_loops && loop_info.has_a_likely_accumulator) ||
+       (print_non_reduction_loops && !loop_info.has_a_likely_accumulator))) {
     loop_info.dump(*reduction_detector::command_line_options::output_file,
                    context);
   }
