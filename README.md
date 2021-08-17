@@ -5,6 +5,9 @@ This is an application of Clang’s LibTooling API. See [here][1] for a tutorial
 [1]: <https://clang.llvm.org/docs/LibASTMatchersTutorial.html>
 [2]: <https://clang.llvm.org/docs/index.html#using-clang-as-a-library>
 
+
+The core of the program is the subsystem in `src/loop_analysis`, which provides an AST matcher and an implementation of MatchCallback that can be used to detect reductions. Those can be used as part of a larger program. Its interface is described in [loop_analysis.h](src/loop_analysis/loop_analysis.h).
+
 ***
 
 # Build
