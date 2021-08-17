@@ -1,3 +1,4 @@
 /build
 clang+llvm-*-*-*
 .vscode
+compile_commands.json
