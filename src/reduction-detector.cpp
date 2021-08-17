@@ -92,7 +92,8 @@ int main(int argc, const char **argv) {
 /* TODO:
  * - Recognize uses of the unary increment and decrement operators
  *   as if they were reduction assignments. NPB code does at least two
- *   reductions using those.
+ *   reductions using those. Also, note that Clang also recognizes those
+ *   reductions, and thus they should be considered trivial reductions.
  * - Add a test case for a loop whose body is an expression statement,
  *   rather than a compound statement (i.e. a block).
  * - How well do we deal with nested loops? Write some test cases for that.
@@ -103,4 +104,9 @@ int main(int argc, const char **argv) {
  *          if (max < arr[i])
  *              max = arr[i];
  * - Run Valgrind. Make sure we're not leaking memory.
+ * - Parece que o Cetus não reconhece como possíveis acumuladores expressões de
+ *   subscrito de array cujo RHS é mais complexo que uma expressão de referência
+ *   a declaração. Impedir esses possíveis acumuladores de serem considerados
+ *   triviais. Eu já tentei fazer isso uma vez. See the piece of code at
+ *   https://pastebin.com/XMmMsESG.
  */
