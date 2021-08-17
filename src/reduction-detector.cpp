@@ -98,15 +98,6 @@ int main(int argc, const char **argv) {
  * - How well do we deal with nested loops? Write some test cases for that.
  * - Use deeper indentation to make reading easier. Use 4 spaces.
  *   (See how to make clang-format do that for you.)
- * - Make a basic testing framework that allows a good number of regression
- *   tests without requiring laborious output-checking effort.
- *   Each loop would go in a separate function with a unique name. Each
- *   function would be named either reduce<n> or notAReduce<n>,
- *   where <n> is an integer. The main function would then simply check
- *   whether each loop is or is not detected in accordance with
- *   the enclosing function's name. (It probably is trivial to get the name
- *   of the function in which a loop was detected.)
- *   Then, collect all tests in a single file.
  * - Should we recognize loops like the following as reductions?
  *      for (int i = 0; i < arr_length; i++)
  *          if (max < arr[i])
