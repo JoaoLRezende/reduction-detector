@@ -14,7 +14,7 @@
 namespace reduction_detector {
 namespace loop_analysis {
 
-// The AST matcher to be used with an instance of LoopAnaluser as its callback
+// The AST matcher to be used with an instance of LoopAnalyser as its callback
 // object.
 extern clang::ast_matchers::StatementMatcher loopMatcher;
 
