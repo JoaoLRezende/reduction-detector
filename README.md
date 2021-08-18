@@ -6,7 +6,14 @@ This is an application of Clang’s LibTooling API. See [here][1] for a tutorial
 [2]: <https://clang.llvm.org/docs/index.html#using-clang-as-a-library>
 
 
-The core of the program is the subsystem in `src/loop_analysis`, which provides an AST matcher and an implementation of MatchCallback that can be used to detect reductions. Those can be used as part of a larger program. Its interface is described in [loop_analysis.h](src/loop_analysis/loop_analysis.h).
+The core of the program is the subsystem in `src/loop_analysis`, which provides an AST matcher and an implementation of MatchCallback that can be used to detect reductions. Those can be used as part of a larger program. Its interface is described in [loop_analysis.h][3].
+
+[3]: <src/loop_analysis/loop_analysis.h>
+
+Identification and filtering of "trivial reductions" (that is: reductions that also are detected by Cetus) isn't very reliable. It's a good approximation, but don't trust it blindly.
+See the related to-do items in the to-do list at [reduction-detector.cpp][4].
+
+[4]: <src/reduction-detector.cpp>
 
 ***
 
