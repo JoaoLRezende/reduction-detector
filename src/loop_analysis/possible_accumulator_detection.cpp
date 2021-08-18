@@ -54,7 +54,7 @@ static bool isDeclarationInStatement(const clang::ValueDecl *declaration,
  * that appears in it. For example, the base of structitty.member is structitty.
  * The base of *ptr is ptr. The base of array[i] is array.
  *
- * It seems to me that, in expressions that don't involve type names, there is a
+ * It seems that, in expressions that don't involve type names, there is a
  * one-to-one mapping between identifiers and declaration-reference expressions.
  * And there is no AST matcher for identifiers. Thus, we look for the earliest
  * declaration-reference expression in an l-value and take that as its base.
@@ -100,6 +100,13 @@ public:
 
     const clang::Expr *possible_accumulator =
         possible_possible_accumulating_assignment->getLHS();
+
+    // If possible_accumulator is actually a pointer, then discard it. [Pointers
+    // can't be accumulators. This check prevents us from detecting linked-list
+    // traversals (that have statements like aux = aux->next;) as reductions.]
+    if (possible_accumulator->getType()->isPointerType()) {
+      return;
+    }
 
     // TODO: what does the third argument to the Profile method do?
     // Experiment.
@@ -152,6 +159,6 @@ void getPossibleAccumulatorsIn(PossibleReductionLoopInfo *loop_info,
 
   possibleAccumulatingAssignmentFinder.match(*loop_info->loop_stmt, *context);
 }
-}
-}
-}
+} // namespace internal
+} // namespace loop_analysis
+} // namespace reduction_detector
