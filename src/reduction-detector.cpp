@@ -109,4 +109,11 @@ int main(int argc, const char **argv) {
  *   a declaração. Impedir esses possíveis acumuladores de serem considerados
  *   triviais. Eu já tentei fazer isso uma vez. See the piece of code at
  *   https://pastebin.com/XMmMsESG.
+ * - The information acquired by the analysis passes determineIterationVariable,
+ *   detectIterationVariableReferencesInArraySubscripts and
+ *   detectIterationVariableReferencesInPossibleAccumulatingStatements is not
+ *   yet considered in calculation of a possible accumulator's score. Either do
+ *   consider them somehow, or be sure that they're useless and get rid of them.
+ *   (Perhaps they need to be modified or expanded a little before they’re
+ *   useful.)
  */
