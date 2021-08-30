@@ -11,10 +11,10 @@ void not_reduction1(int array[], size_t array_size) {
 }
 
 int not_a_reduction2(int array[], size_t array_size) {
-  int sum = 0;
+  int result = 0;
   for (size_t i = 0; i < array_size; ++i) {
-    sum += array[i];
+    result += array[i];
   }
-  sum = 0; // The value of sum is lost here. Thus, the reduction above should be discarded.
-  return sum;
+  result = 0; // The value of result is lost here. Thus, the reduction above should be discarded.
+  return result;
 }
