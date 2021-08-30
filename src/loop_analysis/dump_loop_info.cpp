@@ -24,9 +24,21 @@ static llvm::cl::opt<bool> reportUnlikelyAccumulators(
     llvm::cl::cat(command_line_options::reduction_detector_option_category));
 
 static llvm::cl::opt<bool> verbose(
-    "verbose", llvm::cl::desc("Print information acquired on each possible "
-                              "accumulator and other internal info"),
+    "verbose",
+    llvm::cl::desc("Print information acquired on each possible "
+                   "accumulator and other internal info"),
     llvm::cl::cat(command_line_options::reduction_detector_option_category));
+
+static const clang::Expr &get_full_expression(const clang::Expr &expression,
+                                              clang::ASTContext &context) {
+  const clang::Stmt *walker = &expression;
+  auto walker_parent = context.getParentMapContext().getParents(*walker)[0];
+  while (llvm::isa<clang::Expr>(walker_parent.get<clang::Stmt>())) {
+    walker = walker_parent.get<clang::Stmt>();
+    walker_parent = context.getParentMapContext().getParents(*walker)[0];
+  }
+  return llvm::cast<clang::Expr>(*walker);
+}
 
 void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
                                      clang::ASTContext *context) {
@@ -36,10 +48,10 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
     outputStream << "Unlikely reduction loop at ";
   }
   this->loop_stmt->getBeginLoc().print(outputStream,
-                                      context->getSourceManager());
+                                       context->getSourceManager());
   outputStream << ":\n";
   this->loop_stmt->printPretty(outputStream, nullptr,
-                              clang::PrintingPolicy(clang::LangOptions()));
+                               clang::PrintingPolicy(clang::LangOptions()));
 
   if (verbose) {
     if (this->iteration_variable == nullptr) {
@@ -47,14 +59,16 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
     } else {
       outputStream << "Its iteration variable is "
                    << this->iteration_variable->getName() << ".";
-      if (this->number_of_iteration_variable_references_in_array_subscripts == 0) {
+      if (this->number_of_iteration_variable_references_in_array_subscripts ==
+          0) {
         outputStream << "\nNo arrays are subscripted by "
                      << this->iteration_variable->getName() << ".";
       } else {
         outputStream << "\nArrays subscripted by "
                      << this->iteration_variable->getName() << ": ";
-        for (auto &array_accessCount_pair :
-             this->number_of_array_accesses_involving_iteration_variable_per_array) {
+        for (
+            auto &array_accessCount_pair :
+            this->number_of_array_accesses_involving_iteration_variable_per_array) {
           outputStream << array_accessCount_pair.first->getName() << " ("
                        << array_accessCount_pair.second << " accesses)";
           if (array_accessCount_pair.first !=
@@ -98,12 +112,12 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
           outputStream << " It is not a trivial accumulator.\n";
         }
 
-        outputStream
-            << INDENT "Its base is "
-            << possibleAccumulator.second.base->getDecl()->getName()
-            << ", which was declared "
-            << possibleAccumulator.second.declaration_distance_from_loop_in_lines
-            << " lines above the loop.\n";
+        outputStream << INDENT "Its base is "
+                     << possibleAccumulator.second.base->getDecl()->getName()
+                     << ", which was declared "
+                     << possibleAccumulator.second
+                            .declaration_distance_from_loop_in_lines
+                     << " lines above the loop.\n";
 
         if (possibleAccumulator.second.notable_name_substring) {
           outputStream << INDENT "Its name has the substring \""
@@ -138,13 +152,37 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
         outputStream
             << INDENT "There are "
             << possibleAccumulator.second.outside_references
-            << " other in-loop references to " << possibleAccumulator.second.name
+            << " other in-loop references to "
+            << possibleAccumulator.second.name
             << " outside of those possible accumulating assignments.\n";
+
+        outputStream
+            << INDENT << "The value acquired by "<< possibleAccumulator.second.name << " in the loop"
+            << (possibleAccumulator.second.is_apparently_unused_after_loop
+                    ? " seems "
+                    : " does not seem ")
+            << "to be abandoned after the loop.\n";
+        if (possibleAccumulator.second.first_reference_after_loop == nullptr) {
+          outputStream << INDENT "It is never referenced after the loop.\n";
+        } else {
+          outputStream << INDENT "The first reference to "
+                       << possibleAccumulator.second.name
+                       << " after the loop is in the expression \"";
+          get_full_expression(
+              *possibleAccumulator.second.first_reference_after_loop, *context)
+              .printPretty(outputStream, nullptr,
+                           clang::PrintingPolicy(clang::LangOptions()));
+          outputStream << "\".\n";
+        }
+        outputStream << INDENT "It is "
+                     << (possibleAccumulator.second.is_local_variable ? ""
+                                                                      : "not ")
+                     << "a local variable.\n";
       }
     }
   }
   outputStream << "\n";
-}
-}
-}
-}
+} // namespace internal
+} // namespace internal
+} // namespace loop_analysis
+} // namespace reduction_detector

@@ -2,7 +2,7 @@
 
 TEST_CASE="test cases/reduction loops/artificial examples.c"
 
-ADDITIONAL_ARGUMENTS="--only-non-trivial-reductions"
+ADDITIONAL_ARGUMENTS=""
 
 # CLANG_ARGUMENTS can be used to inform the tool of where to find system header
 # files (for example, if you see errors like "fatal error: 'stddef.h' file

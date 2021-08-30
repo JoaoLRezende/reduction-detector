@@ -40,6 +40,10 @@ computeLikelyAccumulatorScore(PossibleAccumulatorInfo &possibleAccumulator) {
   if (possibleAccumulator.notable_name_substring)
     score += COMMON_ACCUMULATOR_NAME_BONUS;
 
+  if (possibleAccumulator.is_apparently_unused_after_loop) {
+    score -= UNREAD_POSSIBLE_ACCUMULATOR_PENALTY;
+  }
+
   return score;
 }
 

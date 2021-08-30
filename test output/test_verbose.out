@@ -1,3 +1,41 @@
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:8:3:
+for (int i = 0; i < array_size; i++) {
+    sum = sum + array[i];
+}
+Its iteration variable is i.
+Arrays subscripted by i: array (1 accesses).
+Likely accumulators: sum
+
+    sum was detected as a likely accumulator (score: 15). But it is a trivial accumulator.
+    Its base is sum, which was declared 1 lines above the loop.
+    Its name has the substring "sum".
+    It might be accumulated in the following assignments:
+        sum = sum + array[i]
+    1 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to sum outside of those possible accumulating assignments.
+    The value acquired by sum in the loop does not seem to be abandoned after the loop.
+    The first reference to sum after the loop is in the expression "sum".
+    It is a local variable.
+
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:20:3:
+for (int i = 0; i < 5; i++) {
+    sum = sum + arr[i];
+}
+Its iteration variable is i.
+Arrays subscripted by i: arr (1 accesses).
+Likely accumulators: sum
+
+    sum was detected as a likely accumulator (score: 15). But it is a trivial accumulator.
+    Its base is sum, which was declared 1 lines above the loop.
+    Its name has the substring "sum".
+    It might be accumulated in the following assignments:
+        sum = sum + arr[i]
+    1 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to sum outside of those possible accumulating assignments.
+    The value acquired by sum in the loop does not seem to be abandoned after the loop.
+    The first reference to sum after the loop is in the expression "sum".
+    It is a local variable.
+
 Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:28:3:
 for (int i = 0; i < array_size; i++) {
     int old_sum = sum;
@@ -14,6 +52,136 @@ Likely accumulators: sum
     It might be accumulated in the following assignments:
     0 of those assignments involve the loop's iteration variable.
     There are 1 other in-loop references to sum outside of those possible accumulating assignments.
+    The value acquired by sum in the loop does not seem to be abandoned after the loop.
+    The first reference to sum after the loop is in the expression "sum".
+    It is a local variable.
+
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:38:3:
+for (int i = 0; i < array_size; i++) {
+    sum = sum + array[i + 1];
+}
+Its iteration variable is i.
+Arrays subscripted by i: array (1 accesses).
+Likely accumulators: sum
+
+    sum was detected as a likely accumulator (score: 15). But it is a trivial accumulator.
+    Its base is sum, which was declared 1 lines above the loop.
+    Its name has the substring "sum".
+    It might be accumulated in the following assignments:
+        sum = sum + array[i + 1]
+    1 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to sum outside of those possible accumulating assignments.
+    The value acquired by sum in the loop does not seem to be abandoned after the loop.
+    The first reference to sum after the loop is in the expression "sum".
+    It is a local variable.
+
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:46:3:
+for (int i = 0; i < array_size; i++) {
+    sum = f(sum, array[i]);
+}
+Its iteration variable is i.
+Arrays subscripted by i: array (1 accesses).
+Likely accumulators: sum
+
+    sum was detected as a likely accumulator (score: 15). But it is a trivial accumulator.
+    Its base is sum, which was declared 1 lines above the loop.
+    Its name has the substring "sum".
+    It might be accumulated in the following assignments:
+        sum = f(sum, array[i])
+    1 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to sum outside of those possible accumulating assignments.
+    The value acquired by sum in the loop does not seem to be abandoned after the loop.
+    The first reference to sum after the loop is in the expression "sum".
+    It is a local variable.
+
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:54:3:
+for (; i > array_size; --i) {
+    sum = 2 + array[i] + sum;
+}
+I couldn't determine its iteration variable.
+Likely accumulators: sum
+
+    sum was detected as a likely accumulator (score: 15). But it is a trivial accumulator.
+    Its base is sum, which was declared 1 lines above the loop.
+    Its name has the substring "sum".
+    It might be accumulated in the following assignments:
+        sum = 2 + array[i] + sum
+    0 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to sum outside of those possible accumulating assignments.
+    The value acquired by sum in the loop does not seem to be abandoned after the loop.
+    The first reference to sum after the loop is in the expression "sum".
+    It is a local variable.
+
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:62:3:
+for (int i = 0; i < array_size; i++) {
+    sum += array[i];
+}
+Its iteration variable is i.
+Arrays subscripted by i: array (1 accesses).
+Likely accumulators: sum
+
+    sum was detected as a likely accumulator (score: 15). But it is a trivial accumulator.
+    Its base is sum, which was declared 1 lines above the loop.
+    Its name has the substring "sum".
+    It might be accumulated in the following assignments:
+        sum += array[i]
+    1 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to sum outside of those possible accumulating assignments.
+    The value acquired by sum in the loop does not seem to be abandoned after the loop.
+    The first reference to sum after the loop is in the expression "sum".
+    It is a local variable.
+
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:71:2:
+for (size_t i = 0; i < arrays_size; ++i) {
+    sum_of_array1 += array1[i];
+    sum_of_both_arrays += array1[i];
+    sum_of_both_arrays += array2[i];
+}
+Its iteration variable is i.
+Arrays subscripted by i: array1 (2 accesses), array2 (1 accesses).
+Likely accumulators: sum_of_both_arrays sum_of_array1
+
+    sum_of_both_arrays was detected as a likely accumulator (score: 15). But it is a trivial accumulator.
+    Its base is sum_of_both_arrays, which was declared 1 lines above the loop.
+    Its name has the substring "sum".
+    It might be accumulated in the following assignments:
+        sum_of_both_arrays += array1[i]
+        sum_of_both_arrays += array2[i]
+    2 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to sum_of_both_arrays outside of those possible accumulating assignments.
+    The value acquired by sum_of_both_arrays in the loop does not seem to be abandoned after the loop.
+    The first reference to sum_of_both_arrays after the loop is in the expression "sum_of_both_arrays".
+    It is a local variable.
+
+    sum_of_array1 was detected as a likely accumulator (score: 10). But it is a trivial accumulator.
+    Its base is sum_of_array1, which was declared 2 lines above the loop.
+    Its name has the substring "sum".
+    It might be accumulated in the following assignments:
+        sum_of_array1 += array1[i]
+    1 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to sum_of_array1 outside of those possible accumulating assignments.
+    The value acquired by sum_of_array1 in the loop seems to be abandoned after the loop.
+    It is never referenced after the loop.
+    It is a local variable.
+
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:82:3:
+for (int i = 0; i < array_size; i++) {
+    sum -= array[i];
+}
+Its iteration variable is i.
+Arrays subscripted by i: array (1 accesses).
+Likely accumulators: sum
+
+    sum was detected as a likely accumulator (score: 15). But it is a trivial accumulator.
+    Its base is sum, which was declared 2 lines above the loop.
+    Its name has the substring "sum".
+    It might be accumulated in the following assignments:
+        sum -= array[i]
+    1 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to sum outside of those possible accumulating assignments.
+    The value acquired by sum in the loop does not seem to be abandoned after the loop.
+    The first reference to sum after the loop is in the expression "sum".
+    It is a local variable.
 
 Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:89:3:
 for (size_t i = 0; i < array_size; i++) {
@@ -31,6 +199,9 @@ Likely accumulators: *accumulator
         *accumulator += array[i]
     1 of those assignments involve the loop's iteration variable.
     There are 1 other in-loop references to *accumulator outside of those possible accumulating assignments.
+    The value acquired by *accumulator in the loop does not seem to be abandoned after the loop.
+    It is never referenced after the loop.
+    It is not a local variable.
 
 Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:96:3:
 for (size_t i = 0; i < array_size; i++) {
@@ -48,6 +219,9 @@ Likely accumulators: accumulators[0]
         accumulators[0] += array[i]
     1 of those assignments involve the loop's iteration variable.
     There are 1 other in-loop references to accumulators[0] outside of those possible accumulating assignments.
+    The value acquired by accumulators[0] in the loop does not seem to be abandoned after the loop.
+    It is never referenced after the loop.
+    It is not a local variable.
 
 Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:109:3:
 for (size_t i = 0; i < size; ++i) {
@@ -65,8 +239,49 @@ Likely accumulators: result->sum
         result->sum += array[i]
     1 of those assignments involve the loop's iteration variable.
     There are 1 other in-loop references to result->sum outside of those possible accumulating assignments.
+    The value acquired by result->sum in the loop does not seem to be abandoned after the loop.
+    It is never referenced after the loop.
+    It is not a local variable.
 
-12 out of 13 loops detected as likely reduction loops. 8 of them are trivial reductions. (Trivial reductions not shown.)
-    12 out of 13 for loops.
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:127:3:
+for (size_t i = 0; i < array_size; ++i) {
+    sum += array[i];
+}
+Its iteration variable is i.
+Arrays subscripted by i: array (1 accesses).
+Likely accumulators: sum
+
+    sum was detected as a likely accumulator (score: 15). But it is a trivial accumulator.
+    Its base is sum, which was declared 1 lines above the loop.
+    Its name has the substring "sum".
+    It might be accumulated in the following assignments:
+        sum += array[i]
+    1 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to sum outside of those possible accumulating assignments.
+    The value acquired by sum in the loop does not seem to be abandoned after the loop.
+    The first reference to sum after the loop is in the expression "sum += 1".
+    It is a local variable.
+
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:136:3:
+for (size_t i = 0; i < array_size; ++i) {
+    sum += array[i];
+}
+Its iteration variable is i.
+Arrays subscripted by i: array (1 accesses).
+Likely accumulators: sum
+
+    sum was detected as a likely accumulator (score: 15). But it is a trivial accumulator.
+    Its base is sum, which was declared 1 lines above the loop.
+    Its name has the substring "sum".
+    It might be accumulated in the following assignments:
+        sum += array[i]
+    1 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to sum outside of those possible accumulating assignments.
+    The value acquired by sum in the loop does not seem to be abandoned after the loop.
+    The first reference to sum after the loop is in the expression "sum = sum + 1".
+    It is a local variable.
+
+14 out of 15 loops detected as likely reduction loops. 10 of them are trivial reductions.
+    14 out of 15 for loops.
     0 out of 0 while loops.
     0 out of 0 do-while loops.

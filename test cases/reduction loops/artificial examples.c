@@ -121,3 +121,21 @@ void reduce11(int array[], size_t array_size, int *result_destination) {
     printf("%d ", *result_struct.result_array[0]);
   }
 }
+
+int reduce12(int array[], size_t array_size) {
+  int sum = 0;
+  for (size_t i = 0; i < array_size; ++i) {
+    sum += array[i];
+  }
+  sum += 1; // The value of sum isn't lost here. Thus, the reduction above shouldn't be discarded.
+  return sum;
+}
+
+int reduce13(int array[], size_t array_size) {
+  int sum = 0;
+  for (size_t i = 0; i < array_size; ++i) {
+    sum += array[i];
+  }
+  sum = sum + 1; // The value of sum isn't lost here. Thus, the reduction above shouldn't be discarded.
+  return sum;
+}

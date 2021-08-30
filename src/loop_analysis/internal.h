@@ -45,7 +45,9 @@ struct PossibleAccumulatorInfo {
 
   PossibleAccumulatorInfo(const clang::Expr *possible_accumulator,
                           const clang::DeclRefExpr *base)
-      : possible_accumulator(possible_accumulator), base(base) {
+      : possible_accumulator(possible_accumulator), base(base),
+        is_local_variable(llvm::cast<clang::VarDecl>(this->base->getDecl())
+                              ->isLocalVarDecl()) {
     // Unparse the possible accumulator into this->name.
     llvm::raw_string_ostream nameStringStream(this->name);
     this->possible_accumulator->printPretty(
@@ -65,6 +67,23 @@ struct PossibleAccumulatorInfo {
   unsigned int
       number_of_possible_accumulating_assignments_that_reference_the_iteration_variable =
           0;
+
+  // is_local_variable is true if the base of this possible accumulator
+  // references a variable that is local to the function body that contains this
+  // loop.
+  bool is_local_variable;
+
+  const clang::Expr *first_reference_after_loop = nullptr;
+
+  // is_apparently_unused_after_loop is true either if this possible accumulator
+  // is a local variable that is never read after the loop (which means that the
+  // value acquired by the variable in the loop is never consulted, and thus
+  // probably isn't meaningful at all) or if first_reference_after_loop is a
+  // write reference. (Note that this is false when the possible accumulator is
+  // not a local variable and is not referenced after the loop in the function.
+  // In such a case, the variable still can be consulted outside of the
+  // function.)
+  bool is_apparently_unused_after_loop = false;
 
   // If not null, notable_name_substring points to a string constant.
   std::string *notable_name_substring = nullptr;
@@ -124,7 +143,8 @@ struct PossibleReductionLoopInfo {
   bool has_a_trivial_accumulator = false;
   bool has_likely_but_non_trivial_accumulator = false;
 
-  PossibleReductionLoopInfo(const clang::Stmt *loopStmt) : loop_stmt(loopStmt){};
+  PossibleReductionLoopInfo(const clang::Stmt *loopStmt)
+      : loop_stmt(loopStmt){};
   void dump(llvm::raw_ostream &outputStream, clang::ASTContext *context);
 };
 
@@ -175,6 +195,13 @@ void detectPossibleAccumulatorReferencesInRHSOfPossibleAccumulatingStatements(
 void countOutsideReferencesIn(PossibleReductionLoopInfo &loop_info,
                               clang::ASTContext *context);
 
+// For each possible accumulator, determine whether it is read after the loop.
+// That is: determine whether the value it acquires in the loop is used after
+// the loop at all. Populate the following members of each possible accumulator:
+// first_reference_after_loop, is_read_after_loop.
+void checkWhetherPossibleAccumulatorsAreReadAfterLoop(
+    PossibleReductionLoopInfo &loop_info, clang::ASTContext &context);
+
 // If we have identified the loop's iteration variable, then, for each
 // possible
 // accumulating assignment in the loop, determine whether the loop's iteration
@@ -204,10 +231,11 @@ void registerAnalyzedLoop(LoopAnalyser &loopAnalyser,
 /* Determine which possible accumulators are trivial accumulators, and update
  * the corresponding fields of loop_info and of the relevant
  * PossibleAccumulatorInfos.
-*/
+ */
 void determineTrivialAccumulators(PossibleReductionLoopInfo &loop_info);
-}
-}
-}
+
+} // namespace internal
+} // namespace loop_analysis
+} // namespace reduction_detector
 
 #endif
