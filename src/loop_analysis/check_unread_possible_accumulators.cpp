@@ -72,12 +72,6 @@ get_enclosing_function(const clang::Stmt &enclosed_statement,
       continue;
     } else if (const clang::FunctionDecl *function_definition =
                    walker_parent.get<clang::FunctionDecl>()) {
-      // temp, for debugging
-      {
-        llvm::errs() << "get_enclosing_function: I found that a loop is inside "
-                        "the body of a function named "
-                     << function_definition->getIdentifier()->getName() << "\n";
-      }
       return *function_definition;
     }
   }
@@ -102,11 +96,6 @@ void checkWhetherPossibleAccumulatorsAreReadAfterLoop(
           : _loop(_loop), _possibleAccumulator(_possibleAccumulator) {}
 
       virtual void run(const MatchFinder::MatchResult &result) {
-        // temp, for debugging
-        {
-          llvm::errs()
-              << "the run method of the matcher callback was called.\n";
-        }
         if (done) {
           return;
         }
@@ -118,14 +107,6 @@ void checkWhetherPossibleAccumulatorsAreReadAfterLoop(
         // there is a node but it cannot be converted to the specified type".
         // This shouldn't happen.
         assert(thisExpression != nullptr);
-
-        // temp, for debugging
-        {
-          llvm::errs() << "checkWhetherPossibleAccumulatorsAreReadAfterLoop: "
-                          "found an expression: ";
-          thisExpression->dumpPretty(*result.Context);
-          llvm::errs() << "\n";
-        }
 
         bool is_this_expression_after_the_loop =
             result.SourceManager->isBeforeInTranslationUnit(
