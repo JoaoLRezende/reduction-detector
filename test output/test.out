@@ -42,7 +42,7 @@ for (int i = 0; i < array_size; i++) {
 }
 Likely accumulators: sum
 
-Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:71:2:
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:71:3:
 for (size_t i = 0; i < arrays_size; ++i) {
     sum_of_array1 += array1[i];
     sum_of_both_arrays += array1[i];
@@ -77,19 +77,25 @@ for (size_t i = 0; i < size; ++i) {
 }
 Likely accumulators: result->sum
 
-Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:127:3:
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:129:3:
 for (size_t i = 0; i < array_size; ++i) {
     sum += array[i];
 }
 Likely accumulators: sum
 
-Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:136:3:
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:139:3:
 for (size_t i = 0; i < array_size; ++i) {
     sum += array[i];
 }
 Likely accumulators: sum
 
-14 out of 15 loops detected as likely reduction loops. 10 of them are trivial reductions.
-    14 out of 15 for loops.
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:156:3:
+for (size_t i = 0; i < array_size; ++i) {
+    *out_pointer += array[i];
+}
+Likely accumulators: *out_pointer
+
+15 out of 16 loops detected as likely reduction loops. 10 of them are trivial reductions.
+    15 out of 16 for loops.
     0 out of 0 while loops.
     0 out of 0 do-while loops.

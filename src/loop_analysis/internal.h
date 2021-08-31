@@ -46,8 +46,9 @@ struct PossibleAccumulatorInfo {
   PossibleAccumulatorInfo(const clang::Expr *possible_accumulator,
                           const clang::DeclRefExpr *base)
       : possible_accumulator(possible_accumulator), base(base),
-        is_local_variable(llvm::cast<clang::VarDecl>(this->base->getDecl())
-                              ->isLocalVarDecl()) {
+        is_local_variable(!this->base->getType()->isPointerType() &&
+                          llvm::cast<clang::VarDecl>(this->base->getDecl())
+                              ->isLocalVarDeclOrParm()) {
     // Unparse the possible accumulator into this->name.
     llvm::raw_string_ostream nameStringStream(this->name);
     this->possible_accumulator->printPretty(
@@ -68,9 +69,9 @@ struct PossibleAccumulatorInfo {
       number_of_possible_accumulating_assignments_that_reference_the_iteration_variable =
           0;
 
-  // is_local_variable is true if the base of this possible accumulator
-  // references a variable that is local to the function body that contains this
-  // loop.
+  // is_local_variable is true if the base of this possible
+  // accumulator references a variable that is local to the function that
+  // contains this loop and is not a pointer.
   bool is_local_variable;
 
   const clang::Expr *first_reference_after_loop = nullptr;

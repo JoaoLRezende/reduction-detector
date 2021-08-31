@@ -131,7 +131,7 @@ Likely accumulators: sum
     The first reference to sum after the loop is in the expression "sum".
     It is a local variable.
 
-Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:71:2:
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:71:3:
 for (size_t i = 0; i < arrays_size; ++i) {
     sum_of_array1 += array1[i];
     sum_of_both_arrays += array1[i];
@@ -243,7 +243,7 @@ Likely accumulators: result->sum
     It is never referenced after the loop.
     It is not a local variable.
 
-Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:127:3:
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:129:3:
 for (size_t i = 0; i < array_size; ++i) {
     sum += array[i];
 }
@@ -262,7 +262,7 @@ Likely accumulators: sum
     The first reference to sum after the loop is in the expression "sum += 1".
     It is a local variable.
 
-Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:136:3:
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:139:3:
 for (size_t i = 0; i < array_size; ++i) {
     sum += array[i];
 }
@@ -281,7 +281,26 @@ Likely accumulators: sum
     The first reference to sum after the loop is in the expression "sum = sum + 1".
     It is a local variable.
 
-14 out of 15 loops detected as likely reduction loops. 10 of them are trivial reductions.
-    14 out of 15 for loops.
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:156:3:
+for (size_t i = 0; i < array_size; ++i) {
+    *out_pointer += array[i];
+}
+Its iteration variable is i.
+Arrays subscripted by i: array (1 accesses).
+Likely accumulators: *out_pointer
+
+    *out_pointer was detected as a likely accumulator (score: 10). It is not a trivial accumulator.
+    Its base is out_pointer, which was declared 1 lines above the loop.
+    Its name doesn't have any of the common accumulator-name substrings.
+    It might be accumulated in the following assignments:
+        *out_pointer += array[i]
+    1 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to *out_pointer outside of those possible accumulating assignments.
+    The value acquired by *out_pointer in the loop does not seem to be abandoned after the loop.
+    It is never referenced after the loop.
+    It is not a local variable.
+
+15 out of 16 loops detected as likely reduction loops. 10 of them are trivial reductions.
+    15 out of 16 for loops.
     0 out of 0 while loops.
     0 out of 0 do-while loops.
