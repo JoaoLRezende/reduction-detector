@@ -15,6 +15,9 @@ See the related to-do items in the to-do list at [reduction-detector.cpp][4].
 
 [4]: <src/reduction-detector.cpp>
 
+
+As a rudimentary form of regression testing, we watch closely changes in the output of the tests run by `test.sh`. After making any changes to the program, we run `test.sh` and, by using something like `diff`, we ensure that any changes introduced in the output files are intended (or that unintended results that should be fixed later are properly documented).
+
 ***
 
 # Build
@@ -50,7 +53,7 @@ By default, reduction-detector writes its output to `detected_reductions.out`.
 # FAQ
  
 ### Why does reduction-detector complain that it can't find header files included by the C files being analyzed?
-This is usually caused by a lack of a compilation database. To analyse a C program, reduction-detector needs to be able to find header files `#include`d by it. (Clang's parser reasonably aborts with an error message if it can't find a header file `#include`d by a C translation unit.) If those header files aren't in the same directories as the source files that include them (for example, if they are in a separate `include` directory), you'll have to either create a compilation database or directly tell reduction-detector where to find them. You can do the latter by using the [`-I`](https://clang.llvm.org/docs/ClangCommandLineReference.html#id8) option after a double dash (`--`). (The arguments passed after `--` are captured by the Clang tooling we use internally.)
+This is usually caused by a lack of a compilation database. To analyze a C program, reduction-detector needs to be able to find header files `#include`d by it. (Clang's parser reasonably aborts with an error message if it can't find a header file `#include`d by a C translation unit.) If those header files aren't in the same directories as the source files that include them (for example, if they are in a separate `include` directory), you'll have to either create a compilation database or directly tell reduction-detector where to find them. You can do the latter by using the [`-I`](https://clang.llvm.org/docs/ClangCommandLineReference.html#id8) option after a double dash (`--`). (The arguments passed after `--` are captured by the Clang tooling we use internally.)
  
 For example, the following command line could be used to analyze a copy of the source code of [OpenSSL](https://github.com/openssl/openssl) that sits at `../openssl-master`:
 ```
