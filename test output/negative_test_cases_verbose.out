@@ -1,0 +1,31 @@
+Unlikely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/non-reduction loops/artificial non-examples.c:7:3:
+for (;;) {
+    int a_local_array[10];
+    a_local_array[an_integer_declared_outside_of_the_loop] = 80085;
+}
+I couldn't determine its iteration variable.
+Likely accumulators:
+
+Unlikely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/non-reduction loops/artificial non-examples.c:15:3:
+for (size_t i = 0; i < array_size; ++i) {
+    result += array[i];
+}
+Its iteration variable is i.
+Arrays subscripted by i: array (1 accesses).
+Likely accumulators:
+
+    result was detected as a possible accumulator, but not as a likely one (score: 5). But it is a trivial accumulator.
+    Its base is result, which was declared 1 lines above the loop.
+    Its name doesn't have any of the common accumulator-name substrings.
+    It might be accumulated in the following assignments:
+        result += array[i]
+    1 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to result outside of those possible accumulating assignments.
+    The value acquired by result in the loop seems to be abandoned after the loop.
+    The first reference to result after the loop is in the expression "result = 0".
+    It is a local variable.
+
+0 out of 2 loops detected as likely reduction loops. 1 of them are trivial reductions.
+    0 out of 2 for loops.
+    0 out of 0 while loops.
+    0 out of 0 do-while loops.

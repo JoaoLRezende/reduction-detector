@@ -1,0 +1,17 @@
+Unlikely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/non-reduction loops/artificial non-examples.c:7:3:
+for (;;) {
+    int a_local_array[10];
+    a_local_array[an_integer_declared_outside_of_the_loop] = 80085;
+}
+Likely accumulators:
+
+Unlikely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/non-reduction loops/artificial non-examples.c:15:3:
+for (size_t i = 0; i < array_size; ++i) {
+    result += array[i];
+}
+Likely accumulators:
+
+0 out of 2 loops detected as likely reduction loops. 1 of them are trivial reductions.
+    0 out of 2 for loops.
+    0 out of 0 while loops.
+    0 out of 0 do-while loops.
