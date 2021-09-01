@@ -1,7 +1,5 @@
 #!/bin/bash
 
-TEST_CASE="test cases/reduction loops/artificial examples.c"
-
 ADDITIONAL_ARGUMENTS=""
 
 # CLANG_ARGUMENTS can be used to inform the tool of where to find system header
@@ -14,12 +12,21 @@ CLANG_ARGUMENTS="-I /usr/lib/gcc/x86_64-linux-gnu/9/include
 OUTPUT_DIRECTORY="test output"
 
 cd "$(dirname "$0")"
-echo "Testing on $TEST_CASE."
-# normal output
-build/reduction-detector  --output "${OUTPUT_DIRECTORY}/test.out" \
-                          $ADDITIONAL_ARGUMENTS "$TEST_CASE" \
-                          -- $CLANG_ARGUMENTS
-# verbose output
-build/reduction-detector --verbose --output "${OUTPUT_DIRECTORY}/test_verbose.out" \
-                         $ADDITIONAL_ARGUMENTS "$TEST_CASE" \
-                         -- $CLANG_ARGUMENTS
+
+function execute_on_file {
+    local file="$1"
+    local normal_output_file="$2"
+    local verbose_output_file="$3"
+
+    echo "Testing on $file."
+    # normal output
+    build/reduction-detector  --output "${OUTPUT_DIRECTORY}/$normal_output_file" \
+                            $ADDITIONAL_ARGUMENTS "$file" \
+                            -- $CLANG_ARGUMENTS
+    # verbose output
+    build/reduction-detector --verbose --output "${OUTPUT_DIRECTORY}/$verbose_output_file" \
+                            $ADDITIONAL_ARGUMENTS "$file" \
+                            -- $CLANG_ARGUMENTS
+}
+
+execute_on_file "test cases/reduction loops/artificial examples.c" test.out test_verbose.out
