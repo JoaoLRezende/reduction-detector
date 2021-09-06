@@ -256,6 +256,26 @@ Likely accumulators: result->sum
     It is not a local variable.
     It does not seem to be a dereference of an inconstant pointer.
 
+Unlikely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:121:3:
+for (size_t i = 0; i < array_size; i++) {
+    *result_struct.result_array[0] = array[i];
+    printf("%d ", *result_struct.result_array[0]);
+}
+Its iteration variable is i.
+Arrays subscripted by i: array (1 accesses).
+Likely accumulators:
+
+    *result_struct.result_array[0] was detected as a possible accumulator, but not as a likely one (score: -1). It is not a trivial accumulator.
+    Its base is result_struct, which was declared 5 lines above the loop.
+    Its name doesn't have any of the common accumulator-name substrings.
+    It might be accumulated in the following assignments:
+    1 of those assignments involve the loop's iteration variable.
+    There are 1 other in-loop references to *result_struct.result_array[0] outside of those possible accumulating assignments.
+    The value acquired by *result_struct.result_array[0] in the loop seems to be abandoned after the loop.
+    It is never referenced after the loop.
+    It is a local variable.
+    It does not seem to be a dereference of an inconstant pointer.
+
 Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:129:3:
 for (size_t i = 0; i < array_size; ++i) {
     sum += array[i];
