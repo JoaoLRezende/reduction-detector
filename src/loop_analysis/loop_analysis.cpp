@@ -13,11 +13,10 @@ namespace reduction_detector {
 namespace loop_analysis {
 
 // Define command-line option --print-non-reduction-loops.
-llvm::cl::opt<bool> print_non_reduction_loops(
+static llvm::cl::opt<bool> print_non_reduction_loops(
     "print-non-reduction-loops",
-    llvm::cl::desc(
-        "Instead of likely reduction loops, print loops that were not "
-        "recognized as likely reduction loops"),
+    llvm::cl::desc("Also print loops that were not "
+                   "recognized as likely reduction loops"),
     llvm::cl::cat(reduction_detector::command_line_options::
                       reduction_detector_option_category));
 
@@ -75,8 +74,7 @@ void LoopAnalyser::run(const MatchFinder::MatchResult &result) {
       (!command_line_options::only_trivial_reductions ||
        (command_line_options::only_trivial_reductions &&
         loop_info.has_a_trivial_accumulator)) &&
-      ((!print_non_reduction_loops && loop_info.has_a_likely_accumulator) ||
-       (print_non_reduction_loops && !loop_info.has_a_likely_accumulator))) {
+      (loop_info.has_a_likely_accumulator || print_non_reduction_loops)) {
     loop_info.dump(*reduction_detector::command_line_options::output_file,
                    context);
   }
