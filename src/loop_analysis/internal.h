@@ -86,6 +86,15 @@ struct PossibleAccumulatorInfo {
   // function.)
   bool is_apparently_unused_after_loop = false;
 
+  /* is_dereference_of_inconstant_pointer is true if the base of this possible
+   * accumulator references a pointer that is the left-hand side of an
+   * assignment expression in the loop. This means that that pointer
+   * might point to a different object in each iteration, and that thus this
+   * possible accumulator actually represents a different object in each
+   * iteration.
+   */
+  bool is_dereference_of_inconstant_pointer = false;
+
   // If not null, notable_name_substring points to a string constant.
   std::string *notable_name_substring = nullptr;
 
@@ -105,8 +114,8 @@ struct PossibleAccumulatorInfo {
    * (4) It appears in a for loop (rather than in a while or do-while loop).
    * Thus: a trivial accumulator is one that would likely be identified as a
    * reduction accumulator by Cetus 1.4.4, as described in section 2.2.6 of "The
-   * Cetus
-   * source-to-source compiler infrastructure: overview and evaluation" (2013).
+   * Cetus source-to-source compiler infrastructure: overview and evaluation"
+   * (2013).
    */
   bool is_trivial_accumulator = false;
 
@@ -195,6 +204,10 @@ void detectPossibleAccumulatorReferencesInRHSOfPossibleAccumulatingStatements(
 // describes that possible accumulator.
 void countOutsideReferencesIn(PossibleReductionLoopInfo &loop_info,
                               clang::ASTContext *context);
+
+// Populate each possible accumulator's is_dereference_of_inconstant_pointer.
+void seeWhetherPossibleAccumulatorsAreDereferencesOfInconstantPointers(
+    PossibleReductionLoopInfo &loop_info, clang::ASTContext *context);
 
 // For each possible accumulator, determine whether it is read after the loop.
 // That is: determine whether the value it acquires in the loop is used after

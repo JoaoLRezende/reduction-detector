@@ -44,6 +44,10 @@ computeLikelyAccumulatorScore(PossibleAccumulatorInfo &possibleAccumulator) {
     score -= UNREAD_POSSIBLE_ACCUMULATOR_PENALTY;
   }
 
+  if (possibleAccumulator.is_dereference_of_inconstant_pointer) {
+    score -= DEREFERENCE_OF_INCONSTANT_POINTER_PENALTY;
+  }
+
   return score;
 }
 

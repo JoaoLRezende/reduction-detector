@@ -157,7 +157,8 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
             << " outside of those possible accumulating assignments.\n";
 
         outputStream
-            << INDENT << "The value acquired by "<< possibleAccumulator.second.name << " in the loop"
+            << INDENT << "The value acquired by "
+            << possibleAccumulator.second.name << " in the loop"
             << (possibleAccumulator.second.is_apparently_unused_after_loop
                     ? " seems "
                     : " does not seem ")
@@ -178,11 +179,19 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
                      << (possibleAccumulator.second.is_local_variable ? ""
                                                                       : "not ")
                      << "a local variable.\n";
+
+        outputStream
+            << INDENT "It "
+            << (possibleAccumulator.second.is_dereference_of_inconstant_pointer
+                    ? "seems"
+                    : "does not seem")
+            << " to be a dereference of an inconstant pointer.\n";
       }
     }
   }
   outputStream << "\n";
-} // namespace internal
+}
+
 } // namespace internal
 } // namespace loop_analysis
 } // namespace reduction_detector

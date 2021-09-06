@@ -1,17 +1,25 @@
-Unlikely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/non-reduction loops/artificial non-examples.c:7:3:
+Unlikely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/non-reduction loops/artificial non-examples.c:8:3:
 for (;;) {
     int a_local_array[10];
     a_local_array[an_integer_declared_outside_of_the_loop] = 80085;
 }
 Likely accumulators:
 
-Unlikely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/non-reduction loops/artificial non-examples.c:15:3:
+Unlikely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/non-reduction loops/artificial non-examples.c:16:3:
 for (size_t i = 0; i < array_size; ++i) {
     result += array[i];
 }
 Likely accumulators:
 
-0 out of 2 loops detected as likely reduction loops. 1 of them are trivial reductions.
+Unlikely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/non-reduction loops/artificial non-examples.c:30:3:
+while (walker != ((void *)0))
+    {
+        walker->a_number += 1;
+        walker = walker->next;
+    }
+Likely accumulators:
+
+0 out of 3 loops detected as likely reduction loops. 1 of them are trivial reductions.
     0 out of 2 for loops.
-    0 out of 0 while loops.
+    0 out of 1 while loops.
     0 out of 0 do-while loops.
