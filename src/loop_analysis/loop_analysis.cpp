@@ -1,4 +1,5 @@
 #include "loop_analysis.h"
+
 #include "internal.h"
 using namespace reduction_detector;
 using namespace reduction_detector::loop_analysis::internal;
@@ -7,6 +8,7 @@ using namespace reduction_detector::loop_analysis::internal;
 
 #include "llvm/Support/CommandLine.h"
 
+#include "clang/ASTMatchers/ASTMatchers.h"
 using namespace clang::ast_matchers;
 
 namespace reduction_detector {

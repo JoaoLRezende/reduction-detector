@@ -26,7 +26,7 @@ struct linked_list_node {
   struct linked_list_node *next;
 };
 void not_a_reduction3(struct linked_list_node *linked_list) {
-  struct linked_list_node *walker;
+  struct linked_list_node *walker = linked_list;
   while (walker != NULL) {
     walker->a_number += 1;
     walker = walker->next;

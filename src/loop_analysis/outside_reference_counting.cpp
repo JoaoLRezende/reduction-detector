@@ -38,13 +38,13 @@ static bool isExpressionInExpression(const clang::Expr *expression1,
 }
 
 static bool
-isExpressionInOneOfPossibleAccumulatingAssignmentsOfPossibleAccumulator(
+isExpressionInOneOfPossibleAccumulatingOperationsOfPossibleAccumulator(
     const clang::Expr *expression, PossibleAccumulatorInfo &possibleAccumulator,
     clang::ASTContext *context) {
-  for (auto &possibleAccumulatingAssignment :
+  for (auto &possibleAccumulatingOperation :
        possibleAccumulator.possible_accumulating_assignments) {
     if (isExpressionInExpression(
-            expression, possibleAccumulatingAssignment.first, context)) {
+            expression, possibleAccumulatingOperation.first, context)) {
       return true;
     }
   }
@@ -104,7 +104,7 @@ void countOutsideReferencesIn(PossibleReductionLoopInfo &loop_info,
                                 true);
 
         if (thisExpressionFoldingSetID == _possibleAccumulator.first &&
-            !isExpressionInOneOfPossibleAccumulatingAssignmentsOfPossibleAccumulator(
+            !isExpressionInOneOfPossibleAccumulatingOperationsOfPossibleAccumulator(
                 thisExpression, _possibleAccumulator.second, result.Context)) {
           outsideReferences += 1;
         }

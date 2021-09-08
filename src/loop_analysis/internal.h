@@ -17,22 +17,27 @@ namespace internal {
  * analysis passes.
  * * * */
 
-// One instance of PossibleAccumulatingAssignmentInfo describes each
-// assignment whose left-hand side is a possible accumulator.
+// One instance of PossibleAccumulatingAssignmentInfo describes an
+// assignment, increment or decrement operation that modifies a possible
+// accumulator in a loop.
 struct PossibleAccumulatingAssignmentInfo {
+  // rhs_also_references_possible_accumulator is true if this is an assignment
+  // expression whose right-hand side also references the possible accumulator
+  // or if this is an increment or decrement operation.
   bool rhs_also_references_possible_accumulator = false;
   bool references_iteration_variable = false;
 };
 
 // A _possible accumulator_ is an l-value that is the left-hand operand of an
-// assignment in a loop's body and whose _base_ (the earliest identifier that
-// appears in it) is declared outside of that loop. For example, a possible
-// accumulator can be an array-subscript expression like arr[i], or a
-// member-access expression like stats.sum (where stats is a structure with a
-// field named "sum").
+// assignment or the operand of an increment or decrement operation in a loop's
+// body and whose _base_ (the earliest identifier that appears in it) is
+// declared outside of that loop. For example, a possible accumulator can be an
+// array-subscript expression like arr[i], or a member-access expression like
+// stats.sum (where stats is a structure with a field named "sum").
 struct PossibleAccumulatorInfo {
   // A pointer to the first encountered occurrence of the possible
-  // accumulator in the left-hand side of an assignment.
+  // accumulator in the left-hand side of an assignment or in an unary increment
+  // or decrement operation.
   const clang::Expr *possible_accumulator;
 
   // base is the earliest declaration-reference expression that exists in the
@@ -56,7 +61,15 @@ struct PossibleAccumulatorInfo {
     nameStringStream.flush();
   };
 
-  std::map<const clang::BinaryOperator *, PossibleAccumulatingAssignmentInfo>
+  /* A possible accumulating operation is an expression that is in the loop and
+   * whose evaluation, as a side effect, modifies the value of the possible
+   * accumulator. The map possible_accumulating_assignments maps each such
+   * expression to an instance of PossibleAccumulatingAssignmentInfo that
+   * describes it. Every possible accumulating operation is represented either
+   * by clang::BinaryOperator or by clang::UnaryOperator (which are subtypes of
+   * clang::Expr).
+   */
+  std::map<const clang::Expr *, PossibleAccumulatingAssignmentInfo>
       possible_accumulating_assignments;
 
   int declaration_distance_from_loop_in_lines = -1;
@@ -106,9 +119,9 @@ struct PossibleAccumulatorInfo {
   /* We call a "trivial accumulator" a possible accumulator for which all of the
    * following are true:
    * (1) It does not appear anywhere in the loop outside of its accumulating
-   * assignments.
+   * operations.
    * (2) It is referenced in the right-hand side of all of its accumulating
-   * assignments.
+   * operations.
    * (3) It is either a declaration-reference expression or an array-subscript
    * expression.
    * (4) It appears in a for loop (rather than in a while or do-while loop).
@@ -168,12 +181,10 @@ void determineIterationVariable(PossibleReductionLoopInfo &loopInfo,
                                 clang::ASTContext *context);
 
 // If we have identified the loop's iteration variable, then determine how
-// many
-// times it is referenced in array-subscript expressions
+// many times it is referenced in array-subscript expressions
 // (for example, array[i]). Also, for each array, determine how many
 // times that array is subscripted by an expression that involves the
-// iteration
-// variable. Update the corresponding fields of loopInfo.
+// iteration variable. Update the corresponding fields of loopInfo.
 void detectIterationVariableReferencesInArraySubscripts(
     PossibleReductionLoopInfo &loopInfo, clang::ASTContext *context);
 
@@ -188,18 +199,16 @@ void getDistanceOfDeclarationOfPossibleAccumulators(
     PossibleReductionLoopInfo &loop_info, clang::ASTContext *context);
 
 // For each possible accumulating assignment in the loop, determine whether
-// the
-// variable in its left-hand side (which is a possible accumulator) also
-// appears
-// in its right-hand side (like in acc = acc + array[i]) or the
-// assignment is a compound assignment (like acc += array[i]).
-// Update the instances of PossibleAccumulatingAssignmentInfo that describe
-// those assignments accordingly.
+// the variable in its left-hand side (which is a possible accumulator) also
+// appears in its right-hand side (like in acc = acc + array[i]) or the
+// assignment is a compound assignment (like acc += array[i]). Update the
+// instances of PossibleAccumulatingAssignmentInfo that describe those
+// assignments accordingly.
 void detectPossibleAccumulatorReferencesInRHSOfPossibleAccumulatingStatements(
     PossibleReductionLoopInfo &loop_info, clang::ASTContext *context);
 
 // For each possible accumulator, count the number of times it is referenced
-// in that loop outside of its possible accumulating assignments.
+// in that loop outside of its possible accumulating operations.
 // Store that number in the instance of PossibleAccumulatorInfo that
 // describes that possible accumulator.
 void countOutsideReferencesIn(PossibleReductionLoopInfo &loop_info,

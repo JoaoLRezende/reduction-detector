@@ -102,7 +102,22 @@ for (size_t i = 0; i < array_size; ++i) {
 }
 Likely accumulators: *out_pointer
 
-15 out of 16 loops detected as likely reduction loops. 10 of them are trivial reductions.
-    15 out of 16 for loops.
-    0 out of 0 while loops.
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:168:3:
+while (walker != ((void *)0))
+    {
+        count++;
+        walker = walker->next;
+    }
+Likely accumulators: count
+
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:178:3:
+for (size_t i = 0; i < array_size; i++) {
+    if (array[i] > 5)
+        count++;
+}
+Likely accumulators: count
+
+17 out of 18 loops detected as likely reduction loops. 11 of them are trivial reductions.
+    16 out of 17 for loops.
+    1 out of 1 while loops.
     0 out of 0 do-while loops.

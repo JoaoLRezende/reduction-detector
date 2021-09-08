@@ -118,6 +118,18 @@ Likely accumulators: sum
     It is a local variable.
     It does not seem to be a dereference of an inconstant pointer.
 
+    i was detected as a possible accumulator, but not as a likely one (score: 3). It is not a trivial accumulator.
+    Its base is i, which was declared 1 lines above the loop.
+    Its name doesn't have any of the common accumulator-name substrings.
+    It might be accumulated in the following assignments:
+        --i
+    0 of those assignments involve the loop's iteration variable.
+    There are 2 other in-loop references to i outside of those possible accumulating assignments.
+    The value acquired by i in the loop seems to be abandoned after the loop.
+    It is never referenced after the loop.
+    It is a local variable.
+    It does not seem to be a dereference of an inconstant pointer.
+
 Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:62:3:
 for (int i = 0; i < array_size; i++) {
     sum += array[i];
@@ -336,7 +348,49 @@ Likely accumulators: *out_pointer
     It is not a local variable.
     It does not seem to be a dereference of an inconstant pointer.
 
-15 out of 16 loops detected as likely reduction loops. 10 of them are trivial reductions.
-    15 out of 16 for loops.
-    0 out of 0 while loops.
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:168:3:
+while (walker != ((void *)0))
+    {
+        count++;
+        walker = walker->next;
+    }
+I couldn't determine its iteration variable.
+Likely accumulators: count
+
+    count was detected as a likely accumulator (score: 10). It is not a trivial accumulator.
+    Its base is count, which was declared 2 lines above the loop.
+    Its name doesn't have any of the common accumulator-name substrings.
+    It might be accumulated in the following assignments:
+        count++
+    0 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to count outside of those possible accumulating assignments.
+    The value acquired by count in the loop does not seem to be abandoned after the loop.
+    The first reference to count after the loop is in the expression "count".
+    It is a local variable.
+    It does not seem to be a dereference of an inconstant pointer.
+
+Likely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/reduction loops/artificial examples.c:178:3:
+for (size_t i = 0; i < array_size; i++) {
+    if (array[i] > 5)
+        count++;
+}
+Its iteration variable is i.
+Arrays subscripted by i: array (1 accesses).
+Likely accumulators: count
+
+    count was detected as a likely accumulator (score: 10). But it is a trivial accumulator.
+    Its base is count, which was declared 1 lines above the loop.
+    Its name doesn't have any of the common accumulator-name substrings.
+    It might be accumulated in the following assignments:
+        count++
+    0 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to count outside of those possible accumulating assignments.
+    The value acquired by count in the loop does not seem to be abandoned after the loop.
+    The first reference to count after the loop is in the expression "count".
+    It is a local variable.
+    It does not seem to be a dereference of an inconstant pointer.
+
+17 out of 18 loops detected as likely reduction loops. 11 of them are trivial reductions.
+    16 out of 17 for loops.
+    1 out of 1 while loops.
     0 out of 0 do-while loops.

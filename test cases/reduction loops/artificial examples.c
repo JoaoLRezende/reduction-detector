@@ -157,3 +157,27 @@ void reduce14(int array[], size_t array_size, int *out) {
     *out_pointer += array[i];
   }
 }
+
+struct linked_list_node {
+  int a_number;
+  struct linked_list_node *next;
+};
+int reduce15(struct linked_list_node *linked_list) {
+  int count = 0;
+  struct linked_list_node *walker = linked_list;
+  while (walker != NULL) {
+    count++;
+    walker = walker->next;
+  }
+  return count;
+}
+
+// The following is a trivial reduction.
+int reduce16(int array[], size_t array_size) {
+  int count = 0;
+  for (size_t i = 0; i < array_size; i++) {
+    if (array[i] > 5)
+      count++;
+  }
+  return count;
+}

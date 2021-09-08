@@ -46,9 +46,11 @@ static bool isDeclarationInStatement(const clang::ValueDecl *declaration,
 
 /*
  * One instance of PossibleAccumulatorFinder is created for each loop.
- * For each assignment whose left-hand side is a possible accumulator, it stores
- * that left-hand side in the map possible_accumulators of the struct
- * PossibleReductionLoopInfo that describes that loop, together with its base.
+ * For each assignment whose left-hand side is a possible accumulator or unary
+ * increment or decrement operation whose operand is a possible accumulator, it
+ * stores that possible accumulator in the map possible_accumulators of the
+ * struct PossibleReductionLoopInfo that describes that loop, together with that
+ * possible accumulator's base.
  *
  * Here, we consider the _base_ of an expression to be the earliest identifier
  * that appears in it. For example, the base of structitty.member is structitty.
@@ -78,16 +80,22 @@ public:
 
   // run is called by MatchFinder for each assignment expression.
   virtual void run(const MatchFinder::MatchResult &result) {
+    // We receive either an assignment expression ...
     const clang::BinaryOperator *possible_possible_accumulating_assignment =
         result.Nodes.getNodeAs<clang::BinaryOperator>(
             "possible_possible_accumulating_assignment");
+    // ... or a unary increment or decrement expression.
+    const clang::UnaryOperator *possible_possible_accumulating_unary_operation =
+        result.Nodes.getNodeAs<clang::UnaryOperator>(
+            "possible_possible_accumulating_unary_operation");
+    assert(possible_possible_accumulating_assignment != nullptr ||
+           possible_possible_accumulating_unary_operation != nullptr);
+
+    // In any case, we also receive the base of the modified LHS or unary
+    // operand.
     const clang::DeclRefExpr *possible_possible_accumulator_base =
         result.Nodes.getNodeAs<clang::DeclRefExpr>(
             "possible_possible_accumulator_base");
-
-    // getNodeAs returns nullptr "if there was no node bound to ID or if there
-    // is a node but it cannot be converted to the specified type".
-    assert(possible_possible_accumulating_assignment != nullptr);
     assert(possible_possible_accumulator_base != nullptr);
 
     // If possible_possible_accumulator_base is declared inside the loop we're
@@ -98,21 +106,37 @@ public:
       return;
     }
 
-    const clang::Expr *possible_accumulator =
-        possible_possible_accumulating_assignment->getLHS();
+    const clang::Expr *possible_accumulator = nullptr;
+    if (possible_possible_accumulating_assignment != nullptr) {
+      possible_accumulator =
+          possible_possible_accumulating_assignment->getLHS();
+    } else if (possible_possible_accumulating_unary_operation != nullptr) {
+      possible_accumulator =
+          possible_possible_accumulating_unary_operation->getSubExpr();
+    } else {
+      assert(false);
+    };
 
-    // If possible_accumulator is actually a pointer, then discard it. [Pointers
-    // can't be accumulators. This check prevents us from detecting linked-list
-    // traversals (that have statements like aux = aux->next;) as reductions.]
+    // If possible_accumulator is actually a pointer, then discard it.
+    // [Pointers can't be accumulators. This check prevents us from detecting
+    // linked-list traversals (that have statements like aux = aux->next;) as
+    // reductions.]
     if (possible_accumulator->getType()->isPointerType()) {
       return;
     }
 
-    // TODO: what does the third argument to the Profile method do?
-    // Experiment.
     llvm::FoldingSetNodeID possibleAccumulatorFoldingSetID;
     possible_accumulator->Profile(possibleAccumulatorFoldingSetID,
                                   *result.Context, true);
+
+    const clang::Expr *possible_accumulating_operation = nullptr;
+    if (possible_possible_accumulating_assignment != nullptr) {
+      possible_accumulating_operation =
+          possible_possible_accumulating_assignment;
+    } else if (possible_possible_accumulating_unary_operation != nullptr) {
+      possible_accumulating_operation =
+          possible_possible_accumulating_unary_operation;
+    }
 
     // Note that std::map's insert method, if there already is an element with
     // the given key, simply returns that element instead of inserting a new
@@ -123,7 +147,7 @@ public:
                                  possible_possible_accumulator_base)});
 
     inserted_map_node.first->second.possible_accumulating_assignments.insert(
-        {possible_possible_accumulating_assignment,
+        {possible_accumulating_operation,
          PossibleAccumulatingAssignmentInfo()});
   };
 };
@@ -135,12 +159,7 @@ void getPossibleAccumulatorsIn(PossibleReductionLoopInfo *loop_info,
   // Construct a matcher that will match assignment expressions.
   StatementMatcher possiblePossibleAccumulatingAssignmentMatcher =
       binaryOperator(
-          anyOf(hasOperatorName("="), hasOperatorName("+="),
-                hasOperatorName("-="), hasOperatorName("*="),
-                hasOperatorName("/="), hasOperatorName("%="),
-                hasOperatorName("&="), hasOperatorName("|="),
-                hasOperatorName("^="), hasOperatorName("<<="),
-                hasOperatorName(">>=")),
+          isAssignmentOperator(),
           hasLHS(anyOf(
               // The LHS can be either a naked declaration-reference
               // expression ...
@@ -151,10 +170,30 @@ void getPossibleAccumulatorsIn(PossibleReductionLoopInfo *loop_info,
                   declRefExpr().bind("possible_possible_accumulator_base")))))
           .bind("possible_possible_accumulating_assignment");
 
+  // Construct a matcher that will match unary increment or decrement
+  // operations.
+  StatementMatcher possiblePossibleAccumulatingUnaryOperationMatcher =
+      unaryOperator(
+          anyOf(hasOperatorName("++"), hasOperatorName("--")),
+          hasUnaryOperand(anyOf(
+              // The operand can be either a naked declaration-reference
+              // expression ...
+              declRefExpr().bind("possible_possible_accumulator_base"),
+              // ... or a larger subtree that includes a
+              // declaration-reference expression.
+              hasDescendant(
+                  declRefExpr().bind("possible_possible_accumulator_base")))))
+          .bind("possible_possible_accumulating_unary_operation");
+
   MatchFinder possibleAccumulatingAssignmentFinder;
+
   possibleAccumulatingAssignmentFinder.addMatcher(
       clang::ast_matchers::findAll(
           possiblePossibleAccumulatingAssignmentMatcher),
+      &possibleAccumulatorFinder);
+  possibleAccumulatingAssignmentFinder.addMatcher(
+      clang::ast_matchers::findAll(
+          possiblePossibleAccumulatingUnaryOperationMatcher),
       &possibleAccumulatorFinder);
 
   possibleAccumulatingAssignmentFinder.match(*loop_info->loop_stmt, *context);
