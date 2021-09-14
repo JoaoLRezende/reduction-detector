@@ -33,7 +33,7 @@ computeLikelyAccumulatorScore(PossibleAccumulatorInfo &possibleAccumulator) {
       ACCUMULATOR_REFERENCE_IN_RHS_BONUS *
       (double)possibleAccumulator
           .number_of_possible_accumulating_assignments_whose_RHS_also_references_this /
-      possibleAccumulator.possible_accumulating_assignments.size());
+      possibleAccumulator.possible_accumulating_operations.size());
 
   score -= possibleAccumulator.outside_references * OUTSIDE_REFERENCE_PENALTY;
 

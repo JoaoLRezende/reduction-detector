@@ -28,7 +28,7 @@ void detectPossibleAccumulatorReferencesInRHSOfPossibleAccumulatingStatements(
     PossibleReductionLoopInfo &loop_info, ASTContext *context) {
   for (auto &possibleAccumulator : loop_info.possible_accumulators) {
     for (auto &possibleAccumulatingOperation :
-         possibleAccumulator.second.possible_accumulating_assignments) {
+         possibleAccumulator.second.possible_accumulating_operations) {
       // If possibleAccumulatingOperation is an increment or decrement
       // expression, we act as if it were an assignment expression whose
       // left-hand side also appears in its right-hand side. (++i is equivalent

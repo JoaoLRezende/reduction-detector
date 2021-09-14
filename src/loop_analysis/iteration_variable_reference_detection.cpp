@@ -37,7 +37,7 @@ void detectIterationVariableReferencesInPossibleAccumulatingStatements(
 
   for (auto &possibleAccumulatorInfo : loopInfo.possible_accumulators) {
     for (auto &possibleAccumulatingAssignment :
-         possibleAccumulatorInfo.second.possible_accumulating_assignments) {
+         possibleAccumulatorInfo.second.possible_accumulating_operations) {
       SimpleBooleanMatchCallback simpleBooleanMatchCallback;
       MatchFinder iterationVariableReferenceFinder;
       iterationVariableReferenceFinder.addMatcher(

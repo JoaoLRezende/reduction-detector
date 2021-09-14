@@ -156,9 +156,9 @@ public:
          PossibleAccumulatorInfo(possible_accumulator,
                                  possible_possible_accumulator_base)});
 
-    inserted_map_node.first->second.possible_accumulating_assignments.insert(
+    inserted_map_node.first->second.possible_accumulating_operations.insert(
         {possible_accumulating_operation,
-         PossibleAccumulatingAssignmentInfo()});
+         PossibleAccumulatingOperationInfo()});
   };
 };
 

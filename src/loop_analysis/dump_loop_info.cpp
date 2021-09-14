@@ -131,7 +131,7 @@ void PossibleReductionLoopInfo::dump(llvm::raw_ostream &outputStream,
         outputStream << INDENT
             "It might be accumulated in the following assignments:\n";
         for (auto &accumulatingAssignment :
-             possibleAccumulator.second.possible_accumulating_assignments) {
+             possibleAccumulator.second.possible_accumulating_operations) {
           if (accumulatingAssignment.second
                   .rhs_also_references_possible_accumulator) {
             outputStream << INDENT INDENT;

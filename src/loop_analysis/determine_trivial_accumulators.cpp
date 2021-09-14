@@ -7,7 +7,7 @@ namespace internal {
 
 void determineTrivialAccumulators(PossibleReductionLoopInfo &loop_info) {
   for (auto &possible_accumulator : loop_info.possible_accumulators) {
-    if ((possible_accumulator.second.possible_accumulating_assignments.size() ==
+    if ((possible_accumulator.second.possible_accumulating_operations.size() ==
          possible_accumulator.second
              .number_of_possible_accumulating_assignments_whose_RHS_also_references_this) &&
         possible_accumulator.second.outside_references == 0 &&

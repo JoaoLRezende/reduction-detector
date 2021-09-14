@@ -42,7 +42,7 @@ isExpressionInOneOfPossibleAccumulatingOperationsOfPossibleAccumulator(
     const clang::Expr *expression, PossibleAccumulatorInfo &possibleAccumulator,
     clang::ASTContext *context) {
   for (auto &possibleAccumulatingOperation :
-       possibleAccumulator.possible_accumulating_assignments) {
+       possibleAccumulator.possible_accumulating_operations) {
     if (isExpressionInExpression(
             expression, possibleAccumulatingOperation.first, context)) {
       return true;

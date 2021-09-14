@@ -17,10 +17,10 @@ namespace internal {
  * analysis passes.
  * * * */
 
-// One instance of PossibleAccumulatingAssignmentInfo describes an
+// One instance of PossibleAccumulatingOperationInfo describes an
 // assignment, increment or decrement operation that modifies a possible
 // accumulator in a loop.
-struct PossibleAccumulatingAssignmentInfo {
+struct PossibleAccumulatingOperationInfo {
   // rhs_also_references_possible_accumulator is true if this is an assignment
   // expression whose right-hand side also references the possible accumulator
   // or if this is an increment or decrement operation.
@@ -63,14 +63,14 @@ struct PossibleAccumulatorInfo {
 
   /* A possible accumulating operation is an expression that is in the loop and
    * whose evaluation, as a side effect, modifies the value of the possible
-   * accumulator. The map possible_accumulating_assignments maps each such
-   * expression to an instance of PossibleAccumulatingAssignmentInfo that
+   * accumulator. The map possible_accumulating_operations maps each such
+   * expression to an instance of PossibleAccumulatingOperationInfo that
    * describes it. Every possible accumulating operation is represented either
    * by clang::BinaryOperator or by clang::UnaryOperator (which are subtypes of
    * clang::Expr).
    */
-  std::map<const clang::Expr *, PossibleAccumulatingAssignmentInfo>
-      possible_accumulating_assignments;
+  std::map<const clang::Expr *, PossibleAccumulatingOperationInfo>
+      possible_accumulating_operations;
 
   int declaration_distance_from_loop_in_lines = -1;
 
@@ -202,7 +202,7 @@ void getDistanceOfDeclarationOfPossibleAccumulators(
 // the variable in its left-hand side (which is a possible accumulator) also
 // appears in its right-hand side (like in acc = acc + array[i]) or the
 // assignment is a compound assignment (like acc += array[i]). Update the
-// instances of PossibleAccumulatingAssignmentInfo that describe those
+// instances of PossibleAccumulatingOperationInfo that describe those
 // assignments accordingly.
 void detectPossibleAccumulatorReferencesInRHSOfPossibleAccumulatingStatements(
     PossibleReductionLoopInfo &loop_info, clang::ASTContext *context);
