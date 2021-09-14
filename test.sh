@@ -1,6 +1,7 @@
 #!/bin/bash
 
-arguments="--print-non-reduction-loops --report-unlikely-accumulators"
+arguments="--print-non-reduction-loops --report-unlikely-accumulators
+           --detect-increment-accumulations"
 
 # CLANG_ARGUMENTS can be used to inform the tool of where to find system header
 # files (for example, if you see errors like "fatal error: 'stddef.h' file

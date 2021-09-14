@@ -1,7 +1,9 @@
+#include "../command_line.h"
+#include "../constants.h"
 #include "internal.h"
 #include "loop_analysis.h"
 
-#include "../constants.h"
+#include "llvm/Support/CommandLine.h"
 
 #include "clang/AST/ASTContext.h"
 using clang::ASTContext;
@@ -17,6 +19,14 @@ using clang::ast_matchers::MatchFinder;
 namespace reduction_detector {
 namespace loop_analysis {
 namespace internal {
+
+// Define command-line option --detect-increment-accumulations.
+static llvm::cl::opt<bool> detect_increment_accumulations(
+    "detect-increment-accumulations",
+    llvm::cl::desc("Recognize unary increment and decrement operations as "
+                   "possibly accumulating operations "),
+    llvm::cl::cat(reduction_detector::command_line_options::
+                      reduction_detector_option_category));
 
 // Check whether a clang::ValueDecl (for example, a declaration of the base of a
 // possible accumulator) is a descendant of a clang::Stmt (for example, a loop
@@ -191,10 +201,12 @@ void getPossibleAccumulatorsIn(PossibleReductionLoopInfo *loop_info,
       clang::ast_matchers::findAll(
           possiblePossibleAccumulatingAssignmentMatcher),
       &possibleAccumulatorFinder);
-  possibleAccumulatingAssignmentFinder.addMatcher(
-      clang::ast_matchers::findAll(
-          possiblePossibleAccumulatingUnaryOperationMatcher),
-      &possibleAccumulatorFinder);
+  if (detect_increment_accumulations) {
+    possibleAccumulatingAssignmentFinder.addMatcher(
+        clang::ast_matchers::findAll(
+            possiblePossibleAccumulatingUnaryOperationMatcher),
+        &possibleAccumulatorFinder);
+  }
 
   possibleAccumulatingAssignmentFinder.match(*loop_info->loop_stmt, *context);
 }

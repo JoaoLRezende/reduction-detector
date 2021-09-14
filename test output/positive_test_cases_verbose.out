@@ -106,18 +106,6 @@ for (; i > array_size; --i) {
 I couldn't determine its iteration variable.
 Likely accumulators: sum
 
-    sum was detected as a likely accumulator (score: 15). But it is a trivial accumulator.
-    Its base is sum, which was declared 1 lines above the loop.
-    Its name has the substring "sum".
-    It might be accumulated in the following assignments:
-        sum = 2 + array[i] + sum
-    0 of those assignments involve the loop's iteration variable.
-    There are 0 other in-loop references to sum outside of those possible accumulating assignments.
-    The value acquired by sum in the loop does not seem to be abandoned after the loop.
-    The first reference to sum after the loop is in the expression "sum".
-    It is a local variable.
-    It does not seem to be a dereference of an inconstant pointer.
-
     i was detected as a possible accumulator, but not as a likely one (score: 3). It is not a trivial accumulator.
     Its base is i, which was declared 1 lines above the loop.
     Its name doesn't have any of the common accumulator-name substrings.
@@ -127,6 +115,18 @@ Likely accumulators: sum
     There are 2 other in-loop references to i outside of those possible accumulating assignments.
     The value acquired by i in the loop seems to be abandoned after the loop.
     It is never referenced after the loop.
+    It is a local variable.
+    It does not seem to be a dereference of an inconstant pointer.
+
+    sum was detected as a likely accumulator (score: 15). But it is a trivial accumulator.
+    Its base is sum, which was declared 1 lines above the loop.
+    Its name has the substring "sum".
+    It might be accumulated in the following assignments:
+        sum = 2 + array[i] + sum
+    0 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to sum outside of those possible accumulating assignments.
+    The value acquired by sum in the loop does not seem to be abandoned after the loop.
+    The first reference to sum after the loop is in the expression "sum".
     It is a local variable.
     It does not seem to be a dereference of an inconstant pointer.
 
@@ -158,19 +158,7 @@ for (size_t i = 0; i < arrays_size; ++i) {
 }
 Its iteration variable is i.
 Arrays subscripted by i: array1 (2 accesses), array2 (1 accesses).
-Likely accumulators: sum_of_array1 sum_of_both_arrays
-
-    sum_of_array1 was detected as a likely accumulator (score: 10). But it is a trivial accumulator.
-    Its base is sum_of_array1, which was declared 2 lines above the loop.
-    Its name has the substring "sum".
-    It might be accumulated in the following assignments:
-        sum_of_array1 += array1[i]
-    1 of those assignments involve the loop's iteration variable.
-    There are 0 other in-loop references to sum_of_array1 outside of those possible accumulating assignments.
-    The value acquired by sum_of_array1 in the loop seems to be abandoned after the loop.
-    It is never referenced after the loop.
-    It is a local variable.
-    It does not seem to be a dereference of an inconstant pointer.
+Likely accumulators: sum_of_both_arrays sum_of_array1
 
     sum_of_both_arrays was detected as a likely accumulator (score: 15). But it is a trivial accumulator.
     Its base is sum_of_both_arrays, which was declared 1 lines above the loop.
@@ -182,6 +170,18 @@ Likely accumulators: sum_of_array1 sum_of_both_arrays
     There are 0 other in-loop references to sum_of_both_arrays outside of those possible accumulating assignments.
     The value acquired by sum_of_both_arrays in the loop does not seem to be abandoned after the loop.
     The first reference to sum_of_both_arrays after the loop is in the expression "sum_of_both_arrays".
+    It is a local variable.
+    It does not seem to be a dereference of an inconstant pointer.
+
+    sum_of_array1 was detected as a likely accumulator (score: 10). But it is a trivial accumulator.
+    Its base is sum_of_array1, which was declared 2 lines above the loop.
+    Its name has the substring "sum".
+    It might be accumulated in the following assignments:
+        sum_of_array1 += array1[i]
+    1 of those assignments involve the loop's iteration variable.
+    There are 0 other in-loop references to sum_of_array1 outside of those possible accumulating assignments.
+    The value acquired by sum_of_array1 in the loop seems to be abandoned after the loop.
+    It is never referenced after the loop.
     It is a local variable.
     It does not seem to be a dereference of an inconstant pointer.
 
