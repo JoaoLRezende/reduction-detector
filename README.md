@@ -16,7 +16,7 @@ See the related to-do items in the to-do list at [reduction-detector.cpp][4].
 [4]: <src/reduction-detector.cpp>
 
 
-As a rudimentary form of regression testing, we watch closely changes in the output of the tests run by `test.sh`. After making any changes to the program, we run `test.sh` and, by using something like `diff`, we ensure that any changes introduced in the output files are intended (or that unintended results that should be fixed later are properly documented).
+As a rudimentary form of regression testing, we watch closely changes in the output of the tests run by `test.sh`. After making any changes to the program, before committing, we run `test.sh` and, by using `git diff`, we ensure that all changes introduced in the output files are intended (or that unintended results that should be fixed later are properly documented).
 
 ***
 
