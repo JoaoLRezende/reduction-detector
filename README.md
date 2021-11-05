@@ -25,9 +25,9 @@ As a rudimentary form of regression testing, we watch closely changes in the out
 On Ubuntu 20.04, you might first need to execute
 <pre><code>sudo apt install <a href="https://packages.ubuntu.com/focal/zlib1g-dev">zlib1g-dev</a></code></pre>
 
-reduction-detector links against LLVM 12.0.0. Download [a build of LLVM 12.0.0][3], change the value of `LLVM_PATH` in our makefile accordingly, and then run `make`. The program will be built as `build/reduction-detector`.
+reduction-detector links against LLVM 12.0.0. Download [a build of LLVM 12.0.0][5], change the value of `LLVM_PATH` in our makefile accordingly, and then run `make`. The program will be built as `build/reduction-detector`.
 
-[3]: <https://github.com/llvm/llvm-project/releases/tag/llvmorg-12.0.0#:~:text=566%20Bytes-,clang%2Bllvm-12.0.0-x86_64-linux-gnu-ubuntu-20.04.tar.xz,-432%20MB>
+[5]: <https://github.com/llvm/llvm-project/releases/tag/llvmorg-12.0.0#:~:text=566%20Bytes-,clang%2Bllvm-12.0.0-x86_64-linux-gnu-ubuntu-20.04.tar.xz,-432%20MB>
 
 ***
 
@@ -40,11 +40,11 @@ build/reduction-detector "test cases"
 
 Use `--help` to see other possible arguments.
 
-Like other Clang-based tools, reduction-detector benefits greatly from a JSON [compilation database][4] describing the program under analysis (including, for example, the location of its header files). Without one, you'll probably see many parsing errors and receive very incomplete output. See [this][5] and [this][6].
+Like other Clang-based tools, reduction-detector benefits greatly from a JSON [compilation database][6] describing the program under analysis (including, for example, the location of its header files). Without one, you'll probably see many parsing errors and receive very incomplete output. See [this][7] and [this][8].
 
-[4]: <https://eli.thegreenplace.net/2014/05/21/compilation-databases-for-clang-based-tools> (Eli Bendersky's very good introduction to compilation databases)
-[5]: <https://clang.llvm.org/docs/JSONCompilationDatabase.html> (Official Clang documentation)
-[6]: <https://sarcasm.github.io/notes/dev/compilation-database.html> (Other good stuff I found on Google)
+[6]: <https://eli.thegreenplace.net/2014/05/21/compilation-databases-for-clang-based-tools> (Eli Bendersky's very good introduction to compilation databases)
+[7]: <https://clang.llvm.org/docs/JSONCompilationDatabase.html> (Official Clang documentation)
+[8]: <https://sarcasm.github.io/notes/dev/compilation-database.html> (Other good stuff I found on Google)
 
 By default, reduction-detector writes its output to `detected_reductions.out`.
 
