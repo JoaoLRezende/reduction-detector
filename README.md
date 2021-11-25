@@ -25,17 +25,29 @@ As a rudimentary form of regression testing, we watch closely changes in the out
 On Ubuntu 20.04, you might first need to execute
 <pre><code>sudo apt install <a href="https://packages.ubuntu.com/focal/zlib1g-dev">zlib1g-dev</a></code></pre>
 
-reduction-detector links against LLVM 12.0.0. Download [a build of LLVM 12.0.0][5], change the value of `LLVM_PATH` in our makefile accordingly, and then run `make`. The program will be built as `build/reduction-detector`.
+reduction-detector links against LLVM 12.0.0. Download [a build of LLVM 12.0.0][5], change the value of `LLVM_PATH` in our makefile accordingly, and then run `make`. The program will be built as a single, statically-linked executable file `build/reduction-detector`.
 
 [5]: <https://github.com/llvm/llvm-project/releases/tag/llvmorg-12.0.0#:~:text=566%20Bytes-,clang%2Bllvm-12.0.0-x86_64-linux-gnu-ubuntu-20.04.tar.xz,-432%20MB>
+
+
+To use reduction-detector, you should also have Clang 12 installed[^1]. After building reduction-detector, copy it into the same directory where Clang resides (which is usually `/usr/bin`). This can be done with the following command line:
+```Bash
+sudo cp build/reduction-detector "$(dirname "$(type -p clang)")"
+```
+(Besides putting reduction-detector in your PATH, this also is important for reasons discussed [here][5.5].) Then, you can invoke the program as `reduction-detector`.
+
+[^1]: It is indeed important to have Clang 12 specifically, which can be installed with `sudo apt install clang-12` on Ubuntu. This is because our tool looks for system header files in `/usr/lib/clang/12.0.0/include`.
+
+[5.5]: <https://clang.llvm.org/docs/LibTooling.html#builtin-includes>
+
 
 ***
 
 # Usage
 
 You can invoke reduction-detector on an individual C file or on a tree with multiple C files. For example:
-```
-build/reduction-detector "test cases"
+```Bash
+reduction-detector "test cases"
 ```
 
 Use `--help` to see other possible arguments.
@@ -61,4 +73,4 @@ build/reduction-detector ../openssl-master -- -I ../openssl-master/include
 ```
  
 ### I did do that. Why does reduction-detector still complain that it can't find some standard header files (for example, <stddef.h>)?
-It might not be looking in the right places. If your system compiler _does_ find those standard header files when you compile stuff, it might help to make reduction-detector search for header files in the same places as your system compiler. If you execute `gcc -x c - -E -v <<< ""`, GCC will, among other things, tell you the directories in which it looks for system header files. (You can replace `gcc` with `clang`, if that's what you use.)
+This probably is a consequence of not having Clang 12 installed, or of not having copied reduction-detector into the right place, as described above. If you execute `reduction-detector <an arbitrary C file> -- -v`, reduction-detector will, among other things, tell you the directories in which it looks for system header files. That list should include a directory like `/usr/lib/clang/12.0.0/include`. If it doesn't, then you might not have copied reduction-detector into the right place. If reduction-detector complains that such a directory doesn't exist, then you might not have the right version of Clang installed.

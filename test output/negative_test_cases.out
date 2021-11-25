@@ -12,7 +12,7 @@ for (size_t i = 0; i < array_size; ++i) {
 Likely accumulators:
 
 Unlikely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/non-reduction loops/artificial non-examples.c:30:3:
-while (walker != ((void *)0))
+while (walker != __null)
     {
         walker->a_number += 1;
         walker = walker->next;

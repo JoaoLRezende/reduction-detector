@@ -3,16 +3,14 @@
 arguments="--print-non-reduction-loops --report-unlikely-accumulators
            --detect-increment-accumulations"
 
-# CLANG_ARGUMENTS can be used to inform the tool of where to find system header
-# files (for example, if you see errors like "fatal error: 'stddef.h' file
-# not found").
-CLANG_ARGUMENTS="-I /usr/lib/gcc/x86_64-linux-gnu/9/include
-                 -I /usr/lib/llvm-3.8/bin/../lib/clang/3.8.0/include
-                 -I /home/jplrez/intel/oneapi/compiler/2021.1.1/linux/compiler/include"
-
 OUTPUT_DIRECTORY="test output"
 
 cd "$(dirname "$0")"
+
+if [ -z "$(type -p reduction-detector)" ]; then
+    echo You don\'t seem to have reduction-detector in your PATH. Aborting.
+    exit
+fi
 
 function execute_on_file {
     local file="$1"
@@ -21,13 +19,11 @@ function execute_on_file {
 
     echo "Testing on $file."
     # normal output
-    build/reduction-detector  --output "${OUTPUT_DIRECTORY}/$normal_output_file" \
-                            $arguments "$file" \
-                            -- $CLANG_ARGUMENTS
+    reduction-detector  --output "${OUTPUT_DIRECTORY}/$normal_output_file" \
+                        $arguments "$file"
     # verbose output
-    build/reduction-detector --verbose --output "${OUTPUT_DIRECTORY}/$verbose_output_file" \
-                            $arguments "$file" \
-                            -- $CLANG_ARGUMENTS
+    reduction-detector --verbose --output "${OUTPUT_DIRECTORY}/$verbose_output_file" \
+                       $arguments "$file"
 }
 
 execute_on_file "test cases/reduction loops/artificial examples.c" \
