@@ -21,16 +21,19 @@ llvm::cl::opt<bool> debugInputFiles(
     llvm::cl::desc("Write list of all analyzed source files to stderr"),
     llvm::cl::cat(command_line_options::reduction_detector_option_category));
 
+static bool string_has_suffix(std::string const &big_string,
+                              std::string const &suffix) {
+  if (suffix.size() > big_string.size())
+    return false;
+  return std::equal(suffix.rbegin(), suffix.rend(), big_string.rbegin());
+}
+
 /*
  * Decide whether a regular file is one we should analyze.
  */
-static bool isProperInputFile(std::string fileName, struct stat *stat_struct) {
-  return fileName.find(".c") != std::string::npos ||
-         fileName.find(".cpp") !=
-             std::string::npos; // TODO: this is catching files ending in ".cg"
-                                // and ".commons" and "README.carefully" and a
-                                // bunch of other weird stuff. check
-                                // suffix only.
+static bool isProperInputFile(std::string file_name, struct stat *stat_struct) {
+  return string_has_suffix(file_name, ".c") ||
+         string_has_suffix(file_name, ".cpp");
 }
 
 static void dump_string_vector(std::vector<std::string> &vector) {
@@ -96,5 +99,5 @@ void expand_directories(std::vector<std::string> &input_list,
     llvm::errs() << "\n";
   }
 }
-}
-}
+} // namespace translation_unit_finder
+} // namespace reduction_detector
