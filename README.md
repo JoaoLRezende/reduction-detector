@@ -62,6 +62,16 @@ By default, reduction-detector writes its output to `detected_reductions.out`.
 
 ***
 
+# Referencing reduction-detector
+
+In scientific works that involve usage of reduction-detector, we ask that the following article be referenced:
+
+> João Rezende, Edevaldo Santos, and Gerson Cavalheiro. 2021. Detecção de operações de redução em programas C. In Anais do XXII Simpósio em Sistemas Computacionais de Alto Desempenho, outubro 26, 2021, Belo Horizonte/MG, Brasil. SBC, Porto Alegre, Brasil, 204-215.
+
+For other citation styles or BibTeX meta-data, see [here](https://sol.sbc.org.br/index.php/wscad/article/view/18524).
+
+***
+
 # FAQ
  
 ### Why does reduction-detector complain that it can't find header files included by the C files being analyzed?
