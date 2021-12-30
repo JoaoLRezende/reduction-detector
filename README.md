@@ -74,15 +74,13 @@ For other citation styles or BibTeX meta-data, see [here](https://sol.sbc.org.br
 
 # FAQ
  
-<details><summary>Why does reduction-detector complain that it can't find header files included by the C files being analyzed?</summary>
+### Why does reduction-detector complain that it can't find header files included by the C files being analyzed?
 This is usually caused by a lack of a compilation database. To analyze a C program, reduction-detector needs to be able to find header files `#include`d by it. (Clang's parser reasonably aborts with an error message if it can't find a header file `#include`d by a C translation unit.) If those header files aren't in the same directories as the source files that include them (for example, if they are in a separate `include` directory), you'll have to either create a compilation database or directly tell reduction-detector where to find them. You can do the latter by using the [`-I`](https://clang.llvm.org/docs/ClangCommandLineReference.html#include-path-management) option after a double dash (`--`). (The arguments passed after `--` are captured by the Clang tooling we use internally.)
  
 For example, the following command line could be used to analyze a copy of the source code of [OpenSSL](https://github.com/openssl/openssl) that sits at `../openssl-master`:
 ```
 build/reduction-detector ../openssl-master -- -I ../openssl-master/include
 ```
-</details>
  
-<details><summary>I did do that. Why does reduction-detector still complain that it can't find some standard header files (for example, <stddef.h>)?</summary>
+### I did do that. Why does reduction-detector still complain that it can't find some standard header files (for example, <stddef.h>)?
 This probably is a consequence of not having Clang 12 installed, or of not having copied reduction-detector into the right place, as described above. If you execute `reduction-detector <an arbitrary C file> -- -v`, reduction-detector will, among other things, tell you the directories in which it looks for system header files. That list should include a directory like `/usr/lib/clang/12.0.0/include`. If it doesn't, then you might not have copied reduction-detector into the right place. If reduction-detector complains that such a directory doesn't exist, then you might not have the right version of Clang installed.
-</details>
