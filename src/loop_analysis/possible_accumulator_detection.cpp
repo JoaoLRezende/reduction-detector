@@ -88,7 +88,8 @@ public:
   PossibleAccumulatorFinder(PossibleReductionLoopInfo *loop_info)
       : loop_info(loop_info) {}
 
-  // run is called by MatchFinder for each assignment expression.
+  // run is called by MatchFinder for each assignment expression
+  // or unary increment/decrement expression.
   virtual void run(const MatchFinder::MatchResult &result) {
     // We receive either an assignment expression ...
     const clang::BinaryOperator *possible_possible_accumulating_assignment =
@@ -171,7 +172,7 @@ void getPossibleAccumulatorsIn(PossibleReductionLoopInfo *loop_info,
       binaryOperator(
           isAssignmentOperator(),
           hasLHS(anyOf(
-              // The LHS can be either a naked declaration-reference
+              // The LHS can be either a bare declaration-reference
               // expression ...
               declRefExpr().bind("possible_possible_accumulator_base"),
               // ... or a larger subtree that includes a
