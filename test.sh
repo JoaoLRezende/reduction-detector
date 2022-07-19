@@ -20,13 +20,11 @@ function execute_on_file {
     echo "Testing on $file."
     # normal output
     build/reduction-detector --output "${OUTPUT_DIRECTORY}/$normal_output_file" \
-                             $arguments "$file" \
-                             --
+                             $arguments "$file"
     # verbose output
     build/reduction-detector --output "${OUTPUT_DIRECTORY}/$verbose_output_file" \
                              $arguments "$file" \
-                             --verbose \
-                             --
+                             --verbose
 }
 
 execute_on_file "test cases/reduction loops/artificial examples.c" \
