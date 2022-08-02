@@ -52,7 +52,7 @@ reduction-detector "test cases"
 
 Use `--help` to see other possible arguments.
 
-Like other Clang-based tools, reduction-detector benefits greatly from a JSON [compilation database][6] describing the program under analysis (including, for example, the location of its header files). Without one, you'll probably see many parsing errors and receive very incomplete output. See [this][7] and [this][8].
+Like other Clang-based tools, reduction-detector expects to find a JSON [compilation database][6] that describes the program that will be analyzed (including, for example, the location of its header files). Without a compilation database, you might see many parsing errors and receive very incomplete output. See [this][7] and [this][8].
 
 [6]: <https://eli.thegreenplace.net/2014/05/21/compilation-databases-for-clang-based-tools> (Eli Bendersky's very good introduction to compilation databases)
 [7]: <https://clang.llvm.org/docs/JSONCompilationDatabase.html> (Official Clang documentation)
