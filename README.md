@@ -45,7 +45,11 @@ sudo cp build/reduction-detector "$(dirname "$(type -p clang)")"
 
 # Usage
 
-You can invoke reduction-detector on an individual C file or on a tree with multiple C files. For example:
+You can invoke reduction-detector on one or multiple C files by passing their names as arguments:
+```Bash
+reduction-detector source_file_1.c source_file_2.c source_file_3.c
+```
+Directories also can be passed as arguments. They are traversed recursively in search of C source files to analyze. C source files are identified by their file-name extensions. For example:
 ```Bash
 reduction-detector "test cases"
 ```
