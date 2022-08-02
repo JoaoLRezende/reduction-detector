@@ -85,9 +85,7 @@ void expand_directories(std::vector<std::string> &input_list,
     }
 
     if ((stat_struct.st_mode & S_IFMT) == S_IFREG) { // if is a regular file
-      if (isProperInputFile(path, &stat_struct)) {
-        output_list.push_back(path);
-      }
+      output_list.push_back(path);
     } else if ((stat_struct.st_mode & S_IFMT) == S_IFDIR) { // if is a directory
       get_files_in_directory(path, output_list);
     }

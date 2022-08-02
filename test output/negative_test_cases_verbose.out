@@ -27,7 +27,7 @@ Likely accumulators:
     It does not seem to be a dereference of an inconstant pointer.
 
 Unlikely reduction loop at /home/joaolrezende/Desktop/pesquisa/reduction-detector/test cases/non-reduction loops/artificial non-examples.c:30:3:
-while (walker != __null)
+while (walker != ((void *)0))
     {
         walker->a_number += 1;
         walker = walker->next;
