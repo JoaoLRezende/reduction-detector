@@ -62,6 +62,12 @@ Like other Clang-based tools, reduction-detector expects to find a JSON [compila
 [7]: <https://clang.llvm.org/docs/JSONCompilationDatabase.html> (Official Clang documentation)
 [8]: <https://sarcasm.github.io/notes/dev/compilation-database.html> (Other good stuff I found on Google)
 
+In order to execute reduction-detector without a compilation database anyway, you can terminate the command line that invokes reduction-detector with a `--` (double dash) to prevent our Clang infrastructure from searching for a compilation database. For example:
+```Bash
+reduction-detector a_sole_source_file.c --
+```
+
+
 By default, reduction-detector writes its output to `detected_reductions.out`.
 
 ***
