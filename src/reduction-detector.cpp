@@ -90,12 +90,29 @@ int main(int argc, const char **argv) {
 }
 
 /* TODO:
+ * - Encontre uma maneira de eliminar a exigência de se ter o Clang 12.0.0
+     instalado (que é uma exigência muito boba). (Os motivos dessa exigência
+     são explicados no readme.) Deve ser possível informar para o Clang, por
+     meio da API dele, diretórios onde devem ser procurados arquivos de
+     cabeçalho de sistema. Se não for, então provavelmente eu posso
+     simplesmente embrulhar o reduction-detector em um script de Bash que passe
+     para ele argumentos que mandem ele procurar por arquivos de cabeçalho em
+     lugares comuns. (Talvez seja necessário fazer ele procurar em diretórios
+     de arquivos de cabeçalho do Clang especificamente, e não em diretórios
+     associados ao GCC, já que talvez os arquivos de cabeçalho da Glibc não
+     sejam processados graciosamente pelo Clang. Não sei.) Isso poderia
+     eliminar também a exigência de copiar o reduction-detector para o mesmo
+     diretório em que o Clang está instalado. (Essa exigência, além de ser
+     idiota e sujar diretórios de sistema do computador do usuário, exige que o
+     usuário tenha privilégios de administrador.)
  * - Recognize uses of the unary increment and decrement operators
  *   as if they were reduction assignments. NPB code does at least two
  *   reductions using those. Also, note that Clang also recognizes those
  *   reductions, and thus they should be considered trivial reductions.
  * - Add a test case for a loop whose body is an expression statement,
- *   rather than a compound statement (i.e. a block).
+ *   rather than a compound statement (i.e. a block). [This has already
+ *   been done, I think. Consider reusing parts of this to-do task as
+     documentation or comments, and then delete this.]
  * - How well do we deal with nested loops? Write some test cases for that.
  * - Use deeper indentation to make reading easier. Use 4 spaces.
  *   (See how to make clang-format do that for you.)
