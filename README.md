@@ -93,4 +93,10 @@ build/reduction-detector ../openssl-master -- -I ../openssl-master/include
 ```
  
 ### I did do that. Why does reduction-detector still complain that it can't find some standard header files (for example, <stddef.h>)?
-This probably is a consequence of not having Clang 12 installed, or of not having copied reduction-detector into the right place, as described above. If you execute `reduction-detector <an arbitrary C file> -- -v`, reduction-detector will, among other things, tell you the directories in which it looks for system header files. That list should include a directory like `/usr/lib/clang/12.0.0/include`. If it doesn't, then you might not have copied reduction-detector into the right place. If reduction-detector complains that such a directory doesn't exist, then you might not have the right version of Clang installed.
+This might be a consequence of not having Clang 12 installed, or of not having copied reduction-detector into the right place, as described above. If you execute `reduction-detector <an arbitrary C file> -- -v`, reduction-detector will, among other things, tell you the directories in which it looks for system header files. That list should include a directory like `/usr/lib/clang/12.0.0/include`. If it doesn't, then you might not have copied reduction-detector into the right place. If reduction-detector complains that such a directory doesn't exist, then you might not have the right version of Clang installed.
+
+reduction-detector looks for system header files in the directory `/usr/lib/clang/12.0.0/include`, which is part of Clang 12.0.0. Thus, generally, reduction-detector will work only if you have Clang 12.0.0 installed. However, if you do not have Clang 12.0.0 but do have another version of Clang that is similar, like Clang 12.0.1 (which might have been installed by `apt install clang-12`), then you might want to direct reduction-detector to look for system header files in that version's directory instead. If you have Clang 12.0.1, that directory will be `/usr/lib/clang/12.0.1/include`. This redirection can be accomplished by creating a symbolic link via the following sequence of Bash commands:
+```bash
+cd /usr/lib/clang
+sudo ln --symbolic 12.0.1 12.0.0
+```
