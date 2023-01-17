@@ -20,6 +20,10 @@ $(info Using LLVM_PATH = $(LLVM_PATH))
 $(info Using LLVM_BIN_PATH = $(LLVM_BIN_PATH))
 $(info -----------------------------------------------)
 
+# If you see an error message of "clang++ not found" but you have
+# Clang 12 (which is required for executing reduction-detector anyway),
+# you might consider changing the value of CXX to "clang++-12" to use that
+# installation of Clang. Or execute something like "sudo apt install clang".
 CXX := clang++
 CXXFLAGS := -fno-rtti -O0 -g
 PLUGIN_CXXFLAGS := -fpic
